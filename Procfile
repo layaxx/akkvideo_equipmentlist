@@ -1,1 +1,1 @@
-web: streamlit run equipment.py
+web: streamlit run equipment.py --server.port 80
