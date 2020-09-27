@@ -1,0 +1,1 @@
+# akkvideo_equipmentlist
