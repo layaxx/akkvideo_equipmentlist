@@ -1,10 +1,11 @@
 import streamlit as st
 import pandas
 import numpy as np
-import platform
-import os
+from platform import system
+from os import listdir
+from os import linesep
 import subprocess
-import time
+from time import sleep
 from datetime import datetime
 from latex import build_pdf
 from xmlrpc.client import Binary
@@ -12,11 +13,29 @@ from io import StringIO
 
 st.title('Technikliste')
 
-
+@st.cache
 def load_data():
     # loads the csv file into a dataframe and replaces all occurances of NaN with an empty String
     data = pandas.read_csv("Inventar_akvideo.csv", delimiter=";")
+    # change format of "Index" and "Menge" rows from float to Integer
+    # make sure the .csv does not contain emoty rows, or this will fail
+    data["Index"] = data["Index"].apply(np.int64)
+    data["Menge"] = data["Menge"].apply(np.int64)
     return data.replace(np.nan, '', regex=True)
+
+def generateTable(dataFrame):
+    table = ""
+    #    Menge & Name & Standort & Preis & Anschaffungsjahr \\%
+    for index in range(len(dataFrame)):
+        table += str(dataFrame["Menge"][index]) + "&"
+        table += dataFrame["Gerätebezeichnung"][index] + "&"
+        table += dataFrame["Lagerort"][index] + "&"
+        if dataFrame["Preis"][index] == "":
+            table += "n.A." + "&"
+        else:
+            table += dataFrame["Preis"][index] + "&"
+        table += "n.A." + "\\\\%\n"
+    return table
 
 def createPDFLink(dataFrame, filtersActive):
     with open("pdf_assets/template.tex", "r") as tex:
@@ -28,8 +47,8 @@ def createPDFLink(dataFrame, filtersActive):
         text = text.replace("MESSAGE", "")
         text = text.replace("orange", "black")
     text = text.replace("DATUM", datetime.now().strftime("%d.%m.%Y"))
-    text = text.replace("IDNUMBER", "1454165")
-
+    text = text.replace("IDNUMBER", "1337")
+    text = text.replace("TABLE&&&&",generateTable(dataFrame))
 
     pdf = build_pdf(text)
 
@@ -133,15 +152,12 @@ else:
     st.write("In der Auswahl befinden sich ", anzahlGeräteInAuswahl, " Geräte, davon sind ",
              anzahlGeräteImMedienraumInAuswahl, " aktuell im Medienraum.")
 
-# change format of "Index" and "Menge" rows from float to Integer
-# make sure the .csv does not contain emoty rows, or this will fail
-data["Index"] = data["Index"].apply(np.int64)
-data["Menge"] = data["Menge"].apply(np.int64)
 
 # display interactive table, if applicable with the filters specified in the sidebar
 st.write(data)
 
-
+# TODO: you should be able to select, how devices will be sorted in the PDF
+# for example: sorted by price, sorted by name, sorted by year
 # generate PDF report
 st.subheader("Bericht generieren")
 st.write("aktuelle Auswahl als PDF speichern:")
@@ -151,21 +167,24 @@ st.info("*Diese Aktion kann 1-2 Minuten dauern.")
 if generatePDF:
     st.write("Button was pressed")
 
-    operatingSystemIsLinux = platform.system() == "Linux"
+    operatingSystemIsLinux = system() == "Linux"
     if(not operatingSystemIsLinux):
-        st.error("PDF Creation is currently not supported under windows")
+        st.error("PDF Creation is currently only supported on the server, not on localhost")
     else: 
         # check that latex is installed
-        if( os.listdir(".").count(".TinyTeX") == 0):
-            warning = st.warning("Server is currently missing important files. Download and installation could take about 1-2 minutes.")
+        if( listdir(".").count(".TinyTeX") == 0):
+            warning = st.warning("Server is currently missing important files. Download and installation could take about 2-3 minutes.")
             subprocess.run(["sh", "./latex_setup.sh"])
-            time.sleep(120) # force 2 minute wait. not optimal but better than without
+            sleep(120) # force 2 minute wait. not optimal but better than without
             warning = st.empty()
 
         if(oneOrMoreFiltersActive):
             st.warning("Achtung: PDF wird nur die ausgewählten Geräte enthalten, und einen Hinweis auf die Unvollständigkeit")
         
+        textElem = st.write("PDF wird erstellt.")
         st.markdown(createPDFLink(data, oneOrMoreFiltersActive), unsafe_allow_html=True)
+        textElem = st.empty()
+
 
 # show footer
 st.write("-------------------------------------------------")
