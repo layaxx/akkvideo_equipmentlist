@@ -130,3 +130,6 @@ dmypy.json
 
 # Visual Studio Code config files 
 .vscode/
+
+# ignore temp LaTeX files
+*_temp.tex
