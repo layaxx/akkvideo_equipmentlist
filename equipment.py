@@ -4,6 +4,7 @@ import numpy as np
 from platform import system
 from os import listdir
 from os import linesep
+from os import path
 import subprocess
 from time import sleep
 from datetime import datetime
@@ -33,6 +34,17 @@ def escapeSpecialCharacters(str):
     str = str.replace("}", "\\}")
     str = str.replace("{", "\\{")
     return str
+
+def allFilesExist():
+    with open("latex_setup.sh", "r") as reqfile:
+        lines = list(reqfile)
+        for line in lines[3:-1]:
+            if(len(line) < 10):
+                continue
+            packageName = line.split(" ")[-1][0:-2]
+            if(path.isfile(f'/app/.TinyTeX/texmf-dist/tex/latex/{packageName}/{packageName}.sty')):
+                return False
+    return True
 
 def generateTable(dataFrame):
     table = ""
@@ -185,6 +197,12 @@ if generatePDF:
         # check that latex is installed
         if( listdir(".").count(".TinyTeX") == 0):
             warning = st.warning("Server is currently missing important files. Download and installation could take about 2-3 minutes.")
+            subprocess.run(["sh", "./latex_setup.sh"])
+            sleep(120) # force 2 minute wait. not optimal but better than without
+            warning = st.empty()
+
+        if(not allFilesExist()):
+            warning = st.error("files missing. Attempting reinstall of dependencies. Could take 1-2 minutes.")
             subprocess.run(["sh", "./latex_setup.sh"])
             sleep(120) # force 2 minute wait. not optimal but better than without
             warning = st.empty()
