@@ -22,10 +22,13 @@ def load_data():
     # make sure the .csv does not contain emoty rows, or this will fail
     data["Index"] = data["Index"].apply(np.int64)
     data["Menge"] = data["Menge"].apply(np.int64)
+    data.round({'preis': 2})
     return data.replace(np.nan, '', regex=True)
 
 def escapeSpecialCharacters(str):
     # escapes all occurrences of # $ % & ~ _ ^ \ { } and escapes them in order to make them safe for latex compiling
+    if(str == ""):
+        return "n.A."
     str = str.replace("\\", "\\textbackslash")
     str = str.replace("#", "\\#")
     str = str.replace("$", "")
@@ -49,15 +52,13 @@ def allFilesExist():
 def generateTable(dataFrame):
     table = ""
     #    Menge & Name & Standort & Preis & Anschaffungsjahr \\%
-    for index in range(len(dataFrame)):
-        table += escapeSpecialCharacters(str(dataFrame["Menge"][index])) + "&"
-        table += escapeSpecialCharacters(dataFrame["Gerätebezeichnung"][index]) + "&"
-        table += escapeSpecialCharacters(dataFrame["Lagerort"][index]) + "&"
-        if dataFrame["Preis"][index] == "":
-            table += "n.A." + "&" # .csv does currently not have price for every device
-        else:
-            table += escapeSpecialCharacters(dataFrame["Preis"][index]) + "&"
-        table += "n.A." + "\\\\%\n" # .csv does currently not have information about year of purchase
+    for index, row in dataFrame.iterrows():
+        menge = escapeSpecialCharacters(str(row["Menge"]))
+        name = escapeSpecialCharacters(row["Gerätebezeichnung"])
+        lagerort = escapeSpecialCharacters(row["Lagerort"])
+        preis = escapeSpecialCharacters(row["Preis"])
+        jahr = "n.A." # .csv does currently not have information about year of purchase
+        table += f"{menge}&{name}&{lagerort}&{preis}&{jahr}\\\\%\n"    
     return table
 
 def createPDFLink(dataFrame, filtersActive):

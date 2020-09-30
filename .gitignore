@@ -134,3 +134,4 @@ dmypy.json
 # ignore temp LaTeX files
 *_temp.tex
 test.py
+test.txt
