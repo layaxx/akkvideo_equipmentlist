@@ -34,7 +34,6 @@ def format_price(val):
             after_point += "00"
             after_point = after_point[0:2]
             return decimal.Decimal(before_point + "." + after_point)
-            return decimal.Decimal(val + "00")
     if isnan(val):
         return ""
     elif type(val) == float:
