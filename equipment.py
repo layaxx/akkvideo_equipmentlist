@@ -146,19 +146,14 @@ if len(sidebar_brand) != 0:
 if not sidebar_searchbar == "":
     oneOrMoreFiltersActive = True
     keywords = sidebar_searchbar.split(" ")
-    array = []
-    for index in range(0, len(data)):
+    for index, row in data.iterrows():
         string = ""
         for kategorie in kategorien:
-            string += str(data[kategorie][index])
-        flag = False
+            string += str(row[kategorie])
         for keyword in keywords:
             if not keyword.lower() in string.lower():
-                flag = True
-        if not flag:
-            array.append(data["Gerätebezeichnung"][index])
-    # st.write(array)
-    data = data[data["Gerätebezeichnung"].isin(array)]
+                data = data.drop([index])
+                break
 
 
 if oneOrMoreFiltersActive:
@@ -178,6 +173,7 @@ else:
 
 # display interactive table, if applicable with the filters specified in the sidebar
 st.write(data)
+
 
 # TODO: you should be able to select, how devices will be sorted in the PDF
 # for example: sorted by price, sorted by name, sorted by year
