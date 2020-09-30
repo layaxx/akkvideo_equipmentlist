@@ -1,5 +1,7 @@
 wget -qO- "https://yihui.org/tinytex/install-bin-unix.sh" | sh
 
+tlmgr update --self
+
 tlmgr install lastpage
 
 tlmgr install tabu
