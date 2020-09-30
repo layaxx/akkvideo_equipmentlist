@@ -23,18 +23,29 @@ def load_data():
     data["Menge"] = data["Menge"].apply(np.int64)
     return data.replace(np.nan, '', regex=True)
 
+def escapeSpecialCharacters(str):
+    # escapes all occurrences of # $ % & ~ _ ^ \ { } and escapes them in order to make them safe for latex compiling
+    str = str.replace("\\", "\\textbackslash")
+    str = str.replace("#", "\\#")
+    str = str.replace("$", "")
+    str = str.replace("%", "\\%")
+    str = str.replace("^", "\\textasciicircum")
+    str = str.replace("}", "\\}")
+    str = str.replace("{", "\\{")
+    return str
+
 def generateTable(dataFrame):
     table = ""
     #    Menge & Name & Standort & Preis & Anschaffungsjahr \\%
     for index in range(len(dataFrame)):
-        table += str(dataFrame["Menge"][index]) + "&"
-        table += dataFrame["Gerätebezeichnung"][index] + "&"
-        table += dataFrame["Lagerort"][index] + "&"
+        table += escapeSpecialCharacters(str(dataFrame["Menge"][index])) + "&"
+        table += escapeSpecialCharacters(dataFrame["Gerätebezeichnung"][index]) + "&"
+        table += escapeSpecialCharacters(dataFrame["Lagerort"][index]) + "&"
         if dataFrame["Preis"][index] == "":
-            table += "n.A." + "&"
+            table += "n.A." + "&" # .csv does currently not have price for every device
         else:
-            table += dataFrame["Preis"][index] + "&"
-        table += "n.A." + "\\\\%\n"
+            table += escapeSpecialCharacters(dataFrame["Preis"][index]) + "&"
+        table += "n.A." + "\\\\%\n" # .csv does currently not have information about year of purchase
     return table
 
 def createPDFLink(dataFrame, filtersActive):
