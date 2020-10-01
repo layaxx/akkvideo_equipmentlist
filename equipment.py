@@ -2,17 +2,13 @@ import streamlit as st
 import pandas
 import numpy as np
 from platform import system
-from os import listdir
-from os import linesep
 from os import path
 import subprocess
-from time import sleep
 from datetime import datetime
 from latex import build_pdf
-from xmlrpc.client import Binary
-from io import StringIO
 from math import isnan
 import decimal 
+from base64 import b64encode
 
 st.title('Technikliste')
 
@@ -98,38 +94,39 @@ def create_pdf_downloadlink(dataframe, filters_are_active):
     # this function inserts the current date, an identification number (TODO: WIP: ID Number for PDFs), a table of all selected devices and 
     # a message, if filters are active (and therefore not all devices that are tracked will be in the pdf) 
     # TODO: this is not necessarily true, as filters could be set that include every tracked device
-    # TODO: currently the PDF is saved after creation and before encoding it in base64. this may be unnecessary
     # TODO: add verification of IDs
     # TODO: add logging, maybe save .tex files for every export instead of .pdf files to save storage space
 
+    # load LaTeX Template
     with open("pdf_assets/template.tex", "r") as tex:
-        text = tex.read()
+        template = tex.read()
 
+    # replace placeholders in the templates with actual values
     if filters_are_active:    
-        text = text.replace("MESSAGE", "Dies ist eine unvollständige Liste")
+        template = template.replace("MESSAGE", "Dies ist eine unvollständige Liste")
     else:
-        text = text.replace("MESSAGE", "")
-        text = text.replace("orange", "black")
+        template = template.replace("MESSAGE", "")
+        template = template.replace("orange", "black")
 
-    text = text.replace("DATUM", datetime.now().strftime("%d.%m.%Y"))
-    text = text.replace("IDNUMBER", "1337")
-    text = text.replace("TABLE&&&&",generate_latex_table_from(dataframe))
+    template = template.replace("DATUM", datetime.now().strftime("%d.%m.%Y"))
+    template = template.replace("IDNUMBER", "1337") # ID is currently not implemented
+    template = template.replace("TABLE&&&&",generate_latex_table_from(dataframe))
 
-    pdf = build_pdf(text)
+    # Compile LaTeX Code to Data object
+    pdf = build_pdf(template)
+    # convert Data Object to Bytes
+    pdf_binary = bytes(pdf)
+    # Base64 encode the bytes
+    pdf_base64 = b64encode(pdf_binary)
+    # convert to string and trim 
+    pdf_base64_string = str(pdf_base64)[2:-1]
+    
+    # create a filename with the current date
+    filename = "technikliste_"+ datetime.now().strftime("%Y-%m-%d") + ".pdf"
 
-    filename = datetime.now().strftime("%Y-%m-%d--%H-%M-%S") + ".pdf"
-
-    pdf.save_to(filename)
-
-    with open(filename, "rb") as handle:
-        binary_encoded_pdf = Binary(handle.read())
-        stream = StringIO("")
-        binary_encoded_pdf.encode(stream)
-        b64_encoded_pdf = stream.getvalue()[15:-18]
-        filename = "technikliste_"+ datetime.now().strftime("%Y-%m-%d") + ".pdf"
-        download_link = f'<a href="data:file/pdf;base64,{b64_encoded_pdf}" download="{filename}">Download pdf file</a>'
-        return download_link
-
+    # create and return actual download-link with base64 encoded pdf and filename
+    download_link = f'<a href="data:file/pdf;base64,{pdf_base64_string}" download="{filename}">PDF Datei Herunterladen</a>'
+    return download_link
 
 # Create a text element and let the reader know the data is loading.
 # Not really necessary as long as the .csv is somewhat short
@@ -163,31 +160,31 @@ sidebar_containers = st.sidebar.multiselect(
 sidebar_brands = st.sidebar.multiselect(
     "Marke eingrenzen", data["Marke"].unique())
 
-oneOrMoreFiltersActive = False
+one_or_more_filters_are_active = False
 
 # apply filters to data, if specified
 if len(sidebar_indices) != 0:
     data = data[(data['Index'].isin(sidebar_indices))]
-    oneOrMoreFiltersActive = True
+    one_or_more_filters_are_active = True
 
 if len(sidebar_categories) != 0:
     data = data[(data['Kategorie'].isin(sidebar_categories))]
-    oneOrMoreFiltersActive = True
+    one_or_more_filters_are_active = True
 
 if len(sidebar_locations) != 0:
     data = data[(data['Lagerort'].isin(sidebar_locations))]
-    oneOrMoreFiltersActive = True
+    one_or_more_filters_are_active = True
 
 if len(sidebar_containers) != 0:
     data = data[(data['Behälter'].isin(sidebar_containers))]
-    oneOrMoreFiltersActive = True
+    one_or_more_filters_are_active = True
 
 if len(sidebar_brands) != 0:
     data = data[(data['Marke'].isin(sidebar_brands))]
-    oneOrMoreFiltersActive = True
+    one_or_more_filters_are_active = True
 
 if not sidebar_searchterm == "":
-    oneOrMoreFiltersActive = True
+    one_or_more_filters_are_active = True
     keywords = sidebar_searchterm.split(" ")
     for index, row in data.iterrows():
         string = ""
@@ -199,7 +196,7 @@ if not sidebar_searchterm == "":
                 break
 
 
-if oneOrMoreFiltersActive:
+if one_or_more_filters_are_active:
     st.subheader("Alle Geräte:")
 else:
     st.subheader("Ausgewählte Geräte:")
@@ -218,7 +215,7 @@ else:
 st.write(data)
 
 
-# TODO: you should be able to select, how devices will be sorted in the PDF
+# TODO: you should be able to select how devices will be sorted in the PDF
 # for example: sorted by price, sorted by name, sorted by year
 # generate PDF report
 st.subheader("Bericht generieren")
@@ -227,31 +224,27 @@ button_generate_pdf = st.button("PDF generieren*")
 st.info("*Diese Aktion kann 1-2 Minuten dauern.")
 
 if button_generate_pdf:
-    st.write("Button was pressed")
-
     operatingSystemIsLinux = system() == "Linux"
+
     if(not operatingSystemIsLinux):
         st.error("PDF Creation is currently only supported on the server, not on localhost")
     else: 
-        # check that latex is installed
-        if( listdir(".").count(".TinyTeX") == 0):
-            warning = st.warning("Server is currently missing important files. Download and installation could take about 2-3 minutes.")
-            subprocess.run(["sh", "./latex_setup.sh"])
-            sleep(120) # force 2 minute wait. not optimal but better than without
-            warning = st.empty()
-
+        # check that all required latex packages are in the location they are excpected to be in
         if(not check_if_all_packages_are_installed()):
             warning = st.error("files missing. Attempting reinstall of dependencies. Could take 2-3 minutes.")
-            subprocess.run(["sh", "./latex_setup.sh"])
-            sleep(120) # force 2 minute wait. not optimal but better than without
+            with st.spinner('Notwendige LaTeX Pakete werden installiert'):
+                subprocess.run(["sh", "./latex_setup.sh"])
             warning = st.empty()
 
-        if(oneOrMoreFiltersActive):
+        # show warning that pdf will have reference to the fact that not all devices are included
+        if(one_or_more_filters_are_active):
             st.warning("Achtung: PDF wird nur die ausgewählten Geräte enthalten, und einen Hinweis auf die Unvollständigkeit")
         
-        text_progress = st.write("PDF wird erstellt.")
-        st.markdown(create_pdf_downloadlink(data, oneOrMoreFiltersActive), unsafe_allow_html=True)
-        text_progress = st.empty()
+        # create PDF and show download link
+        with st.spinner('PDF wird erstellt'):
+            pdf_link = create_pdf_downloadlink(data, one_or_more_filters_are_active)
+        st.success('Fertig!')
+        st.markdown(pdf_link, unsafe_allow_html=True)
 
 
 # display footer
