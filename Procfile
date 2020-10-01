@@ -1,1 +1,1 @@
-web: sh setup.sh & latex_setup.sh & streamlit run equipment.py
+web: sh setup.sh & sh latex_setup.sh & streamlit run equipment.py
