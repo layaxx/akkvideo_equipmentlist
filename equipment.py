@@ -234,9 +234,13 @@ if button_generate_pdf:
         
         # create PDF and show download link
         with st.spinner('PDF wird erstellt'):
-            pdf_link = create_pdf_downloadlink(data, one_or_more_filters_are_active)
-        st.success('Fertig!')
-        st.markdown(pdf_link, unsafe_allow_html=True)
+            try:
+                pdf_link = create_pdf_downloadlink(data, one_or_more_filters_are_active)
+                st.success('Fertig!')
+                st.markdown(pdf_link, unsafe_allow_html=True)
+            except: 
+                st.error("PDF konnte leider nicht generiert werden. Bitte versuche es in 2 Minuten erneut.")
+      
 
 
 # display footer
