@@ -93,7 +93,6 @@ def create_pdf_downloadlink(dataframe, filters_are_active):
     # the PDF is based on the LaTeX File ./pdf_assets/template.tex
     # this function inserts the current date, an identification number (TODO: WIP: ID Number for PDFs), a table of all selected devices and 
     # a message, if filters are active (and therefore not all devices that are tracked will be in the pdf) 
-    # TODO: this is not necessarily true, as filters could be set that include every tracked device
     # TODO: add verification of IDs
     # TODO: add logging, maybe save .tex files for every export instead of .pdf files to save storage space
 
@@ -160,31 +159,23 @@ sidebar_containers = st.sidebar.multiselect(
 sidebar_brands = st.sidebar.multiselect(
     "Marke eingrenzen", data["Marke"].unique())
 
-one_or_more_filters_are_active = False
-
 # apply filters to data, if specified
 if len(sidebar_indices) != 0:
     data = data[(data['Index'].isin(sidebar_indices))]
-    one_or_more_filters_are_active = True
 
 if len(sidebar_categories) != 0:
     data = data[(data['Kategorie'].isin(sidebar_categories))]
-    one_or_more_filters_are_active = True
 
 if len(sidebar_locations) != 0:
     data = data[(data['Lagerort'].isin(sidebar_locations))]
-    one_or_more_filters_are_active = True
 
 if len(sidebar_containers) != 0:
     data = data[(data['Behälter'].isin(sidebar_containers))]
-    one_or_more_filters_are_active = True
 
 if len(sidebar_brands) != 0:
     data = data[(data['Marke'].isin(sidebar_brands))]
-    one_or_more_filters_are_active = True
 
 if not sidebar_searchterm == "":
-    one_or_more_filters_are_active = True
     keywords = sidebar_searchterm.split(" ")
     for index, row in data.iterrows():
         string = ""
@@ -195,17 +186,18 @@ if not sidebar_searchterm == "":
                 data = data.drop([index])
                 break
 
+# calculate amount of devices in selection
+amount_devices_selected = len(data["Lagerort"])
+# calculate amount of devices in selection and with location "Medienraum"
+amount_devices_selected_in_medienraum = data["Lagerort"].to_list().count(
+    "Medienraum")
 
-if one_or_more_filters_are_active:
+one_or_more_filters_are_active = not (amount_devices_selected == amount_devices_total )
+
+if not one_or_more_filters_are_active:
     st.subheader("Alle Geräte:")
 else:
     st.subheader("Ausgewählte Geräte:")
-
-    # calculate amount of devices in selection
-    amount_devices_selected = len(data["Lagerort"])
-    # calculate amount of devices in selection and with location "Medienraum"
-    amount_devices_selected_in_medienraum = data["Lagerort"].to_list().count(
-        "Medienraum")
 
     st.write("In der Auswahl befinden sich ", amount_devices_selected, " Geräte, davon sind ",
              amount_devices_selected_in_medienraum, " aktuell im Medienraum.")
