@@ -38,7 +38,6 @@ def format_price(val):
 
 @st.cache
 def load_data():
-
     # loads the csv file into a dataframe and replaces all occurances of NaN with an empty String
     data = pandas.read_csv("Inventar_akvideo.csv", delimiter=";")
     # change format of "Index" and "Menge" rows from float to Integer
@@ -64,8 +63,12 @@ def check_if_all_packages_are_installed():
         for line in lines:
             if(line.startswith("tlmgr install")):
                 name_of_latex_package = line.split(" ")[-1].strip()
-                if(not path.isfile(f'/app/.TinyTeX/texmf-dist/tex/latex/{name_of_latex_package}/{name_of_latex_package}.sty')):
-                    return False
+                if(name_of_latex_package == "ms"):
+                    if(not path.isfile(f'/app/.TinyTeX/texmf-dist/tex/latex/ms/everysel.sty')):
+                        return False
+                else:
+                    if(not path.isfile(f'/app/.TinyTeX/texmf-dist/tex/latex/{name_of_latex_package}/{name_of_latex_package}.sty')):
+                        return False
     return True
 
 def generate_latex_table_from(dataframe):
