@@ -12,4 +12,3 @@ tlmgr install colortbl
 tlmgr install fancyhdr
 tlmgr install ragged2e
 tlmgr install ms
-tlmgr install textcomp
