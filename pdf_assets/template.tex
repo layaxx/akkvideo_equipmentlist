@@ -2,9 +2,9 @@
 \usepackage[T1]{fontenc}%
 \usepackage[utf8]{inputenc}%
 \usepackage{lmodern}%
-%\usepackage{textcomp}%
+\usepackage{textcomp}%
 \usepackage{lastpage}%
-\usepackage[head=30pt,margin=0.6in,bottom=1.2in,includeheadfoot=True]{geometry}%
+\usepackage[foot=49pt,head=131pt,headsep=10pt,margin=0.6in,top=-30pt,bottom=1in,includeheadfoot=True]{geometry}
 %\usepackage{color}%
 \usepackage{tabu}%
 \usepackage{ragged2e}%
@@ -40,23 +40,21 @@
 \end{minipage}%
 }%
 \fancyfoot[C]{ 
-\begin{tabularx}{\textwidth}{X X X}%
-\multicolumn{3}{l}{\textcolor{orange}{ 
+\begin{tabularx}{\textwidth}{X X}%
+\multicolumn{2}{l}{\textcolor{orange}{ 
 MESSAGE%
 }}\\%
 \arrayrulecolor{orange}%
 \hline%
-&&\\%
-\begin{minipage}[t]{0.5\textwidth}%
+&\\%
+\begin{minipage}[t]{0.44\textwidth}%
+\RaggedRight
 \sffamily%
 Arbeitskreis Video der Stadtjugend Münchberg%
 \newline%
-%
 Bürgermeister-Specht-Platz 3, 95213 Münchberg%
-\newline%
 %\tiny{This report can be verified at technik.arbeitskreis.video/verify/45678144785}%
-\end{minipage}&\begin{minipage}[t]{0.25\textwidth}%
-\end{minipage}&\begin{minipage}[t]{0.25\textwidth}%
+\end{minipage}&\begin{minipage}[t]{0.47\textwidth}%
 \flushright%
 \sffamily%
 IDNUMBER%
@@ -75,7 +73,7 @@ Seite \thepage\ von \pageref{LastPage}%
 \pagestyle{firstpage}%
 \renewcommand{\arraystretch}{1.5}%
 \begin{longtabu}{X[l] X[2l] X[r] X[r] X[r]}%
-\textbf{Menge}&\textbf{Name}&\textbf{Standort}&\textbf{Preis}&\textbf{Anschaffungsjahr}\\%
+\textbf{Menge}&\textbf{Bezeichnung}&\textbf{Standort}&\textbf{Kaufpreis (\texteuro)}&\textbf{Kaufjahr}\\%
 \noalign{\vskip 2mm}%
 \hline%
 \noalign{\vskip 1mm}%

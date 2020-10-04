@@ -132,6 +132,9 @@ dmypy.json
 .vscode/
 
 # ignore temp LaTeX files
+pdf_assets/*.aux
+pdf_assets/*.pdf
+pdf_assets/*.gz
 *_temp.tex
 test.py
 test.txt

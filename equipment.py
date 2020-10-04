@@ -57,19 +57,19 @@ def escape_special_characters(input_string):
     return input_string
 
 def check_if_all_packages_are_installed():
+    # TODO: FIXME Doesnt seem to work atm
+
     # checks if all latex packages that are mentioned in latex_setup.sh and therefore should be installed, are actually installed
     # returns False iff one or more packages mentioned in latex_setup.sh are not in the expected location (i.e. /app/.TinyTeX/texmf-dist/tex/latex/{name_of_latex_package}/{name_of_latex_package}.sty), else True  
     with open("latex_setup.sh", "r") as reqfile:
         lines = list(reqfile)
         for line in lines[3:-1]:
-            if(len(line) < 10):
+            if(len(line) < 10) or line.startswith("#"):
                 continue
             name_of_latex_package = line.split(" ")[-1][0:-2]
             if(path.isfile(f'/app/.TinyTeX/texmf-dist/tex/latex/{name_of_latex_package}/{name_of_latex_package}.sty')):
                 return False
     return True
-
-
 
 def generate_latex_table_from(dataframe):
     # generates the table for the PDF from the given Dataframe
@@ -222,6 +222,7 @@ if button_generate_pdf:
         st.error("PDF Creation is currently only supported on the server, not on localhost")
     else: 
         # check that all required latex packages are in the location they are excpected to be in
+        # check_if_all_packages_are_installed() seems to not be working properly.
         if(not check_if_all_packages_are_installed()):
             warning = st.error("files missing. Attempting reinstall of dependencies. Could take 2-3 minutes.")
             with st.spinner('Notwendige LaTeX Pakete werden installiert'):
