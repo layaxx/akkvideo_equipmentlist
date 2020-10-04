@@ -88,13 +88,21 @@ def generate_latex_table_from(dataframe):
         table += f"{menge}&{name}&{lagerort}&{preis}&{jahr}\\\\%\n"    
     return table
 
-def create_pdf_downloadlink(dataframe, filters_are_active):
+def create_pdf_downloadlink(dataframe, filters_are_active, sort_by_col, sort_by_col2, order):
     # this function creates a PDF from the given dataframe and returns a html download link with the base64 encoded PDF (data-url)
     # the PDF is based on the LaTeX File ./pdf_assets/template.tex
     # this function inserts the current date, an identification number (TODO: WIP: ID Number for PDFs), a table of all selected devices and 
     # a message, if filters are active (and therefore not all devices that are tracked will be in the pdf) 
     # TODO: add verification of IDs
     # TODO: add logging, maybe save .tex files for every export instead of .pdf files to save storage space
+
+    order_ascending = order == "aufsteigend" 
+
+    # sort DataFrame
+    if(sort_by_col == "Preis"):
+        dataframe = dataframe.sort_values(by=[sort_by_col,sort_by_col2], ascending=order_ascending, key=lambda column: column.apply(lambda value: value if not value == "" else 99999))
+    else:
+        dataframe = dataframe.sort_values(by=[sort_by_col,sort_by_col2], ascending=order_ascending)
 
     # load LaTeX Template
     with open("pdf_assets/template.tex", "r") as tex:
@@ -107,9 +115,18 @@ def create_pdf_downloadlink(dataframe, filters_are_active):
         template = template.replace("MESSAGE", "")
         template = template.replace("orange", "black")
 
+    if(sort_by_col == sort_by_col2):
+        sort_by_string = sort_by_col
+    else:
+        sort_by_string = f'{sort_by_col} und {sort_by_col2}'
+
+    header_info = f'Diese Liste enthält {len(data["Index"])} Einträge und ist {order} nach {sort_by_string} sortiert.'
+
+    template = template.replace("HEADER-INFO", header_info)
+
     template = template.replace("DATUM", datetime.now().strftime("%d.%m.%Y"))
     template = template.replace("IDNUMBER", "1337") # ID is currently not implemented
-    template = template.replace("TABLE&&&&",generate_latex_table_from(dataframe))
+    template = template.replace("TABLE&&&&", generate_latex_table_from(dataframe))
 
     # Compile LaTeX Code to Data object
     pdf = build_pdf(template)
@@ -212,8 +229,17 @@ st.write(data)
 # generate PDF report
 st.subheader("Bericht generieren")
 st.write("aktuelle Auswahl als PDF speichern:")
+st.write("Sortierung wählen:")
+list_of_options_for_sort_by = ["Index", "Menge", "Gerätebezeichnung", "Lagerort", "Kategorie", "Preis"]
+sort_by_primary = st.selectbox("primary", list_of_options_for_sort_by, 0)
+sort_by_secondary = st.selectbox("secondary", list_of_options_for_sort_by, 0)
+order = st.selectbox("", ["aufsteigend", "absteigend"], 0)
+
 button_generate_pdf = st.button("PDF generieren*")
-st.info("*Diese Aktion kann 1-2 Minuten dauern.")
+st.info("*Achtung: Die Erstellung des PDFs wird circa eine halbe Minute dauern.")
+# show warning that pdf will have reference to the fact that not all devices are included
+if(one_or_more_filters_are_active):
+    st.warning("Achtung: PDF wird nur die ausgewählten Geräte enthalten, und einen Hinweis auf die Unvollständigkeit")
 
 if button_generate_pdf:
     operatingSystemIsLinux = system() == "Linux"
@@ -223,24 +249,17 @@ if button_generate_pdf:
     else: 
         # check that all required latex packages are in the location they are excpected to be in
         if(not check_if_all_packages_are_installed()):
-            warning = st.error("files missing. Attempting reinstall of dependencies. Could take 2-3 minutes.")
-            with st.spinner('Notwendige LaTeX Pakete werden installiert'):
+            with st.spinner('Notwendige LaTeX Pakete werden installiert. Das kann zwei bis drei Minuten dauern'):
                 subprocess.run(["sh", "./latex_setup.sh"])
-            warning = st.empty()
-
-        # show warning that pdf will have reference to the fact that not all devices are included
-        if(one_or_more_filters_are_active):
-            st.warning("Achtung: PDF wird nur die ausgewählten Geräte enthalten, und einen Hinweis auf die Unvollständigkeit")
         
         # create PDF and show download link
         with st.spinner('PDF wird erstellt'):
             try:
-                pdf_link = create_pdf_downloadlink(data, one_or_more_filters_are_active)
+                pdf_link = create_pdf_downloadlink(data, one_or_more_filters_are_active, sort_by_primary, sort_by_secondary, order)
                 st.success('Fertig!')
                 st.markdown(pdf_link, unsafe_allow_html=True)
             except: 
                 st.error("PDF konnte leider nicht generiert werden. Bitte versuche es in 2 Minuten erneut.")
-      
 
 # display footer
 st.write("-------------------------------------------------")
