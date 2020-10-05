@@ -11,8 +11,14 @@ import decimal
 
 class LoadDataTestCase(unittest.TestCase):
 
+    def setUp(self):
+        self.dataframe = equipment.load_data("tests/test1.csv")
+
+    def tearDown(self):
+        self.dataframe = None
+
     def testReadCSV(self):
-        actual = equipment.load_data("tests/test1.csv")
+        actual = self.dataframe
         expected = pandas.DataFrame(np.array([[1,1,"Produkt1","Medienraum","Stahlschrank","","Software","Magix","","","","unklar ob auf PC / welchem PC"],
                     [2,1,"Produkt2","Medienraum","Stahlschrank","","Zubehör","Coast",decimal.Decimal("27.90"),"GHW","",""],
                     [3,1,"Produkt3","Medienraum","Stahlschrank","","Kabel","",decimal.Decimal("21.41"),"","",""]]),
@@ -21,24 +27,16 @@ class LoadDataTestCase(unittest.TestCase):
         pandas.testing.assert_frame_equal(actual, expected, check_dtype=False)
 
     def testConvertIndexToInteger(self):
-        DataFrame = equipment.load_data("tests/test1.csv")
-
-        assert_equal(type(DataFrame["Index"][1]), np.int64)
+        assert_equal(type(self.dataframe["Index"][1]), np.int64)
 
     def testConvertMengeToInteger(self):
-        DataFrame = equipment.load_data("tests/test1.csv")
-
-        assert_equal(type(DataFrame["Menge"][1]), np.int64)
+        assert_equal(type(self.dataframe["Menge"][1]), np.int64)
 
     def testConvertPreisToDecimal(self):
-        DataFrame = equipment.load_data("tests/test1.csv")
-
-        assert_equal(type(DataFrame["Preis"][1]), decimal.Decimal)
+        assert_equal(type(self.dataframe["Preis"][1]), decimal.Decimal)
 
     def testFormatPreis(self):
-        DataFrame = equipment.load_data("tests/test1.csv")
-
-        assert_equal(len(str(DataFrame["Preis"][1])), 5)
+        assert_equal(len(str(self.dataframe["Preis"][1])), 5)
 
 class FormatPriceTestCase(unittest.TestCase):
 
@@ -74,9 +72,9 @@ class FormatPriceTestCase(unittest.TestCase):
 class EscapeSpecialCharactersCase(unittest.TestCase):
 
     def testReturnUnmodifiedInputIfNoCharacterNeedsToBeEscaped(self):
-        input= r"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXJZ0123456789!§-/()=?´`+*'ß,.:;°"
-        actual = equipment.escape_special_characters(input)
-        assert_equal(input, actual)
+        string = r"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXJZ0123456789!§-/()=?´`+*'ß,.:;°"
+        result = equipment.escape_special_characters(string)
+        assert_equal(string, result)
 
     # escapes all occurrences of # $ % & ~ _ ^ \ { } and escapes them in order to make them safe for latex compiling
 
