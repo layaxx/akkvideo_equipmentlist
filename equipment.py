@@ -38,9 +38,9 @@ def format_price(val):
     return ""
 
 @st.cache
-def load_data():
+def load_data(location="Inventar_akvideo.csv"):
     # loads the csv file into a dataframe and replaces all occurances of NaN with an empty String
-    data = pandas.read_csv("Inventar_akvideo.csv", delimiter=";")
+    data = pandas.read_csv(location, delimiter=";")
     # change format of "Index" and "Menge" rows from float to Integer
     # make sure the .csv does not contain emoty rows, or this will fail
     data["Index"] = data["Index"].apply(np.int64)
@@ -52,8 +52,17 @@ def load_data():
 def escape_special_characters(input_string):
     # escapes all occurrences of # $ % & ~ _ ^ \ { } and escapes them in order to make them safe for latex compiling
     if(input_string == ""):
-        return "n.A."
-    input_string = input_string.replace("\\", "\\textbackslash").replace("#", "\\#").replace("$", "").replace("%", "\\%").replace("^", "\\textasciicircum").replace("}", "\\}").replace("{", "\\{")
+        return "n/a"
+    input_string = input_string.replace("\\", "\\textbackslash")\
+        .replace("#", "\\#")\
+        .replace("$", "\\$")\
+        .replace("%", "\\%")\
+        .replace("^", "\\textasciicircum")\
+        .replace("}", "\\}")\
+        .replace("{", "\\{")\
+        .replace("&", "\\&")\
+        .replace("~", "\\textasciitilde")\
+        .replace("_", "\\_")
     return input_string
 
 def check_if_all_packages_are_installed():

@@ -1,0 +1,4 @@
+Index;Menge;Gerätebezeichnung;Lagerort;Lagerort_konkret;Behälter;Kategorie;Marke;Preis;wo_gekauft;zusätzliche_Tags;Anmerkungen
+1;1;Produkt1;Medienraum;Stahlschrank;;Software;Magix;;;;unklar ob auf PC / welchem PC
+2;1;Produkt2;Medienraum;Stahlschrank;;Zubehör;Coast;27,9;GHW;;
+3;1;Produkt3;Medienraum;Stahlschrank;;Kabel;;21,41;;;
