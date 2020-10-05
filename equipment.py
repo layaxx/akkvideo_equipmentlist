@@ -6,6 +6,7 @@ from os import path
 import subprocess
 from datetime import datetime
 from latex import build_pdf
+from latex import LatexBuildError
 from math import isnan
 import decimal 
 from base64 import b64encode
@@ -223,9 +224,6 @@ else:
 # display interactive table, if applicable with the filters specified in the sidebar
 st.write(data)
 
-
-# TODO: you should be able to select how devices will be sorted in the PDF
-# for example: sorted by price, sorted by name, sorted by year
 # generate PDF report
 st.subheader("Bericht generieren")
 st.write("aktuelle Auswahl als PDF speichern:")
@@ -258,8 +256,11 @@ if button_generate_pdf:
                 pdf_link = create_pdf_downloadlink(data, one_or_more_filters_are_active, sort_by_primary, sort_by_secondary, order)
                 st.success('Fertig!')
                 st.markdown(pdf_link, unsafe_allow_html=True)
-            except: 
+            except RuntimeError: 
                 st.error("PDF konnte leider nicht generiert werden. Bitte versuche es in 2 Minuten erneut.")
+            except LatexBuildError:
+                st.error("PDF konnte leider nicht generiert werden. Bitte versuche es in 2 Minuten erneut. Falls der Fehler dann erneut auftritt, kontaktiere uns bitte: dev@arbeitskreis.video")
+
 
 # display footer
 st.write("-------------------------------------------------")
