@@ -1,4 +1,5 @@
-import os,sys, unittest
+import os,sys, unittest, unittest.mock
+from unittest.mock import call
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 import equipment
 import pandas, decimal
@@ -135,7 +136,7 @@ class EscapeSpecialCharactersCase(unittest.TestCase):
         """
         Test that escape_special_charcters() does escape Tilde ("~")
         """
-        self.assertEqual(equipment.escape_special_characters("~"), r"\textasciitilde")
+        self.assertEqual(equipment.escape_special_characters("~"), r"\textasciitilde ")
 
     def test_escape_underscore(self):
         """
@@ -147,13 +148,13 @@ class EscapeSpecialCharactersCase(unittest.TestCase):
         """
         Test that escape_special_charcters() does escape Circum ("^")
         """
-        self.assertEqual(equipment.escape_special_characters("^"), r"\textasciicircum")
+        self.assertEqual(equipment.escape_special_characters("^"), r"\textasciicircum ")
 
     def test_escape_backslash(self):
         """
         Test that escape_special_charcters() does escape Backslash ("\")
         """
-        self.assertEqual(equipment.escape_special_characters("\\"), r"\textbackslash")
+        self.assertEqual(equipment.escape_special_characters("\\"), r"\textbackslash ")
 
     def test_escape_opening_braces(self):
         """
@@ -178,6 +179,95 @@ class EscapeSpecialCharactersCase(unittest.TestCase):
         Test that escape_special_charcters() does escape and symbol ("&") even if its found in the input multiple times 
         """
         self.assertEqual(equipment.escape_special_characters("test##test#"), r"test\#\#test\#")
+
+class CheckIfAllPackagesAreInstalled(unittest.TestCase):
+    def test_return_true_if_all_packages_exist(self):
+        """
+        Test that check_if_all_packages_are_installed() returns True if all packages exist in the expected location 
+        """
+        patcher = unittest.mock.patch('os.path.isfile')
+        mock_thing = patcher.start()
+        mock_thing.return_value = True
+        ret = equipment.check_if_all_packages_are_installed()
+        self.assertTrue(ret)
+
+    def test_return_false_if_no_package_exists(self):
+        """
+        Test that check_if_all_packages_are_installed() returns False if no package exists in the expected location 
+        """
+        patcher = unittest.mock.patch('os.path.isfile')
+        mock_thing = patcher.start()
+        mock_thing.return_value = False
+        ret = equipment.check_if_all_packages_are_installed()
+        self.assertFalse(ret)
+
+    def test_return_false_if_first_package_is_missing(self):
+        """
+        Test that check_if_all_packages_are_installed() returns False after the first package was not found in the expected location 
+        """
+        patcher = unittest.mock.patch('os.path.isfile')
+        mock_thing = patcher.start()
+        mock_thing.return_value = False
+        equipment.check_if_all_packages_are_installed()
+        mock_thing.assert_called_once()
+
+    def test_return_false_if_last_package_is_missing(self):
+        """
+        Test that check_if_all_packages_are_installed() returns False if the last package exists in the expected location 
+        """
+        def side_effect(arg):
+            if(arg == "/app/.TinyTeX/texmf-dist/tex/latex/ms/everysel.sty"):
+                return False
+            return True
+        patcher = unittest.mock.patch('os.path.isfile')
+        mock_thing = patcher.start()
+        mock_thing.side_effect = side_effect
+        ret = equipment.check_if_all_packages_are_installed()
+        self.assertFalse(ret)
+
+    def test_has_checked_every_package(self):
+        """
+        Test that check_if_all_packages_are_installed() checks every package it is supposed to check
+        """
+        patcher = unittest.mock.patch('os.path.isfile')
+        mock_thing = patcher.start()
+        mock_thing.return_value = True
+        equipment.check_if_all_packages_are_installed()
+        expected_calls = []
+        expected_calls.append(call("/app/.TinyTeX/texmf-dist/tex/latex/lastpage/lastpage.sty"))
+        expected_calls.append(call("/app/.TinyTeX/texmf-dist/tex/latex/tabu/tabu.sty"))
+        expected_calls.append(call("/app/.TinyTeX/texmf-dist/tex/latex/varwidth/varwidth.sty"))
+        expected_calls.append(call("/app/.TinyTeX/texmf-dist/tex/latex/colortbl/colortbl.sty"))
+        expected_calls.append(call("/app/.TinyTeX/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty"))
+        expected_calls.append(call("/app/.TinyTeX/texmf-dist/tex/latex/ragged2e/ragged2e.sty"))
+        expected_calls.append(call("/app/.TinyTeX/texmf-dist/tex/latex/ms/everysel.sty"))
+        mock_thing.assert_has_calls(expected_calls)
+
+
+class GenerateLatexTableFromDataframe(unittest.TestCase):
+    def test_generates_table_for_empty_Dataframe(self):
+        """
+        Test that generate_latex_table_from(dataframe) returns empty String for empty Dataframe
+        """
+        self.assertEqual(equipment.generate_latex_table_from(pandas.DataFrame()), "")
+
+    def test_generates_expected_table_for_nonempty_Dataframe(self):
+        """
+        Test that generate_latex_table_from(dataframe) returns expected String for non empty Dataframe
+        """
+        with open("tests\expected_table.txt", "r") as file:
+            expected = file.read()
+        actual = equipment.generate_latex_table_from(equipment.load_data("tests/test1.csv"))
+        self.assertEqual(expected, actual)
+
+    def test_escapes_characters(self):
+        """
+        Test that generate_latex_table_from(dataframe) returns escaped String for Dataframe with characters that need to be escaped
+        """
+        with open("tests\expected_table2.txt", "r") as file:
+            expected = file.read()
+        actual = equipment.generate_latex_table_from(equipment.load_data("tests/test2.csv"))
+        self.assertEqual(expected, actual)
 
 if __name__ == "__main__":
     unittest.main() # run all tests

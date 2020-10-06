@@ -1,0 +1,3 @@
+1&Produkt1&Medienraum&n/a&n/a\\%
+1&Produkt2&Medienraum&27,90&n/a\\%
+1&Produkt3&Medienraum&21,41&n/a\\%
