@@ -5,8 +5,7 @@ from platform import system
 from os import path
 import subprocess
 from datetime import datetime
-from latex import build_pdf
-from latex import LatexBuildError
+from latex import build_pdf, LatexBuildError
 from math import isnan
 import decimal 
 from base64 import b64encode
@@ -53,15 +52,15 @@ def escape_special_characters(input_string):
     # escapes all occurrences of # $ % & ~ _ ^ \ { } and escapes them in order to make them safe for latex compiling
     if(input_string == ""):
         return "n/a"
-    input_string = input_string.replace("\\", "\\textbackslash")\
+    input_string = input_string.replace("\\", "\\textbackslash ")\
         .replace("#", "\\#")\
         .replace("$", "\\$")\
         .replace("%", "\\%")\
-        .replace("^", "\\textasciicircum")\
+        .replace("^", "\\textasciicircum ")\
         .replace("}", "\\}")\
         .replace("{", "\\{")\
         .replace("&", "\\&")\
-        .replace("~", "\\textasciitilde")\
+        .replace("~", "\\textasciitilde ")\
         .replace("_", "\\_")
     return input_string
 
@@ -93,8 +92,8 @@ def generate_latex_table_from(dataframe):
         menge = escape_special_characters(str(row["Menge"]))
         name = escape_special_characters(row["Gerätebezeichnung"])
         lagerort = escape_special_characters(row["Lagerort"])
-        preis = escape_special_characters(str(row["Preis"]))
-        jahr = "n.A." # .csv does currently not have information about year of purchase
+        preis = escape_special_characters(str(row["Preis"]).replace(".", ","))
+        jahr = "n/a" # .csv does currently not have information about year of purchase
         table += f"{menge}&{name}&{lagerort}&{preis}&{jahr}\\\\%\n"    
     return table
 

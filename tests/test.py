@@ -181,6 +181,7 @@ class EscapeSpecialCharactersCase(unittest.TestCase):
         self.assertEqual(equipment.escape_special_characters("test##test#"), r"test\#\#test\#")
 
 class CheckIfAllPackagesAreInstalled(unittest.TestCase):
+
     def test_return_true_if_all_packages_exist(self):
         """
         Test that check_if_all_packages_are_installed() returns True if all packages exist in the expected location 
@@ -255,7 +256,7 @@ class GenerateLatexTableFromDataframe(unittest.TestCase):
         """
         Test that generate_latex_table_from(dataframe) returns expected String for non empty Dataframe
         """
-        with open("tests\expected_table.txt", "r") as file:
+        with open("tests" + os.sep + "expected_table.txt", "r") as file:
             expected = file.read()
         actual = equipment.generate_latex_table_from(equipment.load_data("tests/test1.csv"))
         self.assertEqual(expected, actual)
@@ -264,7 +265,7 @@ class GenerateLatexTableFromDataframe(unittest.TestCase):
         """
         Test that generate_latex_table_from(dataframe) returns escaped String for Dataframe with characters that need to be escaped
         """
-        with open("tests\expected_table2.txt", "r") as file:
+        with open("tests" + os.sep + "expected_table2.txt", "r") as file:
             expected = file.read()
         actual = equipment.generate_latex_table_from(equipment.load_data("tests/test2.csv"))
         self.assertEqual(expected, actual)
