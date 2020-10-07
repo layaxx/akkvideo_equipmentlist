@@ -12,6 +12,17 @@ from base64 import b64encode
 
 st.title('Technikliste')
 
+def generate_unique_id(type="General Report", name=""):
+    if type == "General Report":
+        prefix = "GR"
+    elif len(name.split(" ")) >= 2:
+        prefix = name.split(" ")[0][0].upper() + name.split(" ")[1][0].upper()
+    elif len(name) >= 2:
+        prefix = name[0:2].upper()
+    else:
+        prefix = "XX"
+    return prefix
+
 def format_price(val):
     # this function takes an input and formats it to fit into the price column.
     # if price is a number, it should have exactly two decimal places
@@ -50,7 +61,7 @@ def load_data(location="Inventar_akvideo.csv"):
 
 def escape_special_characters(input_string):
     # escapes all occurrences of # $ % & ~ _ ^ \ { } and escapes them in order to make them safe for latex compiling
-    if(input_string == ""):
+    if input_string == "":
         return "n/a"
     input_string = input_string.replace("\\", "\\textbackslash ")\
         .replace("#", "\\#")\
@@ -70,7 +81,7 @@ def check_if_all_packages_are_installed():
     with open("latex_setup.sh", "r") as latex_setup_file:
         lines = list(latex_setup_file)
         for line in lines:
-            if(line.startswith("tlmgr install")):
+            if line.startswith("tlmgr install"):
                 name_of_latex_package = line.split(" ")[-1].strip()
                 if(name_of_latex_package == "ms"):
                     if(not path.isfile(f'/app/.TinyTeX/texmf-dist/tex/latex/ms/everysel.sty')):
@@ -103,7 +114,7 @@ def create_pdf_downloadlink(dataframe, filters_are_active, sort_by_col, sort_by_
     # this function inserts the current date, an identification number (TODO: WIP: ID Number for PDFs), a table of all selected devices and 
     # a message, if filters are active (and therefore not all devices that are tracked will be in the pdf) 
     # TODO: add verification of IDs
-    # TODO: add logging, maybe save .tex files for every export instead of .pdf files to save storage space
+    # TODO: add logging, maybe save .tex files for every export instead of PDF files to save storage space
 
     order_ascending = order == "aufsteigend" 
 
@@ -134,7 +145,7 @@ def create_pdf_downloadlink(dataframe, filters_are_active, sort_by_col, sort_by_
     template = template.replace("HEADER-INFO", header_info)
 
     template = template.replace("DATUM", datetime.now().strftime("%d.%m.%Y"))
-    template = template.replace("IDNUMBER", "1337") # ID is currently not implemented
+    template = template.replace("IDNUMBER", generate_unique_id()) # ID is currently not implemented
     template = template.replace("TABLE&&&&", generate_latex_table_from(dataframe))
 
     # Compile LaTeX Code to Data object

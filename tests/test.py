@@ -1,9 +1,14 @@
-import os,sys, unittest, unittest.mock
+import decimal
+import pandas
+import numpy as np
+import equipment
+import os
+import sys
+import unittest
+import unittest.mock
 from unittest.mock import call
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
-import equipment
-import pandas, decimal
-import numpy as np
+
 
 class LoadDataTestCase(unittest.TestCase):
 
@@ -15,10 +20,54 @@ class LoadDataTestCase(unittest.TestCase):
 
     def test_read_csv(self):
         actual = self.dataframe
-        expected = pandas.DataFrame(np.array([[1,1,"Produkt1","Medienraum","Stahlschrank","","Software","Magix","","","","unklar ob auf PC / welchem PC"],
-                    [2,1,"Produkt2","Medienraum","Stahlschrank","","Zubehör","Coast",decimal.Decimal("27.90"),"GHW","",""],
-                    [3,1,"Produkt3","Medienraum","Stahlschrank","","Kabel","",decimal.Decimal("21.41"),"","",""]]),
-                    columns=["Index","Menge","Gerätebezeichnung","Lagerort","Lagerort_konkret","Behälter","Kategorie","Marke","Preis","wo_gekauft","zusätzliche_Tags","Anmerkungen"])
+        expected = pandas.DataFrame(np.array([[1,
+                                               1,
+                                               "Produkt1",
+                                               "Medienraum",
+                                               "Stahlschrank",
+                                               "",
+                                               "Software",
+                                               "Magix",
+                                               "",
+                                               "",
+                                               "",
+                                               "unklar ob auf PC / welchem PC"],
+                                              [2,
+                                               1,
+                                               "Produkt2",
+                                               "Medienraum",
+                                               "Stahlschrank",
+                                               "",
+                                               "Zubehör",
+                                               "Coast",
+                                               decimal.Decimal("27.90"),
+                                               "GHW",
+                                               "",
+                                               ""],
+                                              [3,
+                                               1,
+                                               "Produkt3",
+                                               "Medienraum",
+                                               "Stahlschrank",
+                                               "",
+                                               "Kabel",
+                                               "",
+                                               decimal.Decimal("21.41"),
+                                               "",
+                                               "",
+                                               ""]]),
+                                    columns=["Index",
+                                             "Menge",
+                                             "Gerätebezeichnung",
+                                             "Lagerort",
+                                             "Lagerort_konkret",
+                                             "Behälter",
+                                             "Kategorie",
+                                             "Marke",
+                                             "Preis",
+                                             "wo_gekauft",
+                                             "zusätzliche_Tags",
+                                             "Anmerkungen"])
 
         pandas.testing.assert_frame_equal(actual, expected, check_dtype=False)
 
@@ -46,6 +95,7 @@ class LoadDataTestCase(unittest.TestCase):
         """
         self.assertEqual(len(str(self.dataframe["Preis"][1])), 5)
 
+
 class FormatPriceTestCase(unittest.TestCase):
 
     def test_return_empty_string_for_nan(self):
@@ -57,7 +107,7 @@ class FormatPriceTestCase(unittest.TestCase):
 
     def test_convert_float_to_decimal(self):
         """
-        Test that format_price() returns correct Decimal for float input 
+        Test that format_price() returns correct Decimal for float input
         """
         actual = equipment.format_price(9.85)
         self.assertEqual(actual, decimal.Decimal.from_float(9.85))
@@ -96,7 +146,7 @@ class FormatPriceTestCase(unittest.TestCase):
         """
         actual = equipment.format_price("8.9999")
         self.assertEqual(actual, decimal.Decimal("8.99"))
-    
+
 
 class EscapeSpecialCharactersCase(unittest.TestCase):
 
@@ -136,7 +186,8 @@ class EscapeSpecialCharactersCase(unittest.TestCase):
         """
         Test that escape_special_charcters() does escape Tilde ("~")
         """
-        self.assertEqual(equipment.escape_special_characters("~"), r"\textasciitilde ")
+        self.assertEqual(equipment.escape_special_characters(
+            "~"), r"\textasciitilde ")
 
     def test_escape_underscore(self):
         """
@@ -148,13 +199,15 @@ class EscapeSpecialCharactersCase(unittest.TestCase):
         """
         Test that escape_special_charcters() does escape Circum ("^")
         """
-        self.assertEqual(equipment.escape_special_characters("^"), r"\textasciicircum ")
+        self.assertEqual(equipment.escape_special_characters(
+            "^"), r"\textasciicircum ")
 
     def test_escape_backslash(self):
         """
         Test that escape_special_charcters() does escape Backslash ("\")
         """
-        self.assertEqual(equipment.escape_special_characters("\\"), r"\textbackslash ")
+        self.assertEqual(equipment.escape_special_characters(
+            "\\"), r"\textbackslash ")
 
     def test_escape_opening_braces(self):
         """
@@ -176,15 +229,17 @@ class EscapeSpecialCharactersCase(unittest.TestCase):
 
     def test_escape_multiple_occurrences(self):
         """
-        Test that escape_special_charcters() does escape and symbol ("&") even if its found in the input multiple times 
+        Test that escape_special_charcters() does escape and symbol ("&") even if its found in the input multiple times
         """
-        self.assertEqual(equipment.escape_special_characters("test##test#"), r"test\#\#test\#")
+        self.assertEqual(equipment.escape_special_characters(
+            "test##test#"), r"test\#\#test\#")
+
 
 class CheckIfAllPackagesAreInstalled(unittest.TestCase):
 
     def test_return_true_if_all_packages_exist(self):
         """
-        Test that check_if_all_packages_are_installed() returns True if all packages exist in the expected location 
+        Test that check_if_all_packages_are_installed() returns True if all packages exist in the expected location
         """
         patcher = unittest.mock.patch('os.path.isfile')
         mock_thing = patcher.start()
@@ -194,7 +249,7 @@ class CheckIfAllPackagesAreInstalled(unittest.TestCase):
 
     def test_return_false_if_no_package_exists(self):
         """
-        Test that check_if_all_packages_are_installed() returns False if no package exists in the expected location 
+        Test that check_if_all_packages_are_installed() returns False if no package exists in the expected location
         """
         patcher = unittest.mock.patch('os.path.isfile')
         mock_thing = patcher.start()
@@ -204,7 +259,7 @@ class CheckIfAllPackagesAreInstalled(unittest.TestCase):
 
     def test_return_false_if_first_package_is_missing(self):
         """
-        Test that check_if_all_packages_are_installed() returns False after the first package was not found in the expected location 
+        Test that check_if_all_packages_are_installed() returns False after the first package was not found in the expected location
         """
         patcher = unittest.mock.patch('os.path.isfile')
         mock_thing = patcher.start()
@@ -214,7 +269,7 @@ class CheckIfAllPackagesAreInstalled(unittest.TestCase):
 
     def test_return_false_if_last_package_is_missing(self):
         """
-        Test that check_if_all_packages_are_installed() returns False if the last package exists in the expected location 
+        Test that check_if_all_packages_are_installed() returns False if the last package exists in the expected location
         """
         def side_effect(arg):
             if(arg == "/app/.TinyTeX/texmf-dist/tex/latex/ms/everysel.sty"):
@@ -235,13 +290,20 @@ class CheckIfAllPackagesAreInstalled(unittest.TestCase):
         mock_thing.return_value = True
         equipment.check_if_all_packages_are_installed()
         expected_calls = []
-        expected_calls.append(call("/app/.TinyTeX/texmf-dist/tex/latex/lastpage/lastpage.sty"))
-        expected_calls.append(call("/app/.TinyTeX/texmf-dist/tex/latex/tabu/tabu.sty"))
-        expected_calls.append(call("/app/.TinyTeX/texmf-dist/tex/latex/varwidth/varwidth.sty"))
-        expected_calls.append(call("/app/.TinyTeX/texmf-dist/tex/latex/colortbl/colortbl.sty"))
-        expected_calls.append(call("/app/.TinyTeX/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty"))
-        expected_calls.append(call("/app/.TinyTeX/texmf-dist/tex/latex/ragged2e/ragged2e.sty"))
-        expected_calls.append(call("/app/.TinyTeX/texmf-dist/tex/latex/ms/everysel.sty"))
+        expected_calls.append(
+            call("/app/.TinyTeX/texmf-dist/tex/latex/lastpage/lastpage.sty"))
+        expected_calls.append(
+            call("/app/.TinyTeX/texmf-dist/tex/latex/tabu/tabu.sty"))
+        expected_calls.append(
+            call("/app/.TinyTeX/texmf-dist/tex/latex/varwidth/varwidth.sty"))
+        expected_calls.append(
+            call("/app/.TinyTeX/texmf-dist/tex/latex/colortbl/colortbl.sty"))
+        expected_calls.append(
+            call("/app/.TinyTeX/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty"))
+        expected_calls.append(
+            call("/app/.TinyTeX/texmf-dist/tex/latex/ragged2e/ragged2e.sty"))
+        expected_calls.append(
+            call("/app/.TinyTeX/texmf-dist/tex/latex/ms/everysel.sty"))
         mock_thing.assert_has_calls(expected_calls)
 
 
@@ -250,7 +312,8 @@ class GenerateLatexTableFromDataframe(unittest.TestCase):
         """
         Test that generate_latex_table_from(dataframe) returns empty String for empty Dataframe
         """
-        self.assertEqual(equipment.generate_latex_table_from(pandas.DataFrame()), "")
+        self.assertEqual(equipment.generate_latex_table_from(
+            pandas.DataFrame()), "")
 
     def test_generates_expected_table_for_nonempty_Dataframe(self):
         """
@@ -258,7 +321,8 @@ class GenerateLatexTableFromDataframe(unittest.TestCase):
         """
         with open("tests" + os.sep + "expected_table.txt", "r") as file:
             expected = file.read()
-        actual = equipment.generate_latex_table_from(equipment.load_data("tests/test1.csv"))
+        actual = equipment.generate_latex_table_from(
+            equipment.load_data("tests/test1.csv"))
         self.assertEqual(expected, actual)
 
     def test_escapes_characters(self):
@@ -267,9 +331,61 @@ class GenerateLatexTableFromDataframe(unittest.TestCase):
         """
         with open("tests" + os.sep + "expected_table2.txt", "r") as file:
             expected = file.read()
-        actual = equipment.generate_latex_table_from(equipment.load_data("tests/test2.csv"))
+        actual = equipment.generate_latex_table_from(
+            equipment.load_data("tests/test2.csv"))
         self.assertEqual(expected, actual)
 
-if __name__ == "__main__":
-    unittest.main() # run all tests
 
+class GenerateUniqueID(unittest.TestCase):
+    def test_returns_xx_prefix_for_empty_name_and_type(self):
+        """
+        Test that generate_unique_id() generates an ID with "XX" prefix if type is not "General Report" and name is empty String
+        """
+        self.assertTrue(equipment.generate_unique_id("", "").startswith("XX"))
+
+    def test_returns_xx_prefix_for_one_character_name_and_empty_type(self):
+        """
+        Test that generate_unique_id() generates an ID with "XX" prefix if type is not "General Report" and name is a one-character-long String
+        """
+        self.assertTrue(equipment.generate_unique_id("", "a").startswith("XX"))
+
+    def test_returns_gr_prefix_for_general_report_type_even_if_name_is_specified(
+            self):
+        """
+        Test that generate_unique_id() generates an ID with "GR" prefix if type is "General Report" and name is not empty String
+        """
+        self.assertTrue(equipment.generate_unique_id(
+            "General Report", "valid Name").startswith("GR"))
+
+    def test_returns_gr_prefix_for_general_report_type_if_name_is_empty(self):
+        """
+        Test that generate_unique_id() generates an ID with "GR" prefix if type is "General Report" and name is empty String
+        """
+        self.assertTrue(equipment.generate_unique_id(
+            "General Report", "").startswith("GR"))
+
+    def test_returns_initials_as_prefix_for_empty_type_and_valid_name(self):
+        """
+        Test that generate_unique_id() generates an ID with Initials of first and second name as prefix if type is not "General Report" and name consists of two words
+        """
+        self.assertTrue(equipment.generate_unique_id(
+            "", "Yannick Lang").startswith("YL"))
+
+    def test_returns_initials_as_prefix_for_empty_type_and_one_word_name(self):
+        """
+        Test that generate_unique_id() generates an ID with first two characters of name as prefix if type is not "General Report" and name consists of one word with at least two characters
+        """
+        self.assertTrue(equipment.generate_unique_id(
+            "", "Yannick").startswith("YA"))
+
+    def test_returns_initials_as_prefix_for_empty_type_and_valid_long_name(
+            self):
+        """
+        Test that generate_unique_id() generates an ID with Initials of first and second name as prefix if type is not "General Report" and name consists of more than two words
+        """
+        self.assertTrue(equipment.generate_unique_id(
+            "", "Yannick Stephan Lang").startswith("YS"))
+
+
+if __name__ == "__main__":
+    unittest.main()  # run all tests
