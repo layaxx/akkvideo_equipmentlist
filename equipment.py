@@ -30,9 +30,9 @@ def generate_unique_id(type_of_report="General Report", name=""):
     else:
         prefix = "XX"
 
-    takenIDs = VerificationDatabase().get_taken_ids(prefix)
+    list_of_taken_ids = VerificationDatabase().get_taken_ids(prefix)
 
-    if not type(takenIDs) == list:
+    if not type(list_of_taken_ids) == list:
         st.warning(
             "Datenbankverbindung konnte nicht hergestellt werden. Verifizierung wird für dieses Dokument nicht möglich sein.")
         return ""
@@ -40,21 +40,21 @@ def generate_unique_id(type_of_report="General Report", name=""):
     string = ""
     allowed_characters = list(map(chr, range(ord('A'), ord('Z')+1)))
     allowed_characters.extend(range(2, 10))
-    for index in range(6):
+    for _ in range(6):
         string += str(random.choice(allowed_characters))
 
-    id = prefix + string
+    unique_id = prefix + string
 
-    while(id in takenIDs):
+    while(unique_id in list_of_taken_ids):
         string = ""
         allowed_characters = list(map(chr, range(ord('A'), ord('Z')+1)))
         allowed_characters.extend(range(2, 10))
-        for index in range(6):
+        for _ in range(6):
             string += str(random.choice(allowed_characters))
 
-        id = prefix + string
+        unique_id = prefix + string
 
-    return id
+    return unique_id
 
 
 def format_price(val):
@@ -79,6 +79,7 @@ def format_price(val):
         if isnan(val):
             return ""
     except TypeError as e:
+        print(e)
         return ""
     if isinstance(val, float):
         return decimal.Decimal.from_float(val)
