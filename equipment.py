@@ -1,3 +1,4 @@
+from dbutility import VerificationDatabase
 import streamlit as st
 import pandas
 import numpy as np
@@ -8,13 +9,19 @@ from datetime import datetime
 from latex import build_pdf, LatexBuildError
 from math import isnan
 import decimal
+import random
 from base64 import b64encode
 
+
+# Draw Title of Page
 st.title('Technikliste')
 
 
-def generate_unique_id(type="General Report", name=""):
-    if type == "General Report":
+def generate_unique_id(type_of_report="General Report", name=""):
+    '''
+    Generates a unique, 8 character long String as identifier for reports in the database.
+    '''
+    if type_of_report == "General Report":
         prefix = "GR"
     elif len(name.split(" ")) >= 2:
         prefix = name.split(" ")[0][0].upper() + name.split(" ")[1][0].upper()
@@ -22,7 +29,32 @@ def generate_unique_id(type="General Report", name=""):
         prefix = name[0:2].upper()
     else:
         prefix = "XX"
-    return prefix
+
+    takenIDs = VerificationDatabase().get_taken_ids(prefix)
+
+    if not type(takenIDs) == list:
+        st.warning(
+            "Datenbankverbindung konnte nicht hergestellt werden. Verifizierung wird für dieses Dokument nicht möglich sein.")
+        return ""
+
+    string = ""
+    allowed_characters = list(map(chr, range(ord('A'), ord('Z')+1)))
+    allowed_characters.extend(range(2, 10))
+    for index in range(6):
+        string += str(random.choice(allowed_characters))
+
+    id = prefix + string
+
+    while(id in takenIDs):
+        string = ""
+        allowed_characters = list(map(chr, range(ord('A'), ord('Z')+1)))
+        allowed_characters.extend(range(2, 10))
+        for index in range(6):
+            string += str(random.choice(allowed_characters))
+
+        id = prefix + string
+
+    return id
 
 
 def format_price(val):
@@ -43,9 +75,12 @@ def format_price(val):
             after_point += "00"
             after_point = after_point[0:2]
             return decimal.Decimal(before_point + "." + after_point)
-    if isnan(val):
+    try:
+        if isnan(val):
+            return ""
+    except TypeError as e:
         return ""
-    elif isinstance(val, float):
+    if isinstance(val, float):
         return decimal.Decimal.from_float(val)
     return ""
 
@@ -172,8 +207,9 @@ def create_pdf_downloadlink(
     template = template.replace("HEADER-INFO", header_info)
 
     template = template.replace("DATUM", datetime.now().strftime("%d.%m.%Y"))
-    # ID is currently not implemented
-    template = template.replace("IDNUMBER", generate_unique_id())
+
+    unique_id = generate_unique_id()
+    template = template.replace("IDNUMBER", unique_id)
     template = template.replace(
         "TABLE&&&&", generate_latex_table_from(dataframe))
 
@@ -188,6 +224,14 @@ def create_pdf_downloadlink(
 
     # create a filename with the current date
     filename = "technikliste_" + datetime.now().strftime("%Y-%m-%d") + ".pdf"
+
+    # if unique_id is empty string, connection to db failed prior and verification is not available for this document as a result
+    if unique_id == "":
+        return_value = VerificationDatabase.save_record(
+            template, unique_id, len(data["Index"]))
+        if return_value == -1:
+            st.warning(
+                "Datenbankverbindung konnte nicht hergestellt werden. Verifizierung wird für dieses Dokument nicht möglich sein.")
 
     # create and return actual download-link with base64 encoded pdf and
     # filename

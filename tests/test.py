@@ -1,4 +1,5 @@
 import decimal
+from operator import eq
 import pandas
 import numpy as np
 import os
@@ -7,8 +8,11 @@ import unittest
 import unittest.mock
 from unittest.mock import call
 
+import psycopg2
+
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 import equipment  # nopep8
+import dbutility  # nopep8
 
 
 class LoadDataTestCase(unittest.TestCase):
@@ -98,6 +102,12 @@ class LoadDataTestCase(unittest.TestCase):
 
 
 class FormatPriceTestCase(unittest.TestCase):
+
+    def test_return_empty_string_for_everything_else(self):
+        """
+        Test that format_price() returns empty String if input is neither float nor string nor nan
+        """
+        self.assertAlmostEqual(equipment.format_price([]), "")
 
     def test_return_empty_string_for_nan(self):
         """
@@ -346,35 +356,40 @@ class GenerateUniqueID(unittest.TestCase):
 
     def test_returns_xx_prefix_for_one_character_name_and_empty_type(self):
         """
-        Test that generate_unique_id() generates an ID with "XX" prefix if type is not "General Report" and name is a one-character-long String
+        Test that generate_unique_id() generates an ID with "XX" prefix if
+        type is not "General Report" and name is a one-character-long String
         """
         self.assertTrue(equipment.generate_unique_id("", "a").startswith("XX"))
 
     def test_returns_gr_prefix_for_general_report_type_even_if_name_is_specified(
             self):
         """
-        Test that generate_unique_id() generates an ID with "GR" prefix if type is "General Report" and name is not empty String
+        Test that generate_unique_id() generates an ID with "GR" prefix if
+        type is "General Report" and name is not empty String
         """
         self.assertTrue(equipment.generate_unique_id(
             "General Report", "valid Name").startswith("GR"))
 
     def test_returns_gr_prefix_for_general_report_type_if_name_is_empty(self):
         """
-        Test that generate_unique_id() generates an ID with "GR" prefix if type is "General Report" and name is empty String
+        Test that generate_unique_id() generates an ID with "GR" prefix if
+        type is "General Report" and name is empty String
         """
         self.assertTrue(equipment.generate_unique_id(
             "General Report", "").startswith("GR"))
 
     def test_returns_initials_as_prefix_for_empty_type_and_valid_name(self):
         """
-        Test that generate_unique_id() generates an ID with Initials of first and second name as prefix if type is not "General Report" and name consists of two words
+        Test that generate_unique_id() generates an ID with Initials of first and
+        second name as prefix if type is not "General Report" and name consists of two words
         """
         self.assertTrue(equipment.generate_unique_id(
             "", "Yannick Lang").startswith("YL"))
 
     def test_returns_initials_as_prefix_for_empty_type_and_one_word_name(self):
         """
-        Test that generate_unique_id() generates an ID with first two characters of name as prefix if type is not "General Report" and name consists of one word with at least two characters
+        Test that generate_unique_id() generates an ID with first two characters of name as
+        prefix if type is not "General Report" and name consists of one word with at least two characters
         """
         self.assertTrue(equipment.generate_unique_id(
             "", "Yannick").startswith("YA"))
@@ -382,10 +397,39 @@ class GenerateUniqueID(unittest.TestCase):
     def test_returns_initials_as_prefix_for_empty_type_and_valid_long_name(
             self):
         """
-        Test that generate_unique_id() generates an ID with Initials of first and second name as prefix if type is not "General Report" and name consists of more than two words
+        Test that generate_unique_id() generates an ID with Initials of first and second name as
+        prefix if type is not "General Report" and name consists of more than two words
         """
         self.assertTrue(equipment.generate_unique_id(
             "", "Yannick Stephan Lang").startswith("YS"))
+
+    def test_unique_id_must_be_exactly_8_characters_long(self):
+        """
+        Test that generate_unique_id() generates an ID that is exactly 8 characters long regardless of input
+        """
+        self.assertEqual(len(equipment.generate_unique_id("", "")), 8)
+        self.assertEqual(
+            len(equipment.generate_unique_id("General Report", "")), 8)
+        self.assertEqual(
+            len(equipment.generate_unique_id("", "Valid Name")), 8)
+        self.assertEqual(len(equipment.generate_unique_id(
+            "General Report", "Valid Name")), 8)
+        self.assertEqual(len(equipment.generate_unique_id("", "Name")), 8)
+        self.assertEqual(
+            len(equipment.generate_unique_id("General Report", "Name")), 8)
+        self.assertEqual(
+            len(equipment.generate_unique_id("", "Long Valid Name")), 8)
+
+
+""" class GetTakenIDs(unittest.TestCase):
+    def test_return_empty_list_for_no_matches(self):
+        """
+# Test that get_taken_ids() returns an empty list if no ids with the given prefix are present in the db table
+"""
+        with unittest.mock.patch('api.app.db') as mockdb:
+            mockdb.add = unittest.mock.MagicMock(return_value="your desired return value")
+            result = dbutility.get_taken_ids("PR")
+        self.assertEqual(result, []) """
 
 
 if __name__ == "__main__":
