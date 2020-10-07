@@ -352,6 +352,11 @@ class GenerateUniqueID(unittest.TestCase):
         """
         Test that generate_unique_id() generates an ID with "XX" prefix if type is not "General Report" and name is empty String
         """
+        patcher = unittest.mock.patch(
+            'dbutility.VerificationDatabase.get_taken_ids')
+        mock_thing = patcher.start()
+        mock_thing.return_value = []
+
         self.assertTrue(equipment.generate_unique_id("", "").startswith("XX"))
 
     def test_returns_xx_prefix_for_one_character_name_and_empty_type(self):
@@ -359,6 +364,10 @@ class GenerateUniqueID(unittest.TestCase):
         Test that generate_unique_id() generates an ID with "XX" prefix if
         type is not "General Report" and name is a one-character-long String
         """
+        patcher = unittest.mock.patch(
+            'dbutility.VerificationDatabase.get_taken_ids')
+        mock_thing = patcher.start()
+        mock_thing.return_value = []
         self.assertTrue(equipment.generate_unique_id("", "a").startswith("XX"))
 
     def test_returns_gr_prefix_for_general_report_type_even_if_name_is_specified(
@@ -367,6 +376,10 @@ class GenerateUniqueID(unittest.TestCase):
         Test that generate_unique_id() generates an ID with "GR" prefix if
         type is "General Report" and name is not empty String
         """
+        patcher = unittest.mock.patch(
+            'dbutility.VerificationDatabase.get_taken_ids')
+        mock_thing = patcher.start()
+        mock_thing.return_value = []
         self.assertTrue(equipment.generate_unique_id(
             "General Report", "valid Name").startswith("GR"))
 
@@ -375,6 +388,10 @@ class GenerateUniqueID(unittest.TestCase):
         Test that generate_unique_id() generates an ID with "GR" prefix if
         type is "General Report" and name is empty String
         """
+        patcher = unittest.mock.patch(
+            'dbutility.VerificationDatabase.get_taken_ids')
+        mock_thing = patcher.start()
+        mock_thing.return_value = []
         self.assertTrue(equipment.generate_unique_id(
             "General Report", "").startswith("GR"))
 
@@ -383,6 +400,10 @@ class GenerateUniqueID(unittest.TestCase):
         Test that generate_unique_id() generates an ID with Initials of first and
         second name as prefix if type is not "General Report" and name consists of two words
         """
+        patcher = unittest.mock.patch(
+            'dbutility.VerificationDatabase.get_taken_ids')
+        mock_thing = patcher.start()
+        mock_thing.return_value = []
         self.assertTrue(equipment.generate_unique_id(
             "", "Yannick Lang").startswith("YL"))
 
@@ -391,6 +412,10 @@ class GenerateUniqueID(unittest.TestCase):
         Test that generate_unique_id() generates an ID with first two characters of name as
         prefix if type is not "General Report" and name consists of one word with at least two characters
         """
+        patcher = unittest.mock.patch(
+            'dbutility.VerificationDatabase.get_taken_ids')
+        mock_thing = patcher.start()
+        mock_thing.return_value = []
         self.assertTrue(equipment.generate_unique_id(
             "", "Yannick").startswith("YA"))
 
@@ -400,6 +425,10 @@ class GenerateUniqueID(unittest.TestCase):
         Test that generate_unique_id() generates an ID with Initials of first and second name as
         prefix if type is not "General Report" and name consists of more than two words
         """
+        patcher = unittest.mock.patch(
+            'dbutility.VerificationDatabase.get_taken_ids')
+        mock_thing = patcher.start()
+        mock_thing.return_value = []
         self.assertTrue(equipment.generate_unique_id(
             "", "Yannick Stephan Lang").startswith("YS"))
 
@@ -407,6 +436,10 @@ class GenerateUniqueID(unittest.TestCase):
         """
         Test that generate_unique_id() generates an ID that is exactly 8 characters long regardless of input
         """
+        patcher = unittest.mock.patch(
+            'dbutility.VerificationDatabase.get_taken_ids')
+        mock_thing = patcher.start()
+        mock_thing.return_value = []
         self.assertEqual(len(equipment.generate_unique_id("", "")), 8)
         self.assertEqual(
             len(equipment.generate_unique_id("General Report", "")), 8)
@@ -419,17 +452,6 @@ class GenerateUniqueID(unittest.TestCase):
             len(equipment.generate_unique_id("General Report", "Name")), 8)
         self.assertEqual(
             len(equipment.generate_unique_id("", "Long Valid Name")), 8)
-
-
-""" class GetTakenIDs(unittest.TestCase):
-    def test_return_empty_list_for_no_matches(self):
-        """
-# Test that get_taken_ids() returns an empty list if no ids with the given prefix are present in the db table
-"""
-        with unittest.mock.patch('api.app.db') as mockdb:
-            mockdb.add = unittest.mock.MagicMock(return_value="your desired return value")
-            result = dbutility.get_taken_ids("PR")
-        self.assertEqual(result, []) """
 
 
 if __name__ == "__main__":
