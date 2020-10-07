@@ -1,13 +1,14 @@
 import decimal
 import pandas
 import numpy as np
-import equipment
 import os
 import sys
 import unittest
 import unittest.mock
 from unittest.mock import call
+
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
+import equipment  # nopep8
 
 
 class LoadDataTestCase(unittest.TestCase):

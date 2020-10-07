@@ -7,10 +7,11 @@ import subprocess
 from datetime import datetime
 from latex import build_pdf, LatexBuildError
 from math import isnan
-import decimal 
+import decimal
 from base64 import b64encode
 
 st.title('Technikliste')
+
 
 def generate_unique_id(type="General Report", name=""):
     if type == "General Report":
@@ -23,12 +24,13 @@ def generate_unique_id(type="General Report", name=""):
         prefix = "XX"
     return prefix
 
+
 def format_price(val):
     # this function takes an input and formats it to fit into the price column.
     # if price is a number, it should have exactly two decimal places
     # otherwise, it should be an empty String
     # TODO: this is somewhat messy
-    if type(val) == str:
+    if isinstance(val, str):
         if val.count(",") == 1:
             before_point, after_point = val.split(",")
             after_point += "00"
@@ -43,13 +45,15 @@ def format_price(val):
             return decimal.Decimal(before_point + "." + after_point)
     if isnan(val):
         return ""
-    elif type(val) == float:
+    elif isinstance(val, float):
         return decimal.Decimal.from_float(val)
     return ""
 
+
 @st.cache
 def load_data(location="Inventar_akvideo.csv"):
-    # loads the csv file into a dataframe and replaces all occurances of NaN with an empty String
+    # loads the csv file into a dataframe and replaces all occurances of NaN
+    # with an empty String
     data = pandas.read_csv(location, delimiter=";")
     # change format of "Index" and "Menge" rows from float to Integer
     # make sure the .csv does not contain emoty rows, or this will fail
@@ -59,8 +63,10 @@ def load_data(location="Inventar_akvideo.csv"):
 
     return data.replace(np.nan, '', regex=True)
 
+
 def escape_special_characters(input_string):
-    # escapes all occurrences of # $ % & ~ _ ^ \ { } and escapes them in order to make them safe for latex compiling
+    # escapes all occurrences of # $ % & ~ _ ^ \ { } and escapes them in order
+    # to make them safe for latex compiling
     if input_string == "":
         return "n/a"
     input_string = input_string.replace("\\", "\\textbackslash ")\
@@ -75,9 +81,13 @@ def escape_special_characters(input_string):
         .replace("_", "\\_")
     return input_string
 
+
 def check_if_all_packages_are_installed():
     # checks if all latex packages that are mentioned in latex_setup.sh and therefore should be installed, are actually installed
-    # returns False iff one or more packages mentioned in latex_setup.sh are not in the expected location (i.e. /app/.TinyTeX/texmf-dist/tex/latex/{name_of_latex_package}/{name_of_latex_package}.sty), else True  
+    # returns False iff one or more packages mentioned in latex_setup.sh are
+    # not in the expected location (i.e.
+    # /app/.TinyTeX/texmf-dist/tex/latex/{name_of_latex_package}/{name_of_latex_package}.sty),
+    # else True
     with open("latex_setup.sh", "r") as latex_setup_file:
         lines = list(latex_setup_file)
         for line in lines:
@@ -91,12 +101,14 @@ def check_if_all_packages_are_installed():
                         return False
     return True
 
+
 def generate_latex_table_from(dataframe):
     # generates the table for the PDF from the given Dataframe
     # Table has the columns Menge, Name, Standort, Preis, Anschaffungsjahr, in that order
     # values are converted to strings iff needed and then checked for characters that need to be escaped using escape_special_characters()
-    # returns String with LaTeX Code representing a table with the columns mentioned above and one row for every device in the given dataframe
-    
+    # returns String with LaTeX Code representing a table with the columns
+    # mentioned above and one row for every device in the given dataframe
+
     table = ""
     # Format is: Menge & Name & Standort & Preis & Anschaffungsjahr \\%
     for index, row in dataframe.iterrows():
@@ -104,33 +116,48 @@ def generate_latex_table_from(dataframe):
         name = escape_special_characters(row["Gerätebezeichnung"])
         lagerort = escape_special_characters(row["Lagerort"])
         preis = escape_special_characters(str(row["Preis"]).replace(".", ","))
-        jahr = "n/a" # .csv does currently not have information about year of purchase
-        table += f"{menge}&{name}&{lagerort}&{preis}&{jahr}\\\\%\n"    
+        jahr = "n/a"  # .csv does currently not have information about year of purchase
+        table += f"{menge}&{name}&{lagerort}&{preis}&{jahr}\\\\%\n"
     return table
 
-def create_pdf_downloadlink(dataframe, filters_are_active, sort_by_col, sort_by_col2, order):
+
+def create_pdf_downloadlink(
+        dataframe,
+        filters_are_active,
+        sort_by_col,
+        sort_by_col2,
+        order):
     # this function creates a PDF from the given dataframe and returns a html download link with the base64 encoded PDF (data-url)
     # the PDF is based on the LaTeX File ./pdf_assets/template.tex
-    # this function inserts the current date, an identification number (TODO: WIP: ID Number for PDFs), a table of all selected devices and 
-    # a message, if filters are active (and therefore not all devices that are tracked will be in the pdf) 
+    # this function inserts the current date, an identification number (TODO: WIP: ID Number for PDFs), a table of all selected devices and
+    # a message, if filters are active (and therefore not all devices that are tracked will be in the pdf)
     # TODO: add verification of IDs
-    # TODO: add logging, maybe save .tex files for every export instead of PDF files to save storage space
+    # TODO: add logging, maybe save .tex files for every export instead of PDF
+    # files to save storage space
 
-    order_ascending = order == "aufsteigend" 
+    order_ascending = order == "aufsteigend"
 
     # sort DataFrame
     if(sort_by_col == "Preis"):
-        dataframe = dataframe.sort_values(by=[sort_by_col,sort_by_col2], ascending=order_ascending, key=lambda column: column.apply(lambda value: value if not value == "" else 99999))
+        dataframe = dataframe.sort_values(
+            by=[
+                sort_by_col,
+                sort_by_col2],
+            ascending=order_ascending,
+            key=lambda column: column.apply(
+                lambda value: value if not value == "" else 99999))
     else:
-        dataframe = dataframe.sort_values(by=[sort_by_col,sort_by_col2], ascending=order_ascending)
+        dataframe = dataframe.sort_values(
+            by=[sort_by_col, sort_by_col2], ascending=order_ascending)
 
     # load LaTeX Template
     with open("pdf_assets/template.tex", "r") as tex:
         template = tex.read()
 
     # replace placeholders in the templates with actual values
-    if filters_are_active:    
-        template = template.replace("MESSAGE", "Dies ist eine unvollständige Liste")
+    if filters_are_active:
+        template = template.replace(
+            "MESSAGE", "Dies ist eine unvollständige Liste")
     else:
         template = template.replace("MESSAGE", "")
         template = template.replace("orange", "black")
@@ -145,8 +172,10 @@ def create_pdf_downloadlink(dataframe, filters_are_active, sort_by_col, sort_by_
     template = template.replace("HEADER-INFO", header_info)
 
     template = template.replace("DATUM", datetime.now().strftime("%d.%m.%Y"))
-    template = template.replace("IDNUMBER", generate_unique_id()) # ID is currently not implemented
-    template = template.replace("TABLE&&&&", generate_latex_table_from(dataframe))
+    # ID is currently not implemented
+    template = template.replace("IDNUMBER", generate_unique_id())
+    template = template.replace(
+        "TABLE&&&&", generate_latex_table_from(dataframe))
 
     # Compile LaTeX Code to Data object
     pdf = build_pdf(template)
@@ -154,15 +183,17 @@ def create_pdf_downloadlink(dataframe, filters_are_active, sort_by_col, sort_by_
     pdf_binary = bytes(pdf)
     # Base64 encode the bytes
     pdf_base64 = b64encode(pdf_binary)
-    # convert to string and trim 
+    # convert to string and trim
     pdf_base64_string = str(pdf_base64)[2:-1]
-    
-    # create a filename with the current date
-    filename = "technikliste_"+ datetime.now().strftime("%Y-%m-%d") + ".pdf"
 
-    # create and return actual download-link with base64 encoded pdf and filename
+    # create a filename with the current date
+    filename = "technikliste_" + datetime.now().strftime("%Y-%m-%d") + ".pdf"
+
+    # create and return actual download-link with base64 encoded pdf and
+    # filename
     download_link = f'<a href="data:file/pdf;base64,{pdf_base64_string}" download="{filename}">PDF Datei Herunterladen</a>'
     return download_link
+
 
 # Create a text element and let the reader know the data is loading.
 # Not really necessary as long as the .csv is somewhat short
@@ -174,14 +205,18 @@ data_load_state.text("")
 
 st.subheader("Allgemeine Informationen:")
 
-# calculate amount of devices 
+# calculate amount of devices
 amount_devices_total = len(data["Lagerort"])
 # calculate amount of devices with location "Medienraum"
 amount_devices_in_medienraum = data["Lagerort"].to_list().count(
     "Medienraum")
 
-st.write("Zurzeit sind ", amount_devices_total, " Geräte registriert, davon befinden sich ",
-         amount_devices_in_medienraum, " im Medienraum.")
+st.write(
+    "Zurzeit sind ",
+    amount_devices_total,
+    " Geräte registriert, davon befinden sich ",
+    amount_devices_in_medienraum,
+    " im Medienraum.")
 
 # display the filters in the sidebar
 sidebar_searchterm = st.sidebar.text_input("Suche nach Einträgen")
@@ -229,54 +264,76 @@ amount_devices_selected = len(data["Lagerort"])
 amount_devices_selected_in_medienraum = data["Lagerort"].to_list().count(
     "Medienraum")
 
-one_or_more_filters_are_active = not (amount_devices_selected == amount_devices_total )
+one_or_more_filters_are_active = not (
+    amount_devices_selected == amount_devices_total)
 
 if not one_or_more_filters_are_active:
     st.subheader("Alle Geräte:")
 else:
     st.subheader("Ausgewählte Geräte:")
 
-    st.write("In der Auswahl befinden sich ", amount_devices_selected, " Geräte, davon sind ",
-             amount_devices_selected_in_medienraum, " aktuell im Medienraum.")
+    st.write(
+        "In der Auswahl befinden sich ",
+        amount_devices_selected,
+        " Geräte, davon sind ",
+        amount_devices_selected_in_medienraum,
+        " aktuell im Medienraum.")
 
 
-# display interactive table, if applicable with the filters specified in the sidebar
+# display interactive table, if applicable with the filters specified in
+# the sidebar
 st.write(data)
 
 # generate PDF report
 st.subheader("Bericht generieren")
 st.write("aktuelle Auswahl als PDF speichern:")
 st.write("Sortierung wählen:")
-list_of_options_for_sort_by = ["Index", "Menge", "Gerätebezeichnung", "Lagerort", "Kategorie", "Preis"]
+list_of_options_for_sort_by = [
+    "Index",
+    "Menge",
+    "Gerätebezeichnung",
+    "Lagerort",
+    "Kategorie",
+    "Preis"]
 sort_by_primary = st.selectbox("primary", list_of_options_for_sort_by, 0)
 sort_by_secondary = st.selectbox("secondary", list_of_options_for_sort_by, 0)
 order = st.selectbox("", ["aufsteigend", "absteigend"], 0)
 
 button_generate_pdf = st.button("PDF generieren*")
 st.info("*Achtung: Die Erstellung des PDFs wird circa eine halbe Minute dauern.")
-# show warning that pdf will have reference to the fact that not all devices are included
+# show warning that pdf will have reference to the fact that not all
+# devices are included
 if(one_or_more_filters_are_active):
-    st.warning("Achtung: PDF wird nur die ausgewählten Geräte enthalten, und einen Hinweis auf die Unvollständigkeit")
+    st.warning(
+        "Achtung: PDF wird nur die ausgewählten Geräte enthalten, und einen Hinweis auf die Unvollständigkeit")
 
 if button_generate_pdf:
     operatingSystemIsLinux = system() == "Linux"
 
     if(not operatingSystemIsLinux):
-        st.error("PDF Creation is currently only supported on the server, not on localhost")
-    else: 
-        # check that all required latex packages are in the location they are excpected to be in
+        st.error(
+            "PDF Creation is currently only supported on the server, not on localhost")
+    else:
+        # check that all required latex packages are in the location they are
+        # excpected to be in
         if(not check_if_all_packages_are_installed()):
             with st.spinner('Notwendige LaTeX Pakete werden installiert. Das kann zwei bis drei Minuten dauern'):
                 subprocess.run(["sh", "./latex_setup.sh"])
-        
+
         # create PDF and show download link
         with st.spinner('PDF wird erstellt'):
             try:
-                pdf_link = create_pdf_downloadlink(data, one_or_more_filters_are_active, sort_by_primary, sort_by_secondary, order)
+                pdf_link = create_pdf_downloadlink(
+                    data,
+                    one_or_more_filters_are_active,
+                    sort_by_primary,
+                    sort_by_secondary,
+                    order)
                 st.success('Fertig!')
                 st.markdown(pdf_link, unsafe_allow_html=True)
-            except RuntimeError: 
-                st.error("PDF konnte leider nicht generiert werden. Bitte versuche es in 2 Minuten erneut.")
+            except RuntimeError:
+                st.error(
+                    "PDF konnte leider nicht generiert werden. Bitte versuche es in 2 Minuten erneut.")
             except LatexBuildError:
                 st.error("PDF konnte leider nicht generiert werden. Bitte versuche es in 2 Minuten erneut. Falls der Fehler dann erneut auftritt, kontaktiere uns bitte: dev@arbeitskreis.video")
 
