@@ -4,7 +4,7 @@ python:
 
 # command to install dependencies
 install:
-  - pip install -r requirements.txt
+  - pip install -r requirements.txt && pip install coverage
 # command to run tests
 script:
-  - python3 tests/test.py || python tests/test.py
+  - coverage run tests/test.py &&  coverage report -m --omit env\*
