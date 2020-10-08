@@ -7,4 +7,4 @@ install:
   - pip install -r requirements.txt && pip install coverage
 # command to run tests
 script:
-  - coverage run tests/test.py &&  coverage report -m --omit "env/*","*test.py"
+  - coverage run tests/test.py &&  coverage report -m --omit "env/*","*test.py","/virtualenv/"
