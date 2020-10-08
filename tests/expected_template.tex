@@ -1,0 +1,133 @@
+\documentclass[11pt,a4paper,oneside]{letter}
+\usepackage[T1]{fontenc}%
+\usepackage[utf8]{inputenc}%
+\usepackage{lmodern}%
+\usepackage{textcomp}%
+\usepackage{lastpage}%
+\usepackage[foot=49pt,head=131pt,headsep=25pt,margin=0.6in,top=-30pt,bottom=1in,includeheadfoot=True]{geometry}
+%\usepackage{color}%
+\usepackage{tabu}%
+\usepackage{ragged2e}%
+\usepackage{longtable}%
+\usepackage[table]{xcolor}%
+\usepackage{graphicx}%
+\usepackage{fancyhdr}%
+\usepackage{tabularx}%
+\fancypagestyle{firstpage}{ 
+\renewcommand{\headrulewidth}{0pt}%
+\renewcommand{\footrulewidth}{0pt}%
+\fancyhead{ 
+}%
+\fancyfoot{ 
+}%
+\fancyhead[L]{ 
+\begin{minipage}[c]{0.34\textwidth}%
+\includegraphics[width=120px]{/app/pdf_assets/logo.png}%
+\end{minipage}%
+}%
+\fancyhead[R]{ 
+\sffamily%
+\begin{minipage}[c]{0.65\textwidth}%
+\flushright%
+\begin{Huge}%
+\textbf{Geräteliste}%
+\end{Huge}%
+\linebreak%
+\begin{large}%
+\textbf{Stand: 08.10.2020}%
+\end{large}%
+\\
+\scriptsize{Diese Liste enthält 0 Einträge und ist aufsteigend nach Preis und Index sortiert.}
+\rmfamily%
+\end{minipage}%
+}%
+\fancyfoot[C]{ 
+\begin{tabularx}{\textwidth}{X X}%
+\multicolumn{2}{l}{\textcolor{orange}{ 
+Dies ist eine unvollständige Liste%
+}}\\%
+\arrayrulecolor{orange}%
+\hline%
+&\\%
+\begin{minipage}[t]{0.44\textwidth}%
+\RaggedRight
+\sffamily%
+Arbeitskreis Video der Stadtjugend Münchberg%
+\newline%
+Bürgermeister-Specht-Platz 3, 95213 Münchberg%
+%\tiny{This report can be verified at technik.arbeitskreis.video/verify/45678144785}%
+\end{minipage}&\begin{minipage}[t]{0.47\textwidth}%
+\flushright%
+\sffamily%
+AAAAAAAA%
+\linebreak%
+Seite \thepage\ von \pageref{LastPage}%
+\end{minipage}\\%
+\end{tabularx}%
+}}%
+%
+
+\fancypagestyle{otherpages}{ 
+\renewcommand{\headrulewidth}{0pt}%
+\renewcommand{\footrulewidth}{0pt}%
+\fancyhead{ 
+}%
+\fancyfoot{ 
+}%
+\fancyhead[L]{ 
+\begin{minipage}[c]{0.34\textwidth}%
+\end{minipage}%
+}%
+\fancyhead[R]{ 
+\sffamily%
+\begin{minipage}[c]{0.65\textwidth}%
+\flushright%
+\begin{Huge}%
+\textbf{Geräteliste}%
+\end{Huge}%
+\linebreak%
+\begin{large}%
+\textbf{Stand: 08.10.2020}%
+\end{large}%
+\rmfamily%
+\end{minipage}%
+}%
+\fancyfoot[C]{ 
+\begin{tabularx}{\textwidth}{X X}%
+\multicolumn{2}{l}{\textcolor{orange}{ 
+Dies ist eine unvollständige Liste%
+}}\\%
+\arrayrulecolor{orange}%
+\hline%
+&\\%
+\begin{minipage}[t]{0.44\textwidth}%
+\RaggedRight
+\sffamily%
+Arbeitskreis Video der Stadtjugend Münchberg%
+\newline%
+Bürgermeister-Specht-Platz 3, 95213 Münchberg%
+%\tiny{This report can be verified at technik.arbeitskreis.video/verify/45678144785}%
+\end{minipage}&\begin{minipage}[t]{0.47\textwidth}%
+\flushright%
+\sffamily%
+AAAAAAAA%
+\linebreak%
+Seite \thepage\ von \pageref{LastPage}%
+\end{minipage}\\%
+\end{tabularx}%
+}}%
+
+\begin{document}%
+\normalsize%
+\pagestyle{otherpages}
+\thispagestyle{firstpage}%
+\renewcommand{\arraystretch}{1.5}%
+\begin{longtabu}{X[0.6l] X[3l] X[r] X[1.1r] X[0.7r]}%
+\textbf{Menge}&\textbf{Bezeichnung}&\textbf{Standort}&\textbf{Kaufpreis (\texteuro)}&\textbf{Kaufjahr}\\%
+\noalign{\vskip 2mm}%
+\hline%
+\noalign{\vskip 1mm}%
+\endhead%
+&&&&\\
+\end{longtabu}%
+\end{document}

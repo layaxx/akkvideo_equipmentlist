@@ -1,3 +1,4 @@
+from enum import unique
 from dbutility import VerificationDatabase
 import streamlit as st
 import pandas
@@ -11,51 +12,12 @@ from math import isnan
 import decimal
 import random
 from base64 import b64decode, b64encode
+import pdfutility
 
 
 # Draw Title of Page
 st.title('Technikliste')
 st.markdown("## 1. Überblick")
-
-
-def generate_unique_id(type_of_report="General Report", name=""):
-    '''
-    Generates a unique, 8 character long String as identifier for reports in the database.
-    '''
-    if type_of_report == "General Report":
-        prefix = "GR"
-    elif len(name.split(" ")) >= 2:
-        prefix = name.split(" ")[0][0].upper() + name.split(" ")[1][0].upper()
-    elif len(name) >= 2:
-        prefix = name[0:2].upper()
-    else:
-        prefix = "XX"
-
-    list_of_taken_ids = VerificationDatabase().get_taken_ids(prefix)
-
-    if not type(list_of_taken_ids) == list:
-        st.warning(
-            "Datenbankverbindung konnte nicht hergestellt werden. Verifizierung wird für dieses Dokument nicht möglich sein.")
-        return ""
-
-    string = ""
-    allowed_characters = list(map(chr, range(ord('A'), ord('Z')+1)))
-    allowed_characters.extend(range(2, 10))
-    for _ in range(6):
-        string += str(random.choice(allowed_characters))
-
-    unique_id = prefix + string
-
-    while(unique_id in list_of_taken_ids):
-        string = ""
-        allowed_characters = list(map(chr, range(ord('A'), ord('Z')+1)))
-        allowed_characters.extend(range(2, 10))
-        for _ in range(6):
-            string += str(random.choice(allowed_characters))
-
-        unique_id = prefix + string
-
-    return unique_id
 
 
 def format_price(val):
@@ -80,7 +42,6 @@ def format_price(val):
         if isnan(val):
             return ""
     except TypeError as e:
-        print(e)
         return ""
     if isinstance(val, float):
         return decimal.Decimal.from_float(val)
@@ -100,23 +61,6 @@ def load_data(location="Inventar_akvideo.csv"):
 
     return data.replace(np.nan, '', regex=True)
 
-
-def escape_special_characters(input_string):
-    # escapes all occurrences of # $ % & ~ _ ^ \ { } and escapes them in order
-    # to make them safe for latex compiling
-    if input_string == "":
-        return "n/a"
-    input_string = input_string.replace("\\", "\\textbackslash ")\
-        .replace("#", "\\#")\
-        .replace("$", "\\$")\
-        .replace("%", "\\%")\
-        .replace("^", "\\textasciicircum ")\
-        .replace("}", "\\}")\
-        .replace("{", "\\{")\
-        .replace("&", "\\&")\
-        .replace("~", "\\textasciitilde ")\
-        .replace("_", "\\_")
-    return input_string
 
 
 def check_if_all_packages_are_installed():
@@ -139,35 +83,11 @@ def check_if_all_packages_are_installed():
     return True
 
 
-def generate_latex_table_from(dataframe):
-    # generates the table for the PDF from the given Dataframe
-    # Table has the columns Menge, Name, Standort, Preis, Anschaffungsjahr, in that order
-    # values are converted to strings iff needed and then checked for characters that need to be escaped using escape_special_characters()
-    # returns String with LaTeX Code representing a table with the columns
-    # mentioned above and one row for every device in the given dataframe
 
-    table = ""
-    # Format is: Menge & Name & Standort & Preis & Anschaffungsjahr \\%
-    for index, row in dataframe.iterrows():
-        menge = escape_special_characters(str(row["Menge"]))
-        name = escape_special_characters(row["Gerätebezeichnung"])
-        lagerort = escape_special_characters(row["Lagerort"])
-        preis = escape_special_characters(str(row["Preis"]).replace(".", ","))
-        jahr = "n/a"  # .csv does currently not have information about year of purchase
-        table += f"{menge}&{name}&{lagerort}&{preis}&{jahr}\\\\%\n"
-    return table
-
-
-def get_download_link_from_database(timestamp, tex_base64):
-    tex = b64decode(tex_base64)
-    # Compile LaTeX Code to Data object
-    pdf = build_pdf(tex)
-    # convert Data Object to Bytes
-    pdf_binary = bytes(pdf)
-    # Base64 encode the bytes
-    pdf_base64 = b64encode(pdf_binary)
-    # convert to string and trim
-    pdf_base64_string = str(pdf_base64)[2:-1]
+def create_pdf_downloadlink_for_verified_report(timestamp, tex_base64):
+    tex_string = b64decode(tex_base64)
+    
+    pdf_base64_string = pdfutility.generate_b64_pdf_from_tex(tex_string)
 
     # create a filename with the current date
     filename = "technikliste_" + timestamp.strftime("%Y-%m-%d") + ".pdf"
@@ -176,7 +96,7 @@ def get_download_link_from_database(timestamp, tex_base64):
     return download_link
 
 
-def create_pdf_downloadlink(
+def create_pdf_downloadlink_for_new_report(
         dataframe,
         filters_are_active,
         sort_by_col,
@@ -184,50 +104,16 @@ def create_pdf_downloadlink(
         order):
     # this function creates a PDF from the given dataframe and returns a html download link with the base64 encoded PDF (data-url)
     # the PDF is based on the LaTeX File ./pdf_assets/template.tex
-    # this function inserts the current date, an identification number (TODO: WIP: ID Number for PDFs), a table of all selected devices and
+    # this function inserts the current date, an identification number, a table of all selected devices and
     # a message, if filters are active (and therefore not all devices that are tracked will be in the pdf)
-    # TODO: add verification of IDs
-    # TODO: add logging, maybe save .tex files for every export instead of PDF
-    # files to save storage space
 
-    order_ascending = order == "aufsteigend"
+    template, unique_id = pdfutility.fill_in_latex_template(filters_are_active, sort_by_col, sort_by_col2, order, dataframe)
 
-    # load LaTeX Template
-    with open("pdf_assets/template.tex", "r") as tex:
-        template = tex.read()
+    if unique_id == "":
+        st.warning(
+            "Datenbankverbindung konnte nicht hergestellt werden. Verifizierung wird für dieses Dokument nicht möglich sein.")
 
-    # replace placeholders in the templates with actual values
-    if filters_are_active:
-        template = template.replace(
-            "MESSAGE", "Dies ist eine unvollständige Liste")
-    else:
-        template = template.replace("MESSAGE", "")
-        template = template.replace("orange", "black")
-
-    if(sort_by_col == sort_by_col2):
-        sort_by_string = sort_by_col
-    else:
-        sort_by_string = f'{sort_by_col} und {sort_by_col2}'
-
-    header_info = f'Diese Liste enthält {len(data["Index"])} Einträge und ist {order} nach {sort_by_string} sortiert.'
-
-    template = template.replace("HEADER-INFO", header_info)
-
-    template = template.replace("DATUM", datetime.now().strftime("%d.%m.%Y"))
-
-    unique_id = generate_unique_id()
-    template = template.replace("IDNUMBER", unique_id)
-    template = template.replace(
-        "TABLE&&&&", generate_latex_table_from(dataframe))
-
-    # Compile LaTeX Code to Data object
-    pdf = build_pdf(template)
-    # convert Data Object to Bytes
-    pdf_binary = bytes(pdf)
-    # Base64 encode the bytes
-    pdf_base64 = b64encode(pdf_binary)
-    # convert to string and trim
-    pdf_base64_string = str(pdf_base64)[2:-1]
+    pdf_base64_string = pdfutility.generate_b64_pdf_from_tex(template)
 
     # create a filename with the current date
     filename = "technikliste_" + datetime.now().strftime("%Y-%m-%d") + ".pdf"
@@ -240,8 +126,7 @@ def create_pdf_downloadlink(
             st.warning(
                 "Datenbankverbindung konnte nicht hergestellt werden. Verifizierung wird für dieses Dokument nicht möglich sein.")
 
-    # create and return actual download-link with base64 encoded pdf and
-    # filename
+    # create and return actual download-link with base64 encoded pdf and filename
     download_link = f'<a href="data:file/pdf;base64,{pdf_base64_string}" download="{filename}">PDF Datei Herunterladen</a>'
     return download_link
 
@@ -361,7 +246,7 @@ if len(id_input) == 8:
                 f'Das Dokument wurde am {verify_result["timestamp"].strftime("%d.%m.%Y um %H:%M")} generiert und enthält {verify_result["devices"]} Geräte.')
             with st.spinner('Originaldokument wird wiederhergestellt'):
                 try:
-                    pdf_link = get_download_link_from_database(
+                    pdf_link = create_pdf_downloadlink_for_verified_report(
                         verify_result["timestamp"], verify_result["tex"])
                     st.markdown(pdf_link, unsafe_allow_html=True)
                 except RuntimeError:
@@ -431,7 +316,7 @@ if button_generate_pdf:
         # create PDF and show download link
         with st.spinner('PDF wird erstellt'):
             try:
-                pdf_link = create_pdf_downloadlink(
+                pdf_link = create_pdf_downloadlink_for_new_report(
                     data,
                     one_or_more_filters_are_active,
                     sort_by_primary,
