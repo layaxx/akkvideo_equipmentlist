@@ -10,11 +10,12 @@ from latex import build_pdf, LatexBuildError
 from math import isnan
 import decimal
 import random
-from base64 import b64encode
+from base64 import b64decode, b64encode
 
 
 # Draw Title of Page
 st.title('Technikliste')
+st.markdown("## 1. Überblick")
 
 
 def generate_unique_id(type_of_report="General Report", name=""):
@@ -157,6 +158,24 @@ def generate_latex_table_from(dataframe):
     return table
 
 
+def get_download_link_from_database(timestamp, tex_base64):
+    tex = b64decode(tex_base64)
+    # Compile LaTeX Code to Data object
+    pdf = build_pdf(tex)
+    # convert Data Object to Bytes
+    pdf_binary = bytes(pdf)
+    # Base64 encode the bytes
+    pdf_base64 = b64encode(pdf_binary)
+    # convert to string and trim
+    pdf_base64_string = str(pdf_base64)[2:-1]
+
+    # create a filename with the current date
+    filename = "technikliste_" + timestamp.strftime("%Y-%m-%d") + ".pdf"
+    # create and return actual download-link with base64 encoded pdf and filename
+    download_link = f'<a href="data:file/pdf;base64,{pdf_base64_string}" download="{filename}">Orginal Herunterladen</a>'
+    return download_link
+
+
 def create_pdf_downloadlink(
         dataframe,
         filters_are_active,
@@ -172,19 +191,6 @@ def create_pdf_downloadlink(
     # files to save storage space
 
     order_ascending = order == "aufsteigend"
-
-    # sort DataFrame
-    if(sort_by_col == "Preis"):
-        dataframe = dataframe.sort_values(
-            by=[
-                sort_by_col,
-                sort_by_col2],
-            ascending=order_ascending,
-            key=lambda column: column.apply(
-                lambda value: value if not value == "" else 99999))
-    else:
-        dataframe = dataframe.sort_values(
-            by=[sort_by_col, sort_by_col2], ascending=order_ascending)
 
     # load LaTeX Template
     with open("pdf_assets/template.tex", "r") as tex:
@@ -324,10 +330,47 @@ else:
         amount_devices_selected_in_medienraum,
         " aktuell im Medienraum.")
 
+# placeholder where the dataframe is inserted after sorting it
+dataframe_placeholder = st.empty()
 
-# display interactive table, if applicable with the filters specified in
-# the sidebar
-st.write(data)
+'''
+Verify Report Section
+'''
+st.markdown("## 2. PDF Berichte")
+st.subheader("Bericht verifizieren")
+st.write("Die ID befindet sich unten rechts auf PDF Reports. Sie besteht aus einer Kombination von genau 8 Großbuchstaben (A-Z) und/oder Ziffern (2-9)")
+id_input = st.text_input("ID eingeben, mit Enter bestätigen", max_chars=8)
+if len(id_input) in range(1, 8):
+    st.info("Die ID muss aus genau 8 Zeichen bestehen.")
+if len(id_input) == 8:
+    disallowed_chars = list(map(chr, range(97, 123)))
+    disallowed_chars.extend(["0", "1"])
+    if any(char in id_input for char in disallowed_chars):
+        st.info(
+            "Die ID muss aus einer Kombination von genau 8 Großbuchstaben (A-Z) und/oder Ziffern (2-9) bestehen")
+    else:
+        verify_result = VerificationDatabase().verify(id_input)
+        if verify_result == -1:
+            st.error(
+                "Leider konnte keine Verbindung zur Datenbank hergestellt werden.")
+        elif verify_result == {}:
+            st.info("Leider konnte kein passendes Dokument gefunden werden.")
+        elif type(verify_result) == dict and len(verify_result) == 4:
+            st.markdown("### Dokument gefunden!")
+            st.markdown(
+                f'Das Dokument wurde am {verify_result["timestamp"].strftime("%d.%m.%Y um %H:%M")} generiert und enthält {verify_result["devices"]} Geräte.')
+            with st.spinner('Originaldokument wird wiederhergestellt'):
+                try:
+                    pdf_link = get_download_link_from_database(
+                        verify_result["timestamp"], verify_result["tex"])
+                    st.markdown(pdf_link, unsafe_allow_html=True)
+                except RuntimeError:
+                    st.error(
+                        "PDF konnte leider nicht generiert werden. Bitte versuche es in 2 Minuten erneut.")
+                except LatexBuildError as e:
+                    print(e)
+                    st.error("PDF konnte leider nicht generiert werden. Bitte versuche es in 2 Minuten erneut. Falls der Fehler dann erneut auftritt, kontaktiere uns bitte: dev@arbeitskreis.video")
+
 
 # generate PDF report
 st.subheader("Bericht generieren")
@@ -344,6 +387,26 @@ sort_by_primary = st.selectbox("primary", list_of_options_for_sort_by, 0)
 sort_by_secondary = st.selectbox("secondary", list_of_options_for_sort_by, 0)
 order = st.selectbox("", ["aufsteigend", "absteigend"], 0)
 
+# sort DataFrame
+if(sort_by_primary == "Preis"):
+    data = data.sort_values(
+        by=[
+            sort_by_primary,
+            sort_by_secondary],
+        ascending=(order == "aufsteigend"),
+        key=lambda column: column.apply(
+            lambda value: value if not value == "" else 99999))
+else:
+    data = data.sort_values(
+        by=[sort_by_primary, sort_by_secondary], ascending=(order == "aufsteigend"))
+
+# display interactive table, if applicable with the filters specified in
+# the sidebar and the order specified in the fields below it.
+dataframe_placeholder.dataframe(data)
+
+'''
+Generate PDF Section
+'''
 button_generate_pdf = st.button("PDF generieren*")
 st.info("*Achtung: Die Erstellung des PDFs wird circa eine halbe Minute dauern.")
 # show warning that pdf will have reference to the fact that not all

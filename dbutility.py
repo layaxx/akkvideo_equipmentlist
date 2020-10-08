@@ -2,6 +2,8 @@ import psycopg2
 import os
 from base64 import b64encode
 
+from streamlit.elements.media_proto import _reshape_youtube_url
+
 
 class VerificationDatabase():
 
@@ -66,6 +68,45 @@ class VerificationDatabase():
                         devices, query, template, id])
             connection.commit()
             cur.close()
+        except psycopg2.Error as e:
+            print(e)
+            return -1
+        finally:
+            if connection is not None:
+                connection.close()
+
+    def verify(self, unique_id):
+        '''
+        Connects to Database specified in the "DATABASE_URL" environment variable and searches the "verify" table for 
+        the given id. 
+        Returns empty dict indicating that the report does not exist if no corresponding row is found
+        Returns dict containing values for columns "devices", "timestamp", "query" and "tex" 
+        '''
+        connection = None
+        try:
+            '''
+            Connect to Database
+            '''
+            if "REQUIRE_SSL" in os.environ:
+                connection = psycopg2.connect(
+                    self.DATABASE_URL, sslmode='require')
+            else:
+                connection = psycopg2.connect(self.DATABASE_URL)
+            cur = connection.cursor()
+            '''
+            Get row with ID matching given unique_id from table "verify" if it exists
+            '''
+            cur.execute("SELECT * FROM verify WHERE id = %s", (unique_id,))
+            record = cur.fetchone()
+            connection.commit()
+            cur.close()
+            if record is None:
+                return {}
+            else:
+                print(record)
+                result = {
+                    "timestamp": record[0], "devices": record[1], "query": record[2], "tex": record[3]}
+                return result
         except psycopg2.Error as e:
             print(e)
             return -1
