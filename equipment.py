@@ -227,7 +227,7 @@ def create_pdf_downloadlink(
     filename = "technikliste_" + datetime.now().strftime("%Y-%m-%d") + ".pdf"
 
     # if unique_id is empty string, connection to db failed prior and verification is not available for this document as a result
-    if unique_id == "":
+    if not unique_id == "":
         return_value = VerificationDatabase.save_record(
             template, unique_id, len(data["Index"]))
         if return_value == -1:
