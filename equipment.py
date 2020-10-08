@@ -229,7 +229,7 @@ def create_pdf_downloadlink(
     # if unique_id is empty string, connection to db failed prior and verification is not available for this document as a result
     if not unique_id == "":
         return_value = VerificationDatabase.save_record(
-            template, unique_id, len(data["Index"]))
+            template=template, id=unique_id, devices=len(data["Index"]), query="")
         if return_value == -1:
             st.warning(
                 "Datenbankverbindung konnte nicht hergestellt werden. Verifizierung wird für dieses Dokument nicht möglich sein.")
