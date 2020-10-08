@@ -1,18 +1,21 @@
+from base64 import b64encode
 import decimal
 from operator import eq
+import latex
 import pandas
 import numpy as np
 import os
 import sys
 import unittest
 import unittest.mock
-from unittest.mock import call
+from unittest.mock import MagicMock, call, patch
 
 import psycopg2
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 import equipment  # nopep8
 import dbutility  # nopep8
+import pdfutility  # nopep8
 
 
 class LoadDataTestCase(unittest.TestCase):
@@ -166,83 +169,83 @@ class EscapeSpecialCharactersCase(unittest.TestCase):
         Test that escape_special_charcters() does not change string if it does not contain characters that need to be escaped in LaTeX
         """
         string = r"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXJZ0123456789!§-/()=?´`+*'ß,.:;°"
-        result = equipment.escape_special_characters(string)
+        result = pdfutility.escape_special_characters(string)
         self.assertEqual(string, result)
 
     def test_escape_hashtag(self):
         """
         Test that escape_special_charcters() does escape Hashtag Symbol ("#")
         """
-        self.assertEqual(equipment.escape_special_characters("#"), r"\#")
+        self.assertEqual(pdfutility.escape_special_characters("#"), r"\#")
 
     def test_escape_dollar_sign(self):
         """
         Test that escape_special_charcters() does escape Dollar Sign ("$")
         """
-        self.assertEqual(equipment.escape_special_characters("$"), r"\$")
+        self.assertEqual(pdfutility.escape_special_characters("$"), r"\$")
 
     def test_escape_percentage(self):
         """
         Test that escape_special_charcters() does escape Percentage Sign ("%")
         """
-        self.assertEqual(equipment.escape_special_characters("%"), r"\%")
+        self.assertEqual(pdfutility.escape_special_characters("%"), r"\%")
 
     def test_escape_and(self):
         """
         Test that escape_special_charcters() does escape "&"-Symbol
         """
-        self.assertEqual(equipment.escape_special_characters("&"), r"\&")
+        self.assertEqual(pdfutility.escape_special_characters("&"), r"\&")
 
     def test_escape_tilde(self):
         """
         Test that escape_special_charcters() does escape Tilde ("~")
         """
-        self.assertEqual(equipment.escape_special_characters(
+        self.assertEqual(pdfutility.escape_special_characters(
             "~"), r"\textasciitilde ")
 
     def test_escape_underscore(self):
         """
         Test that escape_special_charcters() does escape underscore ("_")
         """
-        self.assertEqual(equipment.escape_special_characters("_"), r"\_")
+        self.assertEqual(pdfutility.escape_special_characters("_"), r"\_")
 
     def test_escape_circum(self):
         """
         Test that escape_special_charcters() does escape Circum ("^")
         """
-        self.assertEqual(equipment.escape_special_characters(
+        self.assertEqual(pdfutility.escape_special_characters(
             "^"), r"\textasciicircum ")
 
     def test_escape_backslash(self):
         """
         Test that escape_special_charcters() does escape Backslash ("\")
         """
-        self.assertEqual(equipment.escape_special_characters(
+        self.assertEqual(pdfutility.escape_special_characters(
             "\\"), r"\textbackslash ")
 
     def test_escape_opening_braces(self):
         """
         Test that escape_special_charcters() does escape Tilde ("{")
         """
-        self.assertEqual(equipment.escape_special_characters("{"), r"\{")
+        self.assertEqual(pdfutility.escape_special_characters("{"), r"\{")
 
     def test_escape_closing_braces(self):
         """
         Test that escape_special_charcters() does escape Tilde ("}")
         """
-        self.assertEqual(equipment.escape_special_characters("}"), r"\}")
+        self.assertEqual(pdfutility.escape_special_characters("}"), r"\}")
 
     def test_replace_empty_strings_with_na(self):
         """
         Test that escape_special_charcters() does replace empty Strings with "n/a"
         """
-        self.assertEqual(equipment.escape_special_characters(""), r"n/a")
+        self.assertEqual(pdfutility.escape_special_characters(""), r"n/a")
 
     def test_escape_multiple_occurrences(self):
         """
         Test that escape_special_charcters() does escape and symbol ("&") even if its found in the input multiple times
         """
-        self.assertEqual(equipment.escape_special_characters(
+        self.assertEqual(pdfutility.escape_special_characters(
             "test##test#"), r"test\#\#test\#")
 
 
@@ -323,7 +326,7 @@ class GenerateLatexTableFromDataframe(unittest.TestCase):
         """
         Test that generate_latex_table_from(dataframe) returns empty String for empty Dataframe
         """
-        self.assertEqual(equipment.generate_latex_table_from(
+        self.assertEqual(pdfutility.generate_latex_table_from(
             pandas.DataFrame()), "")
 
     def test_generates_expected_table_for_nonempty_Dataframe(self):
@@ -332,7 +335,7 @@ class GenerateLatexTableFromDataframe(unittest.TestCase):
         """
         with open("tests" + os.sep + "expected_table.txt", "r") as file:
             expected = file.read()
-        actual = equipment.generate_latex_table_from(
+        actual = pdfutility.generate_latex_table_from(
             equipment.load_data("tests/test1.csv"))
         self.assertEqual(expected, actual)
 
@@ -342,7 +345,7 @@ class GenerateLatexTableFromDataframe(unittest.TestCase):
         """
         with open("tests" + os.sep + "expected_table2.txt", "r") as file:
             expected = file.read()
-        actual = equipment.generate_latex_table_from(
+        actual = pdfutility.generate_latex_table_from(
             equipment.load_data("tests/test2.csv"))
         self.assertEqual(expected, actual)
 
@@ -357,7 +360,7 @@ class GenerateUniqueID(unittest.TestCase):
         mock_thing = patcher.start()
         mock_thing.return_value = []
 
-        self.assertTrue(equipment.generate_unique_id("", "").startswith("XX"))
+        self.assertTrue(pdfutility.generate_unique_id("", "").startswith("XX"))
 
     def test_returns_xx_prefix_for_one_character_name_and_empty_type(self):
         """
@@ -368,7 +371,7 @@ class GenerateUniqueID(unittest.TestCase):
             'dbutility.VerificationDatabase.get_taken_ids')
         mock_thing = patcher.start()
         mock_thing.return_value = []
-        self.assertTrue(equipment.generate_unique_id("", "a").startswith("XX"))
+        self.assertTrue(pdfutility.generate_unique_id("", "a").startswith("XX"))
 
     def test_returns_gr_prefix_for_general_report_type_even_if_name_is_specified(
             self):
@@ -380,7 +383,7 @@ class GenerateUniqueID(unittest.TestCase):
             'dbutility.VerificationDatabase.get_taken_ids')
         mock_thing = patcher.start()
         mock_thing.return_value = []
-        self.assertTrue(equipment.generate_unique_id(
+        self.assertTrue(pdfutility.generate_unique_id(
             "General Report", "valid Name").startswith("GR"))
 
     def test_returns_gr_prefix_for_general_report_type_if_name_is_empty(self):
@@ -392,7 +395,7 @@ class GenerateUniqueID(unittest.TestCase):
             'dbutility.VerificationDatabase.get_taken_ids')
         mock_thing = patcher.start()
         mock_thing.return_value = []
-        self.assertTrue(equipment.generate_unique_id(
+        self.assertTrue(pdfutility.generate_unique_id(
             "General Report", "").startswith("GR"))
 
     def test_returns_initials_as_prefix_for_empty_type_and_valid_name(self):
@@ -404,7 +407,7 @@ class GenerateUniqueID(unittest.TestCase):
             'dbutility.VerificationDatabase.get_taken_ids')
         mock_thing = patcher.start()
         mock_thing.return_value = []
-        self.assertTrue(equipment.generate_unique_id(
+        self.assertTrue(pdfutility.generate_unique_id(
             "", "Yannick Lang").startswith("YL"))
 
     def test_returns_initials_as_prefix_for_empty_type_and_one_word_name(self):
@@ -416,7 +419,7 @@ class GenerateUniqueID(unittest.TestCase):
             'dbutility.VerificationDatabase.get_taken_ids')
         mock_thing = patcher.start()
         mock_thing.return_value = []
-        self.assertTrue(equipment.generate_unique_id(
+        self.assertTrue(pdfutility.generate_unique_id(
             "", "Yannick").startswith("YA"))
 
     def test_returns_initials_as_prefix_for_empty_type_and_valid_long_name(
@@ -429,7 +432,7 @@ class GenerateUniqueID(unittest.TestCase):
             'dbutility.VerificationDatabase.get_taken_ids')
         mock_thing = patcher.start()
         mock_thing.return_value = []
-        self.assertTrue(equipment.generate_unique_id(
+        self.assertTrue(pdfutility.generate_unique_id(
             "", "Yannick Stephan Lang").startswith("YS"))
 
     def test_unique_id_must_be_exactly_8_characters_long(self):
@@ -440,19 +443,65 @@ class GenerateUniqueID(unittest.TestCase):
             'dbutility.VerificationDatabase.get_taken_ids')
         mock_thing = patcher.start()
         mock_thing.return_value = []
-        self.assertEqual(len(equipment.generate_unique_id("", "")), 8)
+        self.assertEqual(len(pdfutility.generate_unique_id("", "")), 8)
         self.assertEqual(
-            len(equipment.generate_unique_id("General Report", "")), 8)
+            len(pdfutility.generate_unique_id("General Report", "")), 8)
         self.assertEqual(
-            len(equipment.generate_unique_id("", "Valid Name")), 8)
-        self.assertEqual(len(equipment.generate_unique_id(
+            len(pdfutility.generate_unique_id("", "Valid Name")), 8)
+        self.assertEqual(len(pdfutility.generate_unique_id(
             "General Report", "Valid Name")), 8)
-        self.assertEqual(len(equipment.generate_unique_id("", "Name")), 8)
+        self.assertEqual(len(pdfutility.generate_unique_id("", "Name")), 8)
         self.assertEqual(
-            len(equipment.generate_unique_id("General Report", "Name")), 8)
+            len(pdfutility.generate_unique_id("General Report", "Name")), 8)
         self.assertEqual(
-            len(equipment.generate_unique_id("", "Long Valid Name")), 8)
+            len(pdfutility.generate_unique_id("", "Long Valid Name")), 8)
 
+    def test_return_empty_string_if_database_connection_fails(self):
+        """
+        Test that generate_unique_id() returns an empty string if dbutility.VerificationDatabase().get_taken_ids() returns an error
+        """
+        with patch.object(dbutility.VerificationDatabase, 'get_taken_ids', return_value=psycopg2.Error()):
+            self.assertEqual(pdfutility.generate_unique_id("", ""), "")
+
+def try_something():
+    min_latex = (r"\documentclass{article}"
+             r"\begin{document}"
+             r"Hello, world!"
+             r"\end{document}")
+    pdf = latex.build_pdf(min_latex)
+    return bytes(pdf, encoding="ascii")
+
+
+class GenerateB64PdfFromTex(unittest.TestCase):
+    def test_returns_expected_result(self):
+        """
+        Test that generate_b64_pdf_from_tex(tex) returns the expected b64 encoded String 
+        """
+        with patch.object(latex, 'build_pdf', return_value=b"helloWorld"):
+            self.assertEqual(pdfutility.generate_b64_pdf_from_tex("anything"), "aGVsbG9Xb3JsZA==")
+
+class FillInLatexTemplate(unittest.TestCase):
+    def test_returns_expected_result(self):
+        """
+        Test that fill_in_latex_template(filters_are_active, sort_by_col, sort_by_col2, order, dataframe) returns the expected template and id 
+        """
+        with patch.object(pdfutility, 'generate_latex_table_from', return_value=r"&&&&\\"):
+            with patch.object(pdfutility, 'generate_unique_id', return_value="AAAAAAAA"):
+                with open("tests/expected_template.tex", "r", encoding="utf8") as expected_template:
+                    expected = (expected_template.read(), "AAAAAAAA")
+                actual = pdfutility.fill_in_latex_template(True, "Preis", "Index", "aufsteigend", pandas.DataFrame(columns=["Index"]))
+        self.assertTupleEqual(expected, actual)
+
+    def test_returns_expected_result_no_filters_active(self):
+        """
+        Test that fill_in_latex_template(filters_are_active, sort_by_col, sort_by_col2, order, dataframe) returns the expected template and id 
+        """
+        with patch.object(pdfutility, 'generate_latex_table_from', return_value=r"&&&&\\"):
+            with patch.object(pdfutility, 'generate_unique_id', return_value="AAAAAAAA"):
+                with open("tests/expected_template_2.tex", "r", encoding="utf8") as expected_template:
+                    expected = (expected_template.read(), "AAAAAAAA")
+                actual = pdfutility.fill_in_latex_template(False, "Preis", "Preis", "aufsteigend", pandas.DataFrame(columns=["Index"]))
+        self.assertTupleEqual(expected, actual)
 
 if __name__ == "__main__":
     unittest.main()  # run all tests
