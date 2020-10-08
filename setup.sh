@@ -8,4 +8,6 @@ echo "\
 headless = true\n\
 enableCORS=false\n\
 port = $PORT\n\
+[runner]\n\
+magicEnabled = false\n\
 " > ~/.streamlit/config.toml
