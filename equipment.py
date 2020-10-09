@@ -21,7 +21,6 @@ def format_price(val):
     # this function takes an input and formats it to fit into the price column.
     # if price is a number, it should have exactly two decimal places
     # otherwise, it should be an empty String
-    # TODO: this is somewhat messy
     if isinstance(val, str):
         if val.count(",") == 1:
             before_point, after_point = val.split(",")
@@ -47,11 +46,15 @@ def format_price(val):
 
 @st.cache
 def load_data(location="Inventar_akvideo.csv"):
-    # loads the csv file into a dataframe and replaces all occurances of NaN
-    # with an empty String
+    '''
+    loads the csv file specified by the location parameter into a dataframe and replaces all occurances of NaN with an empty String,
+    as well as formatting all values in the "Menge" and "Index" columns from floats to integers and formatting "Preis" values to 
+    use two decimal places if number and empty string else
+    returns the sanitized DataFrame
+    '''
     data = pandas.read_csv(location, delimiter=";")
     # change format of "Index" and "Menge" rows from float to Integer
-    # make sure the .csv does not contain emoty rows, or this will fail
+    # make sure the .csv does not contain empty rows, or this will fail
     data["Index"] = data["Index"].apply(np.int64)
     data["Menge"] = data["Menge"].apply(np.int64)
     data["Preis"] = data["Preis"].map(format_price)
@@ -82,12 +85,19 @@ def check_if_all_packages_are_installed():
 
 
 def create_pdf_downloadlink_for_verified_report(timestamp, tex_base64):
+    '''
+    Takes a datetime.datetime object timestamp and a base64-encoded latex template tex_base64 as inputs
+    returns a data url downloadlink with the pdf generated from the tex template as data and the formatted date as filename
+    '''
+    # Decode base64 encoded string 
     tex_string = b64decode(tex_base64)
     
+    # Generate base64 encoded pdf from tex_string
     pdf_base64_string = pdfutility.generate_b64_pdf_from_tex(tex_string)
 
-    # create a filename with the current date
+    # create a filename with the date specified by the timestamp
     filename = "technikliste_" + timestamp.strftime("%Y-%m-%d") + ".pdf"
+
     # create and return actual download-link with base64 encoded pdf and filename
     download_link = f'<a href="data:file/pdf;base64,{pdf_base64_string}" download="{filename}">Orginal Herunterladen</a>'
     return download_link
@@ -104,8 +114,11 @@ def create_pdf_downloadlink_for_new_report(
     # this function inserts the current date, an identification number, a table of all selected devices and
     # a message, if filters are active (and therefore not all devices that are tracked will be in the pdf)
 
+    # replaces placeholders in latex template with actual values and tries to generate a unique, 8 character long id
     template, unique_id = pdfutility.fill_in_latex_template(filters_are_active, sort_by_col, sort_by_col2, order, dataframe)
 
+    # if generation of id fails, for example due to connection error to database, unique_id is empty string,
+    # and validation will not be available for this document
     if unique_id == "":
         st.warning(
             "Datenbankverbindung konnte nicht hergestellt werden. Verifizierung wird für dieses Dokument nicht möglich sein.")
@@ -118,7 +131,7 @@ def create_pdf_downloadlink_for_new_report(
     # if unique_id is empty string, connection to db failed prior and verification is not available for this document as a result
     if not unique_id == "":
         return_value = VerificationDatabase().save_record(
-            template=template, id=unique_id, devices=len(data["Index"]), query="")
+            template=template, id=unique_id, devices=len(dataframe["Index"]), query="")
         if return_value == -1:
             st.warning(
                 "Datenbankverbindung konnte nicht hergestellt werden. Verifizierung wird für dieses Dokument nicht möglich sein.")

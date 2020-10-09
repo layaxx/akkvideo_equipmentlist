@@ -1,4 +1,5 @@
 from base64 import b64encode
+import datetime
 import decimal
 from operator import eq
 import latex
@@ -488,7 +489,7 @@ class FillInLatexTemplate(unittest.TestCase):
         with patch.object(pdfutility, 'generate_latex_table_from', return_value=r"&&&&\\"):
             with patch.object(pdfutility, 'generate_unique_id', return_value="AAAAAAAA"):
                 with open("tests/expected_template.tex", "r", encoding="utf8") as expected_template:
-                    expected = (expected_template.read(), "AAAAAAAA")
+                    expected = (expected_template.read().replace("08.10.2020", datetime.date.today().strftime("%d.%m.%Y")), "AAAAAAAA")
                 actual = pdfutility.fill_in_latex_template(True, "Preis", "Index", "aufsteigend", pandas.DataFrame(columns=["Index"]))
         self.assertTupleEqual(expected, actual)
 
@@ -499,9 +500,21 @@ class FillInLatexTemplate(unittest.TestCase):
         with patch.object(pdfutility, 'generate_latex_table_from', return_value=r"&&&&\\"):
             with patch.object(pdfutility, 'generate_unique_id', return_value="AAAAAAAA"):
                 with open("tests/expected_template_2.tex", "r", encoding="utf8") as expected_template:
-                    expected = (expected_template.read(), "AAAAAAAA")
+                    expected = (expected_template.read().replace("08.10.2020", datetime.date.today().strftime("%d.%m.%Y")), "AAAAAAAA")
                 actual = pdfutility.fill_in_latex_template(False, "Preis", "Preis", "aufsteigend", pandas.DataFrame(columns=["Index"]))
         self.assertTupleEqual(expected, actual)
+
+class CreateDownloadlinkForVerifiedReport(unittest.TestCase):
+    def test_calls_pdfutility_function_correctly(self):
+        with patch.object(pdfutility, "generate_b64_pdf_from_tex", return_value="abc") as mock:
+            equipment.create_pdf_downloadlink_for_verified_report(datetime.datetime.now(), b64encode(b"template"))
+        mock.assert_called_once_with(b"template")
+
+    def test_returns_expected_result(self):
+        with patch.object(pdfutility, "generate_b64_pdf_from_tex", return_value="abc") as mock:
+            actual = equipment.create_pdf_downloadlink_for_verified_report(datetime.datetime.now(), b64encode(b"template"))
+        expected = f'<a href="data:file/pdf;base64,abc" download="technikliste_{datetime.date.today().strftime("%Y-%m-%d")}.pdf">Orginal Herunterladen</a>'
+        self.assertEqual(expected, actual)
 
 if __name__ == "__main__":
     unittest.main()  # run all tests

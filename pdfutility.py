@@ -63,24 +63,20 @@ def generate_unique_id(type_of_report="General Report", name=""):
     if not type(list_of_taken_ids) == list:
         return ""
 
-    string = ""
+    unique_id = prefix + get_six_digit_id()
+
+    while(unique_id in list_of_taken_ids):
+        unique_id = prefix + get_six_digit_id()
+
+    return unique_id
+
+def get_six_digit_id():
+    result = ""
     allowed_characters = list(map(chr, range(ord('A'), ord('Z')+1)))
     allowed_characters.extend(range(2, 10))
     for _ in range(6):
-        string += str(random.choice(allowed_characters))
-
-    unique_id = prefix + string
-
-    while(unique_id in list_of_taken_ids):
-        string = ""
-        allowed_characters = list(map(chr, range(ord('A'), ord('Z')+1)))
-        allowed_characters.extend(range(2, 10))
-        for _ in range(6):
-            string += str(random.choice(allowed_characters))
-
-        unique_id = prefix + string
-
-    return unique_id
+        result += str(random.choice(allowed_characters))
+    return result
 
 
 def generate_latex_table_from(dataframe):
