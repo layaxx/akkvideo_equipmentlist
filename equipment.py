@@ -1,4 +1,3 @@
-from enum import unique
 from dbutility import VerificationDatabase
 import streamlit as st
 import pandas
@@ -7,18 +6,16 @@ from platform import system
 from os import path
 import subprocess
 from datetime import datetime
-from latex import build_pdf, LatexBuildError
+from latex import LatexBuildError
 from math import isnan
 import decimal
-import random
-from base64 import b64decode, b64encode
+from base64 import b64decode
 import pdfutility
 
 
 # Draw Title of Page
 st.title('Technikliste')
 st.markdown("## 1. Überblick")
-
 
 def format_price(val):
     # this function takes an input and formats it to fit into the price column.
@@ -41,7 +38,7 @@ def format_price(val):
     try:
         if isnan(val):
             return ""
-    except TypeError as e:
+    except TypeError:
         return ""
     if isinstance(val, float):
         return decimal.Decimal.from_float(val)
