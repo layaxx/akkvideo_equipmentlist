@@ -5,6 +5,36 @@ from base64 import b64encode
 from streamlit.elements.media_proto import _reshape_youtube_url
 
 
+'''
+Pseudo Documentation for Database
+
+The Datatabse is a postgres database running on heroku and kenn be accessed with the DATABASE_URL environment variable
+It consists of two tables verify and devices, which where created with the following commands:
+CREATE TABLE verify (
+	timestamp TIMESTAMP DEFAULT current_timestamp,      # datetime representing the date and time of insertion into the database
+	devices INTEGER NOT NULL,                           # integer representing the amount of devices included in the report
+	query TEXT,                                         # string representing the filters with which the report was generated TODO: not yet implemented
+	tex TEXT,                                           # base64 encoded LaTeX soruce file with which the report can be regenerated
+	id CHAR(8) PRIMARY KEY                              # 8 character unique ID containing captial letters A-Z and digits 2-9 (limiting risk of confusion of similar looking characters)
+);
+
+CREATE TABLE devices (
+    index INTEGER,                                      # integer mostly for backwards compatibility
+    amount INTEGER DEFAULT 1,                           # integer representing the amount of identical devices
+    desc TEXT NOT NULL,                                 # string containing a description of the item
+    location TEXT DEFAULT "Medienraum",                 # string representing the current location of the item (e.g. "Medienraum")
+    location_prec TEXT,                                 # string specifying the location of the item in more Detail (e.g. "Stahlschrank)            
+    container TEXT,                                     # string stating what conatiner the item is in, if any (e.g. "Tontasche")
+    category TEXT DEFAULT "Sonstiges",                  # comma seperated list of tags for the item (e.g. "Kamera" or "Ton")
+    brand TEXT,                                         # string representing the brand name of the item (e.g. "Canon")
+    price NUMERIC(5,2),                                 # Decimal storing the price per unit for the item 
+    store TEXT,                                         # String specifying where the item was bought (e.g. "Amazon.com")
+    comments TEXT,                                      # String storing additional information about the item (e.g. "display is broken")
+    history TEXT,                                       # TODO: to be implemented
+    id CHAR(6) PRIMARY KEY                              # 6 character unique ID containing captial letters A-Z and digits 2-9 (limiting risk of confusion of similar looking characters)
+)
+'''
+
 class VerificationDatabase():
 
     def __init__(self) -> None:
