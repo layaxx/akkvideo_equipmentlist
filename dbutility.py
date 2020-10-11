@@ -2,7 +2,6 @@ from base64 import b64encode
 import pandas
 import psycopg2
 import os
-from decimal import Decimal
 
 '''
 Pseudo Documentation for Database
@@ -186,7 +185,7 @@ class DevicesDatabase():
             dataframe = pandas.read_sql_query(
                 "SELECT * FROM devices", connection, coerce_float=False)
             dataframe.rename(columns=self.columns_dict, index={
-                      'ONE': 'one'}, inplace=True)
+                'ONE': 'one'}, inplace=True)
             dataframe = dataframe.convert_dtypes()
             connection.commit()
             return dataframe

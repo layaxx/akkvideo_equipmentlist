@@ -4,6 +4,7 @@ from datetime import datetime
 from dbutility import VerificationDatabase
 import random
 
+
 def generate_b64_pdf_from_tex(tex):
     # Compile LaTeX Code to Data object
     pdf = latex.build_pdf(tex)
@@ -14,7 +15,13 @@ def generate_b64_pdf_from_tex(tex):
     # convert to string and trim
     return str(pdf_base64)[2:-1]
 
-def fill_in_latex_template(filters_are_active, sort_by_col, sort_by_col2, order, dataframe):
+
+def fill_in_latex_template(
+        filters_are_active,
+        sort_by_col,
+        sort_by_col2,
+        order,
+        dataframe):
     # load LaTeX Template
     with open("pdf_assets/template.tex", "r", encoding="utf8") as tex:
         template = tex.read()
@@ -45,6 +52,7 @@ def fill_in_latex_template(filters_are_active, sort_by_col, sort_by_col2, order,
 
     return template, unique_id
 
+
 def generate_unique_id(type_of_report="General Report", name=""):
     '''
     Generates a unique, 8 character long String as identifier for reports in the database.
@@ -60,7 +68,7 @@ def generate_unique_id(type_of_report="General Report", name=""):
 
     list_of_taken_ids = VerificationDatabase().get_taken_ids(prefix)
 
-    if not type(list_of_taken_ids) == list:
+    if not isinstance(list_of_taken_ids, list):
         return ""
 
     unique_id = prefix + get_six_digit_id()
@@ -70,9 +78,10 @@ def generate_unique_id(type_of_report="General Report", name=""):
 
     return unique_id
 
+
 def get_six_digit_id():
     result = ""
-    allowed_characters = list(map(chr, range(ord('A'), ord('Z')+1)))
+    allowed_characters = list(map(chr, range(ord('A'), ord('Z') + 1)))
     allowed_characters.extend(range(2, 10))
     for _ in range(6):
         result += str(random.choice(allowed_characters))
@@ -96,7 +105,7 @@ def generate_latex_table_from(dataframe):
         jahr = "n/a"  # .csv does currently not have information about year of purchase
         table += f"{menge}&{name}&{lagerort}&{preis}&{jahr}\\\\%\n"
     return table
-    
+
 
 def escape_special_characters(input_string):
     # escapes all occurrences of # $ % & ~ _ ^ \ { } and escapes them in order

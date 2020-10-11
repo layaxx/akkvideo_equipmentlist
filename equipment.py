@@ -10,12 +10,14 @@ from latex import LatexBuildError
 from math import isnan
 import decimal
 from base64 import b64decode
-import pdfutility, dbutility
+import pdfutility
+import dbutility
 
 
 # Draw Title of Page
 st.title('Technikliste')
 st.markdown("## 1. Überblick")
+
 
 def format_price(val):
     # this function takes an input and formats it to fit into the price column.
@@ -52,7 +54,6 @@ def load_data(location="Inventar_akvideo.csv"):
     return dbutility.DevicesDatabase().load_all_devices_into_dataframe()
 
 
-
 def check_if_all_packages_are_installed():
     # checks if all latex packages that are mentioned in latex_setup.sh and therefore should be installed, are actually installed
     # returns False iff one or more packages mentioned in latex_setup.sh are
@@ -73,22 +74,22 @@ def check_if_all_packages_are_installed():
     return True
 
 
-
 def create_pdf_downloadlink_for_verified_report(timestamp, tex_base64):
     '''
     Takes a datetime.datetime object timestamp and a base64-encoded latex template tex_base64 as inputs
     returns a data url downloadlink with the pdf generated from the tex template as data and the formatted date as filename
     '''
-    # Decode base64 encoded string 
+    # Decode base64 encoded string
     tex_string = b64decode(tex_base64)
-    
+
     # Generate base64 encoded pdf from tex_string
     pdf_base64_string = pdfutility.generate_b64_pdf_from_tex(tex_string)
 
     # create a filename with the date specified by the timestamp
     filename = "technikliste_" + timestamp.strftime("%Y-%m-%d") + ".pdf"
 
-    # create and return actual download-link with base64 encoded pdf and filename
+    # create and return actual download-link with base64 encoded pdf and
+    # filename
     download_link = f'<a href="data:file/pdf;base64,{pdf_base64_string}" download="{filename}">Orginal Herunterladen</a>'
     return download_link
 
@@ -102,10 +103,13 @@ def create_pdf_downloadlink_for_new_report(
     # this function creates a PDF from the given dataframe and returns a html download link with the base64 encoded PDF (data-url)
     # the PDF is based on the LaTeX File ./pdf_assets/template.tex
     # this function inserts the current date, an identification number, a table of all selected devices and
-    # a message, if filters are active (and therefore not all devices that are tracked will be in the pdf)
+    # a message, if filters are active (and therefore not all devices that are
+    # tracked will be in the pdf)
 
-    # replaces placeholders in latex template with actual values and tries to generate a unique, 8 character long id
-    template, unique_id = pdfutility.fill_in_latex_template(filters_are_active, sort_by_col, sort_by_col2, order, dataframe)
+    # replaces placeholders in latex template with actual values and tries to
+    # generate a unique, 8 character long id
+    template, unique_id = pdfutility.fill_in_latex_template(
+        filters_are_active, sort_by_col, sort_by_col2, order, dataframe)
 
     # if generation of id fails, for example due to connection error to database, unique_id is empty string,
     # and validation will not be available for this document
@@ -118,15 +122,18 @@ def create_pdf_downloadlink_for_new_report(
     # create a filename with the current date
     filename = "technikliste_" + datetime.now().strftime("%Y-%m-%d") + ".pdf"
 
-    # if unique_id is empty string, connection to db failed prior and verification is not available for this document as a result
+    # if unique_id is empty string, connection to db failed prior and
+    # verification is not available for this document as a result
     if not unique_id == "":
         return_value = VerificationDatabase().save_record(
-            template=template, id=unique_id, devices=len(dataframe["Index"]), query="")
+            template=template, id=unique_id, devices=len(
+                dataframe["Index"]), query="")
         if return_value == -1:
             st.warning(
                 "Datenbankverbindung konnte nicht hergestellt werden. Verifizierung wird für dieses Dokument nicht möglich sein.")
 
-    # create and return actual download-link with base64 encoded pdf and filename
+    # create and return actual download-link with base64 encoded pdf and
+    # filename
     download_link = f'<a href="data:file/pdf;base64,{pdf_base64_string}" download="{filename}">PDF Datei Herunterladen</a>'
     return download_link
 
@@ -242,7 +249,7 @@ with st.beta_expander("Bericht verifizieren"):
                     "Leider konnte keine Verbindung zur Datenbank hergestellt werden.")
             elif verify_result == {}:
                 st.info("Leider konnte kein passendes Dokument gefunden werden.")
-            elif type(verify_result) == dict and len(verify_result) == 4:
+            elif isinstance(verify_result, dict) and len(verify_result) == 4:
                 st.markdown("### Dokument gefunden!")
                 st.markdown(
                     f'Das Dokument wurde am {verify_result["timestamp"].strftime("%d.%m.%Y um %H:%M")} generiert und enthält {verify_result["devices"]} Geräte.')
@@ -256,7 +263,8 @@ with st.beta_expander("Bericht verifizieren"):
                             "PDF konnte leider nicht generiert werden. Bitte versuche es in 2 Minuten erneut.")
                     except LatexBuildError as e:
                         print(e)
-                        st.error("PDF konnte leider nicht generiert werden. Bitte versuche es in 2 Minuten erneut. Falls der Fehler dann erneut auftritt, kontaktiere uns bitte: dev@arbeitskreis.video")
+                        st.error(
+                            "PDF konnte leider nicht generiert werden. Bitte versuche es in 2 Minuten erneut. Falls der Fehler dann erneut auftritt, kontaktiere uns bitte: dev@arbeitskreis.video")
 
 with st.beta_expander("Bericht generieren"):
     # generate PDF report
@@ -271,7 +279,8 @@ with st.beta_expander("Bericht generieren"):
         "Kategorie",
         "Preis"]
     sort_by_primary = st.selectbox("primary", list_of_options_for_sort_by, 0)
-    sort_by_secondary = st.selectbox("secondary", list_of_options_for_sort_by, 0)
+    sort_by_secondary = st.selectbox(
+        "secondary", list_of_options_for_sort_by, 0)
     order = st.selectbox("", ["aufsteigend", "absteigend"], 0)
 
     # sort DataFrame

@@ -371,7 +371,7 @@ def try_something():
 class GenerateB64PdfFromTex(unittest.TestCase):
     def test_returns_expected_result(self):
         """
-        Test that generate_b64_pdf_from_tex(tex) returns the expected b64 encoded String 
+        Test that generate_b64_pdf_from_tex(tex) returns the expected b64 encoded String
         """
         with patch.object(latex, 'build_pdf', return_value=b"helloWorld"):
             self.assertEqual(pdfutility.generate_b64_pdf_from_tex(
@@ -381,28 +381,36 @@ class GenerateB64PdfFromTex(unittest.TestCase):
 class FillInLatexTemplate(unittest.TestCase):
     def test_returns_expected_result(self):
         """
-        Test that fill_in_latex_template(filters_are_active, sort_by_col, sort_by_col2, order, dataframe) returns the expected template and id 
+        Test that fill_in_latex_template(filters_are_active, sort_by_col, sort_by_col2, order, dataframe) returns the expected template and id
         """
         with patch.object(pdfutility, 'generate_latex_table_from', return_value=r"&&&&\\"):
             with patch.object(pdfutility, 'generate_unique_id', return_value="AAAAAAAA"):
                 with open("tests/expected_template.tex", "r", encoding="utf8") as expected_template:
-                    expected = (expected_template.read().replace(
-                        "08.10.2020", datetime.date.today().strftime("%d.%m.%Y")), "AAAAAAAA")
+                    expected = (
+                        expected_template.read().replace(
+                            "08.10.2020",
+                            datetime.date.today().strftime("%d.%m.%Y")),
+                        "AAAAAAAA")
                 actual = pdfutility.fill_in_latex_template(
-                    True, "Preis", "Index", "aufsteigend", pandas.DataFrame(columns=["Index"]))
+                    True, "Preis", "Index", "aufsteigend", pandas.DataFrame(
+                        columns=["Index"]))
         self.assertTupleEqual(expected, actual)
 
     def test_returns_expected_result_no_filters_active(self):
         """
-        Test that fill_in_latex_template(filters_are_active, sort_by_col, sort_by_col2, order, dataframe) returns the expected template and id 
+        Test that fill_in_latex_template(filters_are_active, sort_by_col, sort_by_col2, order, dataframe) returns the expected template and id
         """
         with patch.object(pdfutility, 'generate_latex_table_from', return_value=r"&&&&\\"):
             with patch.object(pdfutility, 'generate_unique_id', return_value="AAAAAAAA"):
                 with open("tests/expected_template_2.tex", "r", encoding="utf8") as expected_template:
-                    expected = (expected_template.read().replace(
-                        "08.10.2020", datetime.date.today().strftime("%d.%m.%Y")), "AAAAAAAA")
+                    expected = (
+                        expected_template.read().replace(
+                            "08.10.2020",
+                            datetime.date.today().strftime("%d.%m.%Y")),
+                        "AAAAAAAA")
                 actual = pdfutility.fill_in_latex_template(
-                    False, "Preis", "Preis", "aufsteigend", pandas.DataFrame(columns=["Index"]))
+                    False, "Preis", "Preis", "aufsteigend", pandas.DataFrame(
+                        columns=["Index"]))
         self.assertTupleEqual(expected, actual)
 
 
