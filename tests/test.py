@@ -1,108 +1,21 @@
-from base64 import b64encode
 import datetime
 import decimal
-from operator import eq
-import latex
-import pandas
-import numpy as np
 import os
 import sys
 import unittest
 import unittest.mock
+from base64 import b64encode
 from unittest.mock import MagicMock, call, patch
 
+import latex
+import numpy as np
+import pandas
 import psycopg2
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
-import equipment  # nopep8
 import dbutility  # nopep8
+import equipment  # nopep8
 import pdfutility  # nopep8
-
-
-class LoadDataTestCase(unittest.TestCase):
-
-    def setUp(self):
-        self.dataframe = equipment.load_data("tests/test1.csv")
-
-    def tearDown(self):
-        self.dataframe = None
-
-    def test_read_csv(self):
-        actual = self.dataframe
-        expected = pandas.DataFrame(np.array([[1,
-                                               1,
-                                               "Produkt1",
-                                               "Medienraum",
-                                               "Stahlschrank",
-                                               "",
-                                               "Software",
-                                               "Magix",
-                                               "",
-                                               "",
-                                               "",
-                                               "unklar ob auf PC / welchem PC"],
-                                              [2,
-                                               1,
-                                               "Produkt2",
-                                               "Medienraum",
-                                               "Stahlschrank",
-                                               "",
-                                               "Zubehör",
-                                               "Coast",
-                                               decimal.Decimal("27.90"),
-                                               "GHW",
-                                               "",
-                                               ""],
-                                              [3,
-                                               1,
-                                               "Produkt3",
-                                               "Medienraum",
-                                               "Stahlschrank",
-                                               "",
-                                               "Kabel",
-                                               "",
-                                               decimal.Decimal("21.41"),
-                                               "",
-                                               "",
-                                               ""]]),
-                                    columns=["Index",
-                                             "Menge",
-                                             "Gerätebezeichnung",
-                                             "Lagerort",
-                                             "Lagerort_konkret",
-                                             "Behälter",
-                                             "Kategorie",
-                                             "Marke",
-                                             "Preis",
-                                             "wo_gekauft",
-                                             "zusätzliche_Tags",
-                                             "Anmerkungen"])
-
-        pandas.testing.assert_frame_equal(actual, expected, check_dtype=False)
-
-    def test_convert_index_to_integer(self):
-        """
-        Test if values in Index column are converted to Integer during loading
-        """
-        self.assertEqual(type(self.dataframe["Index"][1]), np.int64)
-
-    def test_convert_menge_to_integer(self):
-        """
-        Test that values in Menge column are converted to Integer during loading
-        """
-        self.assertEqual(type(self.dataframe["Menge"][1]), np.int64)
-
-    def test_convert_preis_to_decimal(self):
-        """
-        Test that values in Preis column are converted to Decimal during loading
-        """
-        self.assertEqual(type(self.dataframe["Preis"][1]), decimal.Decimal)
-
-    def test_format_preis(self):
-        """
-        Test that values in preis column have correct formatting
-        """
-        self.assertEqual(len(str(self.dataframe["Preis"][1])), 5)
 
 
 class FormatPriceTestCase(unittest.TestCase):
@@ -330,26 +243,6 @@ class GenerateLatexTableFromDataframe(unittest.TestCase):
         self.assertEqual(pdfutility.generate_latex_table_from(
             pandas.DataFrame()), "")
 
-    def test_generates_expected_table_for_nonempty_Dataframe(self):
-        """
-        Test that generate_latex_table_from(dataframe) returns expected String for non empty Dataframe
-        """
-        with open("tests" + os.sep + "expected_table.txt", "r") as file:
-            expected = file.read()
-        actual = pdfutility.generate_latex_table_from(
-            equipment.load_data("tests/test1.csv"))
-        self.assertEqual(expected, actual)
-
-    def test_escapes_characters(self):
-        """
-        Test that generate_latex_table_from(dataframe) returns escaped String for Dataframe with characters that need to be escaped
-        """
-        with open("tests" + os.sep + "expected_table2.txt", "r") as file:
-            expected = file.read()
-        actual = pdfutility.generate_latex_table_from(
-            equipment.load_data("tests/test2.csv"))
-        self.assertEqual(expected, actual)
-
 
 class GenerateUniqueID(unittest.TestCase):
     def test_returns_xx_prefix_for_empty_name_and_type(self):
@@ -372,7 +265,8 @@ class GenerateUniqueID(unittest.TestCase):
             'dbutility.VerificationDatabase.get_taken_ids')
         mock_thing = patcher.start()
         mock_thing.return_value = []
-        self.assertTrue(pdfutility.generate_unique_id("", "a").startswith("XX"))
+        self.assertTrue(pdfutility.generate_unique_id(
+            "", "a").startswith("XX"))
 
     def test_returns_gr_prefix_for_general_report_type_even_if_name_is_specified(
             self):
@@ -464,11 +358,12 @@ class GenerateUniqueID(unittest.TestCase):
         with patch.object(dbutility.VerificationDatabase, 'get_taken_ids', return_value=psycopg2.Error()):
             self.assertEqual(pdfutility.generate_unique_id("", ""), "")
 
+
 def try_something():
     min_latex = (r"\documentclass{article}"
-             r"\begin{document}"
-             r"Hello, world!"
-             r"\end{document}")
+                 r"\begin{document}"
+                 r"Hello, world!"
+                 r"\end{document}")
     pdf = latex.build_pdf(min_latex)
     return bytes(pdf, encoding="ascii")
 
@@ -479,7 +374,9 @@ class GenerateB64PdfFromTex(unittest.TestCase):
         Test that generate_b64_pdf_from_tex(tex) returns the expected b64 encoded String 
         """
         with patch.object(latex, 'build_pdf', return_value=b"helloWorld"):
-            self.assertEqual(pdfutility.generate_b64_pdf_from_tex("anything"), "aGVsbG9Xb3JsZA==")
+            self.assertEqual(pdfutility.generate_b64_pdf_from_tex(
+                "anything"), "aGVsbG9Xb3JsZA==")
+
 
 class FillInLatexTemplate(unittest.TestCase):
     def test_returns_expected_result(self):
@@ -489,8 +386,10 @@ class FillInLatexTemplate(unittest.TestCase):
         with patch.object(pdfutility, 'generate_latex_table_from', return_value=r"&&&&\\"):
             with patch.object(pdfutility, 'generate_unique_id', return_value="AAAAAAAA"):
                 with open("tests/expected_template.tex", "r", encoding="utf8") as expected_template:
-                    expected = (expected_template.read().replace("08.10.2020", datetime.date.today().strftime("%d.%m.%Y")), "AAAAAAAA")
-                actual = pdfutility.fill_in_latex_template(True, "Preis", "Index", "aufsteigend", pandas.DataFrame(columns=["Index"]))
+                    expected = (expected_template.read().replace(
+                        "08.10.2020", datetime.date.today().strftime("%d.%m.%Y")), "AAAAAAAA")
+                actual = pdfutility.fill_in_latex_template(
+                    True, "Preis", "Index", "aufsteigend", pandas.DataFrame(columns=["Index"]))
         self.assertTupleEqual(expected, actual)
 
     def test_returns_expected_result_no_filters_active(self):
@@ -500,21 +399,71 @@ class FillInLatexTemplate(unittest.TestCase):
         with patch.object(pdfutility, 'generate_latex_table_from', return_value=r"&&&&\\"):
             with patch.object(pdfutility, 'generate_unique_id', return_value="AAAAAAAA"):
                 with open("tests/expected_template_2.tex", "r", encoding="utf8") as expected_template:
-                    expected = (expected_template.read().replace("08.10.2020", datetime.date.today().strftime("%d.%m.%Y")), "AAAAAAAA")
-                actual = pdfutility.fill_in_latex_template(False, "Preis", "Preis", "aufsteigend", pandas.DataFrame(columns=["Index"]))
+                    expected = (expected_template.read().replace(
+                        "08.10.2020", datetime.date.today().strftime("%d.%m.%Y")), "AAAAAAAA")
+                actual = pdfutility.fill_in_latex_template(
+                    False, "Preis", "Preis", "aufsteigend", pandas.DataFrame(columns=["Index"]))
         self.assertTupleEqual(expected, actual)
+
 
 class CreateDownloadlinkForVerifiedReport(unittest.TestCase):
     def test_calls_pdfutility_function_correctly(self):
         with patch.object(pdfutility, "generate_b64_pdf_from_tex", return_value="abc") as mock:
-            equipment.create_pdf_downloadlink_for_verified_report(datetime.datetime.now(), b64encode(b"template"))
+            equipment.create_pdf_downloadlink_for_verified_report(
+                datetime.datetime.now(), b64encode(b"template"))
         mock.assert_called_once_with(b"template")
 
     def test_returns_expected_result(self):
         with patch.object(pdfutility, "generate_b64_pdf_from_tex", return_value="abc") as mock:
-            actual = equipment.create_pdf_downloadlink_for_verified_report(datetime.datetime.now(), b64encode(b"template"))
+            actual = equipment.create_pdf_downloadlink_for_verified_report(
+                datetime.datetime.now(), b64encode(b"template"))
         expected = f'<a href="data:file/pdf;base64,abc" download="technikliste_{datetime.date.today().strftime("%Y-%m-%d")}.pdf">Orginal Herunterladen</a>'
         self.assertEqual(expected, actual)
+
+
+class CreatePdfDownloadlinkForNewReport(unittest.TestCase):
+    def test_calls_pdfutility_function_correctly(self):
+        pass
+
+
+"""
+def create_pdf_downloadlink_for_new_report(
+        dataframe,
+        filters_are_active,
+        sort_by_col,
+        sort_by_col2,
+        order):
+    # this function creates a PDF from the given dataframe and returns a html download link with the base64 encoded PDF (data-url)
+    # the PDF is based on the LaTeX File ./pdf_assets/template.tex
+    # this function inserts the current date, an identification number, a table of all selected devices and
+    # a message, if filters are active (and therefore not all devices that are tracked will be in the pdf)
+
+    # replaces placeholders in latex template with actual values and tries to generate a unique, 8 character long id
+    template, unique_id = pdfutility.fill_in_latex_template(filters_are_active, sort_by_col, sort_by_col2, order, dataframe)
+
+    # if generation of id fails, for example due to connection error to database, unique_id is empty string,
+    # and validation will not be available for this document
+    if unique_id == "":
+        st.warning(
+            "Datenbankverbindung konnte nicht hergestellt werden. Verifizierung wird für dieses Dokument nicht möglich sein.")
+
+    pdf_base64_string = pdfutility.generate_b64_pdf_from_tex(template)
+
+    # create a filename with the current date
+    filename = "technikliste_" + datetime.now().strftime("%Y-%m-%d") + ".pdf"
+
+    # if unique_id is empty string, connection to db failed prior and verification is not available for this document as a result
+    if not unique_id == "":
+        return_value = VerificationDatabase().save_record(
+            template=template, id=unique_id, devices=len(dataframe["Index"]), query="")
+        if return_value == -1:
+            st.warning(
+                "Datenbankverbindung konnte nicht hergestellt werden. Verifizierung wird für dieses Dokument nicht möglich sein.")
+
+    # create and return actual download-link with base64 encoded pdf and filename
+    download_link = f'<a href="data:file/pdf;base64,{pdf_base64_string}" download="{filename}">PDF Datei Herunterladen</a>'
+    return download_link
+"""
 
 if __name__ == "__main__":
     unittest.main()  # run all tests

@@ -1,9 +1,8 @@
+from base64 import b64encode
+import pandas
 import psycopg2
 import os
-from base64 import b64encode
-
-from streamlit.elements.media_proto import _reshape_youtube_url
-
+from decimal import Decimal
 
 '''
 Pseudo Documentation for Database
@@ -19,21 +18,23 @@ CREATE TABLE verify (
 );
 
 CREATE TABLE devices (
-    index INTEGER,                                      # integer mostly for backwards compatibility
+    index INTEGER NOT NULL,                             # integer mostly for backwards compatibility
     amount INTEGER DEFAULT 1,                           # integer representing the amount of identical devices
-    desc TEXT NOT NULL,                                 # string containing a description of the item
-    location TEXT DEFAULT "Medienraum",                 # string representing the current location of the item (e.g. "Medienraum")
-    location_prec TEXT,                                 # string specifying the location of the item in more Detail (e.g. "Stahlschrank)            
-    container TEXT,                                     # string stating what conatiner the item is in, if any (e.g. "Tontasche")
-    category TEXT DEFAULT "Sonstiges",                  # comma seperated list of tags for the item (e.g. "Kamera" or "Ton")
-    brand TEXT,                                         # string representing the brand name of the item (e.g. "Canon")
-    price NUMERIC(5,2),                                 # Decimal storing the price per unit for the item 
-    store TEXT,                                         # String specifying where the item was bought (e.g. "Amazon.com")
-    comments TEXT,                                      # String storing additional information about the item (e.g. "display is broken")
-    history TEXT,                                       # TODO: to be implemented
-    id CHAR(6) PRIMARY KEY                              # 6 character unique ID containing captial letters A-Z and digits 2-9 (limiting risk of confusion of similar looking characters)
-)
+    description TEXT NOT NULL,                          # string containing a description of the item
+    location TEXT DEFAULT 'Medienraum',                 # string representing the current location of the item (e.g. "Medienraum")
+    location_prec TEXT DEFAULT '',                      # string specifying the location of the item in more Detail (e.g. "Stahlschrank)
+    container TEXT DEFAULT '',                          # string stating what conatiner the item is in, if any (e.g. "Tontasche")
+    category TEXT DEFAULT 'Sonstiges',                  # comma seperated list of tags for the item (e.g. "Kamera" or "Ton")
+    brand TEXT DEFAULT '',                              # string representing the brand name of the item (e.g. "Canon")
+    price NUMERIC(7,2),                                 # Decimal storing the price per unit for the item
+    store TEXT DEFAULT '',                              # String specifying where the item was bought (e.g. "Amazon.com")
+    comments TEXT DEFAULT '',                           # String storing additional information about the item (e.g. "display is broken")
+    history TEXT DEFAULT '',                            # TODO: to be implemented
+    id CHAR(6) PRIMARY KEY,                             # 6 character unique ID containing captial letters A-Z and digits 2-9 (limiting risk of confusion of similar looking characters)
+    date DATE
+);
 '''
+
 
 class VerificationDatabase():
 
@@ -94,8 +95,9 @@ class VerificationDatabase():
             Insert new Row into table "verify"
             '''
             template = str(b64encode(bytes(template, encoding="utf8")))[2:-1]
-            cur.execute("INSERT INTO verify (devices, query, tex, id) VALUES (%s, %s, %s, %s)", [
-                        devices, query, template, id])
+            cur.execute(
+                "INSERT INTO verify (devices, query, tex, id) VALUES (%s, %s, %s, %s)", [
+                    devices, query, template, id])
             connection.commit()
             cur.close()
         except psycopg2.Error as e:
@@ -107,10 +109,10 @@ class VerificationDatabase():
 
     def verify(self, unique_id):
         '''
-        Connects to Database specified in the "DATABASE_URL" environment variable and searches the "verify" table for 
-        the given id. 
+        Connects to Database specified in the "DATABASE_URL" environment variable and searches the "verify" table for
+        the given id.
         Returns empty dict indicating that the report does not exist if no corresponding row is found
-        Returns dict containing values for columns "devices", "timestamp", "query" and "tex" 
+        Returns dict containing values for columns "devices", "timestamp", "query" and "tex"
         '''
         connection = None
         try:
@@ -135,8 +137,59 @@ class VerificationDatabase():
             else:
                 print(record)
                 result = {
-                    "timestamp": record[0], "devices": record[1], "query": record[2], "tex": record[3]}
+                    "timestamp": record[0],
+                    "devices": record[1],
+                    "query": record[2],
+                    "tex": record[3]}
                 return result
+        except psycopg2.Error as e:
+            print(e)
+            return -1
+        finally:
+            if connection is not None:
+                connection.close()
+
+
+class DevicesDatabase():
+    def __init__(self) -> None:
+        self.DATABASE_URL = os.environ.get("DATABASE_URL")
+        self.columns_dict = {
+            'index': 'Index',
+            "amount": "Menge",
+            "description": "Gerätebezeichnung",
+            "location": "Lagerort",
+            "location_prec": "Lagerort_konkret",
+            "container": "Behälter",
+            "category": "Kategorie",
+            "brand": "Marke",
+            "price": "Preis",
+            "store": "wo_gekauft",
+            "comments": "Anmerkungen"}
+
+    def load_all_devices_into_dataframe(self):
+        '''
+        Connects to Database specified in the "DATABASE_URL" environment variable and searches the "devices" table for
+        all devices
+        Returns sanitized DataFrame containing one row per device present in the DB table if everything goes well
+        Returns -1 and prints error to console if one occurs during Database interaction
+        '''
+        connection = None
+        try:
+            '''
+            Connect to Database
+            '''
+            if "REQUIRE_SSL" in os.environ:
+                connection = psycopg2.connect(
+                    self.DATABASE_URL, sslmode='require')
+            else:
+                connection = psycopg2.connect(self.DATABASE_URL)
+            dataframe = pandas.read_sql_query(
+                "SELECT * FROM devices", connection, coerce_float=False)
+            dataframe.rename(columns=self.columns_dict, index={
+                      'ONE': 'one'}, inplace=True)
+            dataframe = dataframe.convert_dtypes()
+            connection.commit()
+            return dataframe
         except psycopg2.Error as e:
             print(e)
             return -1

@@ -10,7 +10,7 @@ from latex import LatexBuildError
 from math import isnan
 import decimal
 from base64 import b64decode
-import pdfutility
+import pdfutility, dbutility
 
 
 # Draw Title of Page
@@ -47,19 +47,9 @@ def format_price(val):
 @st.cache
 def load_data(location="Inventar_akvideo.csv"):
     '''
-    loads the csv file specified by the location parameter into a dataframe and replaces all occurances of NaN with an empty String,
-    as well as formatting all values in the "Menge" and "Index" columns from floats to integers and formatting "Preis" values to 
-    use two decimal places if number and empty string else
-    returns the sanitized DataFrame
+    return ssanitized Dataframe
     '''
-    data = pandas.read_csv(location, delimiter=";")
-    # change format of "Index" and "Menge" rows from float to Integer
-    # make sure the .csv does not contain empty rows, or this will fail
-    data["Index"] = data["Index"].apply(np.int64)
-    data["Menge"] = data["Menge"].apply(np.int64)
-    data["Preis"] = data["Preis"].map(format_price)
-
-    return data.replace(np.nan, '', regex=True)
+    return dbutility.DevicesDatabase().load_all_devices_into_dataframe()
 
 
 
