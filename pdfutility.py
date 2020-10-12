@@ -197,7 +197,7 @@ def generate_latex_table_from(dataframe):
         name = escape_special_characters(row["Gerätebezeichnung"])
         lagerort = escape_special_characters(row["Lagerort"])
         preis = escape_special_characters(str(row["Preis"]).replace(".", ","))
-        jahr = "n/a"  # .csv does currently not have information about year of purchase
+        jahr = row["date"].strftime("%Y")
         table += f"{menge}&{name}&{lagerort}&{preis}&{jahr}\\\\%\n"
     return table
 
