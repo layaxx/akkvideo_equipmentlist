@@ -139,3 +139,4 @@ pdf_assets/*.gz
 playground.py
 test.txt
 dbinput.txt
+test.csv

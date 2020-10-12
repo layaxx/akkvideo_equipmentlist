@@ -96,12 +96,12 @@ def check_if_all_packages_are_installed():
                 name_of_latex_package = line.split(" ")[-1].strip()
                 if(name_of_latex_package == "ms"):
                     if subprocess.run(["kpsewhich", "everysel.sty"],
-                                      stdout=subprocess.DEVNULL).returncode is not 0:
+                                      stdout=subprocess.DEVNULL).returncode != 0:
                         return False
                 else:
                     if subprocess.run(["kpsewhich",
                                        f"{name_of_latex_package}.sty"],
-                                      stdout=subprocess.DEVNULL).returncode is not 0:
+                                      stdout=subprocess.DEVNULL).returncode != 0:
                         return False
     return True
 

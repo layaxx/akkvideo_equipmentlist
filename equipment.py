@@ -50,12 +50,18 @@ st.write(
     amount_devices_in_medienraum,
     " im Medienraum.")
 
+list_of_unique_categories = []
+for entry in data["Kategorie"].unique():
+    for keyword in entry.split(","):
+        list_of_unique_categories.append(keyword.strip())
+list_of_unique_categories = list(set(list_of_unique_categories))
+
 # display the filters in the sidebar
 sidebar_searchterm = st.sidebar.text_input("Suche nach Einträgen")
 sidebar_indices = st.sidebar.multiselect(
     "Index eingrenzen", data["Index"].unique())
 sidebar_categories = st.sidebar.multiselect(
-    "Kategorie eingrenzen", data["Kategorie"].unique())
+    "Kategorie eingrenzen", list_of_unique_categories)
 sidebar_locations = st.sidebar.multiselect(
     "Ort eingrenzen", data["Lagerort"].unique())
 sidebar_containers = st.sidebar.multiselect(
@@ -68,7 +74,12 @@ if len(sidebar_indices) != 0:
     data = data[(data['Index'].isin(sidebar_indices))]
 
 if len(sidebar_categories) != 0:
-    data = data[(data['Kategorie'].isin(sidebar_categories))]
+    for index, row in data.iterrows():
+        for selected_category in sidebar_categories:
+            if selected_category.lower() in row["Kategorie"].lower():
+                break
+        else:
+            data = data.drop([index])
 
 if len(sidebar_locations) != 0:
     data = data[(data['Lagerort'].isin(sidebar_locations))]
@@ -187,6 +198,7 @@ with st.beta_expander("Bericht generieren"):
 
     # display interactive table, if applicable with the filters specified in
     # the sidebar and the order specified in the fields below it.
+    data = data.drop(['history'], axis=1)
     dataframe_placeholder.dataframe(data)
 
     '''
