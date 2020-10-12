@@ -5,7 +5,7 @@ import sys
 import unittest
 import unittest.mock
 from base64 import b64encode
-from unittest.mock import MagicMock, call, patch
+from unittest.mock import patch
 
 import latex
 import numpy as np
@@ -14,66 +14,7 @@ import psycopg2
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 import dbutility  # nopep8
-import equipment  # nopep8
 import pdfutility  # nopep8
-
-
-class FormatPriceTestCase(unittest.TestCase):
-
-    def test_return_empty_string_for_everything_else(self):
-        """
-        Test that format_price() returns empty String if input is neither float nor string nor nan
-        """
-        self.assertAlmostEqual(equipment.format_price([]), "")
-
-    def test_return_empty_string_for_nan(self):
-        """
-        Test that format_price() returns empty String for NaN Input
-        """
-        actual = equipment.format_price(np.nan)
-        self.assertEqual(actual, "", )
-
-    def test_convert_float_to_decimal(self):
-        """
-        Test that format_price() returns correct Decimal for float input
-        """
-        actual = equipment.format_price(9.85)
-        self.assertEqual(actual, decimal.Decimal.from_float(9.85))
-
-    def test_convert_string_with_point_to_decimal(self):
-        """
-        Test that format_price() returns correct Decimal for String input with point as Decimal Seperator
-        """
-        actual = equipment.format_price("9.85")
-        self.assertEqual(actual, decimal.Decimal("9.85"))
-
-    def test_convert_string_with_comma_to_decimal(self):
-        """
-        Test that format_price() returns correct Decimal for String Input with Comma as Decimal Seperator
-        """
-        actual = equipment.format_price("9,85")
-        self.assertEqual(actual, decimal.Decimal("9.85"))
-
-    def test_pad_price_intlike(self):
-        """
-        Test that format_price() pads Output with Zeros for Integer-like String Input
-        """
-        actual = equipment.format_price("9")
-        self.assertEqual(actual, decimal.Decimal("9.00"))
-
-    def test_pad_price_floatlike(self):
-        """
-        Test that format_price() pads Output with Zeros for Float-like String Input
-        """
-        actual = equipment.format_price("9,8")
-        self.assertEqual(actual, decimal.Decimal("9.80"))
-
-    def test_cut_off_price(self):
-        """
-        Test that format_price() cuts Number of after 2 Decimal Places for String Input with more than 2 Decimal Places
-        """
-        actual = equipment.format_price("8.9999")
-        self.assertEqual(actual, decimal.Decimal("8.99"))
 
 
 class EscapeSpecialCharactersCase(unittest.TestCase):
@@ -309,13 +250,13 @@ class GenerateB64PdfFromTex(unittest.TestCase):
 class CreateDownloadlinkForVerifiedReport(unittest.TestCase):
     def test_calls_pdfutility_function_correctly(self):
         with patch.object(pdfutility, "generate_b64_pdf_from_tex", return_value="abc") as mock:
-            equipment.create_pdf_downloadlink_for_verified_report(
+            pdfutility.create_pdf_downloadlink_for_verified_report(
                 datetime.datetime.now(), b64encode(b"template"))
         mock.assert_called_once_with(b"template")
 
     def test_returns_expected_result(self):
         with patch.object(pdfutility, "generate_b64_pdf_from_tex", return_value="abc") as mock:
-            actual = equipment.create_pdf_downloadlink_for_verified_report(
+            actual = pdfutility.create_pdf_downloadlink_for_verified_report(
                 datetime.datetime.now(), b64encode(b"template"))
         expected = f'<a href="data:file/pdf;base64,abc" download="technikliste_{datetime.date.today().strftime("%Y-%m-%d")}.pdf">Orginal Herunterladen</a>'
         self.assertEqual(expected, actual)
@@ -324,6 +265,7 @@ class CreateDownloadlinkForVerifiedReport(unittest.TestCase):
 class CreatePdfDownloadlinkForNewReport(unittest.TestCase):
     def test_calls_pdfutility_function_correctly(self):
         pass
+
 
 if __name__ == "__main__":
     unittest.main()  # run all tests
