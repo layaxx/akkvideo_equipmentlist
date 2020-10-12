@@ -55,21 +55,23 @@ def load_data(location="Inventar_akvideo.csv"):
 
 
 def check_if_all_packages_are_installed():
-    # checks if all latex packages that are mentioned in latex_setup.sh and therefore should be installed, are actually installed
-    # returns False iff one or more packages mentioned in latex_setup.sh are
-    # not in the expected location (i.e.
-    # /app/.TinyTeX/texmf-dist/tex/latex/{name_of_latex_package}/{name_of_latex_package}.sty),
-    # else True
+    '''
+    checks if all latex packages that are mentioned in latex_setup.sh and therefore should be installed, are actually installed
+    returns False iff one or more packages mentioned in latex_setup.sh are not installed, True else
+    '''
     with open("latex_setup.sh", "r") as latex_setup_file:
         lines = list(latex_setup_file)
         for line in lines:
             if line.startswith("tlmgr install"):
                 name_of_latex_package = line.split(" ")[-1].strip()
                 if(name_of_latex_package == "ms"):
-                    if(not path.isfile(f'/app/.TinyTeX/texmf-dist/tex/latex/ms/everysel.sty')):
+                    if subprocess.run(["kpsewhich", "everysel.sty"],
+                                      stdout=subprocess.DEVNULL).returncode is not 0:
                         return False
                 else:
-                    if(not path.isfile(f'/app/.TinyTeX/texmf-dist/tex/latex/{name_of_latex_package}/{name_of_latex_package}.sty')):
+                    if subprocess.run(["kpsewhich",
+                                       f"{name_of_latex_package}.sty"],
+                                      stdout=subprocess.DEVNULL).returncode is not 0:
                         return False
     return True
 
@@ -312,34 +314,37 @@ with st.beta_expander("Bericht generieren"):
             "Achtung: PDF wird nur die ausgewählten Geräte enthalten, und einen Hinweis auf die Unvollständigkeit")
 
     if button_generate_pdf:
-        operatingSystemIsLinux = system() == "Linux"
 
-        if(not operatingSystemIsLinux):
-            st.error(
-                "PDF Creation is currently only supported on the server, not on localhost")
-        else:
-            # check that all required latex packages are in the location they are
-            # excpected to be in
-            if(not check_if_all_packages_are_installed()):
+        # check that all required latex packages are in the location they are
+        # expected to be in
+        if(not check_if_all_packages_are_installed()):
+
+            if system() == "Linux":
                 with st.spinner('Notwendige LaTeX Pakete werden installiert. Das kann zwei bis drei Minuten dauern'):
                     subprocess.run(["sh", "./latex_setup.sh"])
+            else:
+                st.error(
+                    "Es fehlen zur Erstellung des PDFs benötigte LaTeX Pakete. Bitte installiere diese manuell")
+                st.info(
+                    "Folgende Pakete werden benötigt: \n lastpage \n tabu \n varwidth \n colortbl \n fancyhdr \n ragged2e \n ms")
 
-            # create PDF and show download link
-            with st.spinner('PDF wird erstellt'):
-                try:
-                    pdf_link = create_pdf_downloadlink_for_new_report(
-                        data,
-                        one_or_more_filters_are_active,
-                        sort_by_primary,
-                        sort_by_secondary,
-                        order)
-                    st.success('Fertig!')
-                    st.markdown(pdf_link, unsafe_allow_html=True)
-                except RuntimeError:
-                    st.error(
-                        "PDF konnte leider nicht generiert werden. Bitte versuche es in 2 Minuten erneut.")
-                except LatexBuildError:
-                    st.error("PDF konnte leider nicht generiert werden. Bitte versuche es in 2 Minuten erneut. Falls der Fehler dann erneut auftritt, kontaktiere uns bitte: dev@arbeitskreis.video")
+        # create PDF and show download link
+        with st.spinner('PDF wird erstellt'):
+            try:
+                pdf_link = create_pdf_downloadlink_for_new_report(
+                    data,
+                    one_or_more_filters_are_active,
+                    sort_by_primary,
+                    sort_by_secondary,
+                    order)
+                st.success('Fertig!')
+                st.markdown(pdf_link, unsafe_allow_html=True)
+            except RuntimeError:
+                st.error(
+                    "PDF konnte leider nicht generiert werden. Bitte versuche es in 2 Minuten erneut.")
+            except LatexBuildError as error:
+                print(error)
+                st.error("PDF konnte leider nicht generiert werden. Bitte versuche es in 2 Minuten erneut. Falls der Fehler dann erneut auftritt, kontaktiere uns bitte: dev@arbeitskreis.video")
 
 
 # display footer

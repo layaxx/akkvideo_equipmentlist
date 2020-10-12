@@ -2,7 +2,7 @@ from base64 import b64encode
 import latex
 from datetime import datetime
 from dbutility import VerificationDatabase
-import random
+import random, os
 
 
 def generate_b64_pdf_from_tex(tex):
@@ -38,6 +38,11 @@ def fill_in_latex_template(
         sort_by_string = sort_by_col
     else:
         sort_by_string = f'{sort_by_col} und {sort_by_col2}'
+
+    path_to_logo = os.path.abspath("pdf_assets/logo.png")
+    path_to_logo = path_to_logo.replace("\\", "/")
+
+    template = template.replace("/app/pdf_assets/logo.png", path_to_logo)
 
     header_info = f'Diese Liste enthält {len(dataframe["Index"])} Einträge und ist {order} nach {sort_by_string} sortiert.'
 
