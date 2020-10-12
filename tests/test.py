@@ -163,78 +163,6 @@ class EscapeSpecialCharactersCase(unittest.TestCase):
             "test##test#"), r"test\#\#test\#")
 
 
-class CheckIfAllPackagesAreInstalled(unittest.TestCase):
-
-    def test_return_true_if_all_packages_exist(self):
-        """
-        Test that check_if_all_packages_are_installed() returns True if all packages exist in the expected location
-        """
-        patcher = unittest.mock.patch('os.path.isfile')
-        mock_thing = patcher.start()
-        mock_thing.return_value = True
-        ret = equipment.check_if_all_packages_are_installed()
-        self.assertTrue(ret)
-
-    def test_return_false_if_no_package_exists(self):
-        """
-        Test that check_if_all_packages_are_installed() returns False if no package exists in the expected location
-        """
-        patcher = unittest.mock.patch('os.path.isfile')
-        mock_thing = patcher.start()
-        mock_thing.return_value = False
-        ret = equipment.check_if_all_packages_are_installed()
-        self.assertFalse(ret)
-
-    def test_return_false_if_first_package_is_missing(self):
-        """
-        Test that check_if_all_packages_are_installed() returns False after the first package was not found in the expected location
-        """
-        patcher = unittest.mock.patch('os.path.isfile')
-        mock_thing = patcher.start()
-        mock_thing.return_value = False
-        equipment.check_if_all_packages_are_installed()
-        mock_thing.assert_called_once()
-
-    def test_return_false_if_last_package_is_missing(self):
-        """
-        Test that check_if_all_packages_are_installed() returns False if the last package exists in the expected location
-        """
-        def side_effect(arg):
-            if(arg == "/app/.TinyTeX/texmf-dist/tex/latex/ms/everysel.sty"):
-                return False
-            return True
-        patcher = unittest.mock.patch('os.path.isfile')
-        mock_thing = patcher.start()
-        mock_thing.side_effect = side_effect
-        ret = equipment.check_if_all_packages_are_installed()
-        self.assertFalse(ret)
-
-    def test_has_checked_every_package(self):
-        """
-        Test that check_if_all_packages_are_installed() checks every package it is supposed to check
-        """
-        patcher = unittest.mock.patch('os.path.isfile')
-        mock_thing = patcher.start()
-        mock_thing.return_value = True
-        equipment.check_if_all_packages_are_installed()
-        expected_calls = []
-        expected_calls.append(
-            call("/app/.TinyTeX/texmf-dist/tex/latex/lastpage/lastpage.sty"))
-        expected_calls.append(
-            call("/app/.TinyTeX/texmf-dist/tex/latex/tabu/tabu.sty"))
-        expected_calls.append(
-            call("/app/.TinyTeX/texmf-dist/tex/latex/varwidth/varwidth.sty"))
-        expected_calls.append(
-            call("/app/.TinyTeX/texmf-dist/tex/latex/colortbl/colortbl.sty"))
-        expected_calls.append(
-            call("/app/.TinyTeX/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty"))
-        expected_calls.append(
-            call("/app/.TinyTeX/texmf-dist/tex/latex/ragged2e/ragged2e.sty"))
-        expected_calls.append(
-            call("/app/.TinyTeX/texmf-dist/tex/latex/ms/everysel.sty"))
-        mock_thing.assert_has_calls(expected_calls)
-
-
 class GenerateLatexTableFromDataframe(unittest.TestCase):
     def test_generates_table_for_empty_Dataframe(self):
         """
@@ -378,42 +306,6 @@ class GenerateB64PdfFromTex(unittest.TestCase):
                 "anything"), "aGVsbG9Xb3JsZA==")
 
 
-class FillInLatexTemplate(unittest.TestCase):
-    def test_returns_expected_result(self):
-        """
-        Test that fill_in_latex_template(filters_are_active, sort_by_col, sort_by_col2, order, dataframe) returns the expected template and id
-        """
-        with patch.object(pdfutility, 'generate_latex_table_from', return_value=r"&&&&\\"):
-            with patch.object(pdfutility, 'generate_unique_id', return_value="AAAAAAAA"):
-                with open("tests/expected_template.tex", "r", encoding="utf8") as expected_template:
-                    expected = (
-                        expected_template.read().replace(
-                            "08.10.2020",
-                            datetime.date.today().strftime("%d.%m.%Y")),
-                        "AAAAAAAA")
-                actual = pdfutility.fill_in_latex_template(
-                    True, "Preis", "Index", "aufsteigend", pandas.DataFrame(
-                        columns=["Index"]))
-        self.assertTupleEqual(expected, actual)
-
-    def test_returns_expected_result_no_filters_active(self):
-        """
-        Test that fill_in_latex_template(filters_are_active, sort_by_col, sort_by_col2, order, dataframe) returns the expected template and id
-        """
-        with patch.object(pdfutility, 'generate_latex_table_from', return_value=r"&&&&\\"):
-            with patch.object(pdfutility, 'generate_unique_id', return_value="AAAAAAAA"):
-                with open("tests/expected_template_2.tex", "r", encoding="utf8") as expected_template:
-                    expected = (
-                        expected_template.read().replace(
-                            "08.10.2020",
-                            datetime.date.today().strftime("%d.%m.%Y")),
-                        "AAAAAAAA")
-                actual = pdfutility.fill_in_latex_template(
-                    False, "Preis", "Preis", "aufsteigend", pandas.DataFrame(
-                        columns=["Index"]))
-        self.assertTupleEqual(expected, actual)
-
-
 class CreateDownloadlinkForVerifiedReport(unittest.TestCase):
     def test_calls_pdfutility_function_correctly(self):
         with patch.object(pdfutility, "generate_b64_pdf_from_tex", return_value="abc") as mock:
@@ -432,46 +324,6 @@ class CreateDownloadlinkForVerifiedReport(unittest.TestCase):
 class CreatePdfDownloadlinkForNewReport(unittest.TestCase):
     def test_calls_pdfutility_function_correctly(self):
         pass
-
-
-"""
-def create_pdf_downloadlink_for_new_report(
-        dataframe,
-        filters_are_active,
-        sort_by_col,
-        sort_by_col2,
-        order):
-    # this function creates a PDF from the given dataframe and returns a html download link with the base64 encoded PDF (data-url)
-    # the PDF is based on the LaTeX File ./pdf_assets/template.tex
-    # this function inserts the current date, an identification number, a table of all selected devices and
-    # a message, if filters are active (and therefore not all devices that are tracked will be in the pdf)
-
-    # replaces placeholders in latex template with actual values and tries to generate a unique, 8 character long id
-    template, unique_id = pdfutility.fill_in_latex_template(filters_are_active, sort_by_col, sort_by_col2, order, dataframe)
-
-    # if generation of id fails, for example due to connection error to database, unique_id is empty string,
-    # and validation will not be available for this document
-    if unique_id == "":
-        st.warning(
-            "Datenbankverbindung konnte nicht hergestellt werden. Verifizierung wird für dieses Dokument nicht möglich sein.")
-
-    pdf_base64_string = pdfutility.generate_b64_pdf_from_tex(template)
-
-    # create a filename with the current date
-    filename = "technikliste_" + datetime.now().strftime("%Y-%m-%d") + ".pdf"
-
-    # if unique_id is empty string, connection to db failed prior and verification is not available for this document as a result
-    if not unique_id == "":
-        return_value = VerificationDatabase().save_record(
-            template=template, id=unique_id, devices=len(dataframe["Index"]), query="")
-        if return_value == -1:
-            st.warning(
-                "Datenbankverbindung konnte nicht hergestellt werden. Verifizierung wird für dieses Dokument nicht möglich sein.")
-
-    # create and return actual download-link with base64 encoded pdf and filename
-    download_link = f'<a href="data:file/pdf;base64,{pdf_base64_string}" download="{filename}">PDF Datei Herunterladen</a>'
-    return download_link
-"""
 
 if __name__ == "__main__":
     unittest.main()  # run all tests
