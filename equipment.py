@@ -19,7 +19,7 @@ st.title('Technikliste')
 st.markdown("## 1. Überblick")
 
 
-@st.cache
+
 def load_data(location="Inventar_akvideo.csv"):
     '''
     return ssanitized Dataframe
@@ -264,6 +264,7 @@ date=st.text_input("date")
 button=st.button("apply")
 if button: 
     dbutility.DevicesDatabase().insert_device(index,amount,description,location,location_prec,container,category,brand,price,store,comments,id,date)
+    
 st.write("-------------------------------------------------")
 st.write("[Zur Hauptseite](https://arbeitskreis.video)")
 
