@@ -195,8 +195,8 @@ class DevicesDatabase():
         finally:
             if connection is not None:
                 connection.close()
-
-    def insert_device(index,amount,description,location,location_prec,container,category,brand,price,store,comments,id,date):
+                    
+    def insert_device(self,index,amount,description,location,location_prec,container,category,brand,price,store,comments,id,date):
         '''
         Connects to Database specified in the "DATABASE_URL" environment variable and creates a new row for the created document
         takes the documents latex source code, the unique id, the amount of devices in the report and optionally the query as inputs

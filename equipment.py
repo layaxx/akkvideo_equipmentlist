@@ -247,5 +247,24 @@ with st.beta_expander("Bericht generieren"):
 
 
 # display footer
+st.markdown("## 3. Tabelle anpassen")
+index=st.text_input("index")
+amount=st.text_input("amount")
+description=st.text_input("decription")
+location=st.text_input("location")
+location_prec=st.text_input("location_prec")
+container=st.text_input("container")
+category=st.text_input("category")
+brand=st.text_input("brand")
+price=st.text_input("price")
+store=st.text_input("store")
+comments=st.text_input("comments")
+id=st.text_input("id")
+date=st.text_input("date")
+button=st.button("apply")
+if button: 
+    dbutility.DevicesDatabase().insert_device(index,amount,description,location,location_prec,container,category,brand,price,store,comments,id,date)
 st.write("-------------------------------------------------")
 st.write("[Zur Hauptseite](https://arbeitskreis.video)")
+
+#amount,description,location,location_prec,container,category,brand,price,store,comments,id,date)
