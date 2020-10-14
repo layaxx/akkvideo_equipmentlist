@@ -195,3 +195,34 @@ class DevicesDatabase():
         finally:
             if connection is not None:
                 connection.close()
+
+    def insert_device(index,amount,description,location,location_prec,container,category,brand,price,store,comments,id,date):
+        '''
+        Connects to Database specified in the "DATABASE_URL" environment variable and creates a new row for the created document
+        takes the documents latex source code, the unique id, the amount of devices in the report and optionally the query as inputs
+        '''
+        connection = None
+        try:
+            '''
+            Connect to Database
+            '''
+            if "REQUIRE_SSL" in os.environ:
+                connection = psycopg2.connect(
+                    self.DATABASE_URL, sslmode='require')
+            else:
+                connection = psycopg2.connect(self.DATABASE_URL)
+            cur = connection.cursor()
+            '''
+            Insert new Row into table "verify"
+            '''
+            cur.execute(
+                "INSERT INTO devices (index,amount,description,location,location_prec,container,category,brand,price,store,comments,id,date) VALUES (%s, %s, %s, %s, %s,%s,%s,%s,%s,%s,%s,%s,%s)", [
+                    index,amount,description,location,location_prec,container,category,brand,price,store,comments,id,date])
+            connection.commit()
+            cur.close()
+        except psycopg2.Error as e:
+            print(e)
+            return -1
+        finally:
+            if connection is not None:
+                connection.close()
