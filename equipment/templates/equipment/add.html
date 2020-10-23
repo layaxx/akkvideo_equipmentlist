@@ -1,0 +1,11 @@
+{% if new %}
+<h1>Neues Gerät hinzufügen</h1> {% else %}
+<h1>{{form.description.value}}</h1>{% endif %} {% if error_message %}
+<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+<form action="{% url 'add' %}" method="post">
+    {% csrf_token %} {{form.as_p}} {% if new %}
+    <input type="submit" value="hinzufügen"> {% else %}
+    <input type="submit" value="update"> {% endif %}
+
+</form>
