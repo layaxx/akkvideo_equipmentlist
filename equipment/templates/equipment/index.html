@@ -1,13 +1,13 @@
 <h1>Hello World</h1>
 <h2>Verified Devices</h2>
 <ul>
-    {% for entry in device_names %} {% if entry.verified%}
-    <li>{{entry}}</li>
+    {% for device in device_list %} {% if device.verified%}
+    <li>{{device.description}}</li>
     {% endif %} {% endfor %}
 </ul>
 <h2>Unverified Devices</h2>
 <ul>
-    {% for entry in device_names %} {% if not entry.verified%}
-    <li>{{entry}}</li>
+    {% for device in device_list %} {% if not device.verified%}
+    <li>{{device.description}}</li>
     {% endif %} {% endfor %}
 </ul>

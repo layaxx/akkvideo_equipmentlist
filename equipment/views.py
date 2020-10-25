@@ -8,7 +8,7 @@ from .models import Device
 
 
 def index(request):
-    return render(request, 'equipment/index.html', {'device_names': Device.objects.all()})
+    return render(request, 'equipment/index.html', {'device_list': Device.objects.all()})
 
 
 def detail(request, device_id):
