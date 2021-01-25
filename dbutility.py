@@ -6,7 +6,7 @@ import os
 '''
 Pseudo Documentation for Database
 
-The Datatabse is a postgres database running on heroku and kenn be accessed with the DATABASE_URL environment variable
+The Datatabse is a postgres database running on heroku and can be accessed with the DATABASE_URL environment variable
 It consists of two tables verify and devices, which where created with the following commands:
 CREATE TABLE verify (
 	timestamp TIMESTAMP DEFAULT current_timestamp,      # datetime representing the date and time of insertion into the database
