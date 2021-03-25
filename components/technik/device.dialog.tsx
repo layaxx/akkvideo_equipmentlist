@@ -10,15 +10,11 @@ import {
   Grid,
 } from '@material-ui/core'
 import InputAdornment from '@material-ui/core/InputAdornment/InputAdornment'
-import { Euro } from '@material-ui/icons'
-import Autocomplete, {
-  createFilterOptions,
-} from '@material-ui/lab/Autocomplete'
 import axios from 'axios'
-import React, { useState } from 'react'
+import React from 'react'
 import { Button } from 'reactstrap'
-import { EmptyDevice } from '../../lib/types/Device'
 import { DialogMode } from '../../pages/technik/index'
+import MultiSelect from './MultiSelect'
 import SingleSelect from './SingleSelect'
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -176,7 +172,7 @@ export default function DeviceDialog(props: any) {
               />
             </Grid>
             <Grid item xs={12} sm={6} md={4}>
-              <SingleSelect
+              <MultiSelect
                 /* TODO: add possibility for multiple categories */
                 options={options.category.map((category: string) => ({
                   inputValue: '',

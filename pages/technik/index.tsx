@@ -41,9 +41,6 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
           permanent: false,
           destination: '/?msg=InsufficientAuthentication',
         },
-        // `as never` is required for correct type inference
-        // by InferGetServerSidePropsType below
-        props: {} as never,
       }
     }
 
@@ -61,7 +58,6 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
           .toLowerCase()
           .localeCompare(second.description.toLowerCase())
       )
-    console.log(devices[0])
 
     return {
       props: { devices, revalidate: 10, isAdmin },
@@ -115,37 +111,44 @@ class TechnikOverview extends React.Component<
       selectionModel: [],
       showMenu: false,
     }
+    const renderButton = (params: GridCellParams) => (
+      <Button
+        variant="text"
+        color="default"
+        size="medium"
+        fullWidth
+        style={{ justifyContent: 'left' }}
+        aria-label="open details"
+        onClick={() =>
+          this.setState({
+            dialogShow: true,
+            dialogActiveDevice: params.row,
+            dialogMode: this.isAdmin ? DialogMode.Edit : DialogMode.ReadOnly,
+          })
+        }
+      >
+        {params.value}
+      </Button>
+    )
     this.toggleMenu = this.toggleMenu.bind(this)
     this.data = {
       columns: [
+        { field: 'brand', headerName: 'Brand', width: 150 },
         {
           field: 'description',
           headerName: 'Name',
           width: 200,
           disableClickEventBubbling: true,
-          renderCell: (params: GridCellParams) => (
-            <Button
-              variant="text"
-              color="default"
-              size="medium"
-              fullWidth
-              style={{ justifyContent: 'left' }}
-              aria-label="open details"
-              onClick={() =>
-                this.setState({
-                  dialogShow: true,
-                  dialogActiveDevice: params.row,
-                  dialogMode: this.isAdmin
-                    ? DialogMode.Edit
-                    : DialogMode.ReadOnly,
-                })
-              }
-            >
-              {params.value}
-            </Button>
-          ),
+          renderCell: renderButton,
         },
         { field: 'location', headerName: 'Location', width: 150 },
+        {
+          field: 'category',
+          headerName: 'Category',
+          width: 150,
+          valueFormatter: ({ value }: { value: string }) =>
+            value.split('+++').join(','),
+        },
         { field: 'status', headerName: 'Status', width: 100 },
         {
           field: 'price',
@@ -153,7 +156,32 @@ class TechnikOverview extends React.Component<
           type: 'number',
           width: 90,
         },
-        { field: 'id', headerName: 'ID' },
+        { field: 'id', headerName: 'ID', hide: true },
+        {
+          field: 'location_prec',
+          headerName: 'Location precise',
+          width: 150,
+          hide: true,
+        },
+        {
+          field: 'container',
+          headerName: 'Container',
+          width: 150,
+          hide: true,
+        },
+        {
+          field: 'store',
+          headerName: 'Store',
+          width: 150,
+          hide: true,
+        },
+        {
+          field: 'buyDate',
+          headerName: 'Date of Purchase',
+          type: 'date',
+          width: 150,
+          hide: true,
+        },
       ],
       rows: props.devices,
     }
@@ -190,6 +218,8 @@ class TechnikOverview extends React.Component<
         ...new Set(
           this.props.devices
             .map((device: Device) => device.category)
+            .map((val) => val.split('+++'))
+            .flat()
             .filter((value: string) => value !== '')
         ),
       ],
