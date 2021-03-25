@@ -1,0 +1,15 @@
+.card {
+    max-width: 20rem;
+    margin: auto;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}
+
+.card>div {
+    margin-left: 1.5rem;
+    margin-right: 1.5rem;
+}
+
+.card button {
+    margin-top: 2rem;
+}

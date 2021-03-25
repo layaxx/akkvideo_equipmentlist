@@ -1,0 +1,9 @@
+.tablewrap {
+    max-width: 60rem;
+}
+
+@media only screen and (max-width: 480px) {
+    .tablewrap {
+        max-width: 20rem;
+    }
+}

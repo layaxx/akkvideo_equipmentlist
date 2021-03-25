@@ -1,0 +1,33 @@
+{
+  "name": "akvideo-internal",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "export": "next export",
+    "start": "next start",
+    "preinstall": "node scripts/vercel-preinstall.js"
+  },
+  "dependencies": {
+    "@material-ui/core": "^4.11.3",
+    "@material-ui/data-grid": "^4.0.0-alpha.22",
+    "@material-ui/icons": "^4.11.2",
+    "@material-ui/lab": "^4.0.0-alpha.57",
+    "@types/react": "^16.9.56",
+    "@zeit/next-less": "^1.0.1",
+    "axios": "^0.21.1",
+    "bootstrap": "^4.6.0",
+    "firebase": "^8.0.2",
+    "firebase-admin": "^9.4.0",
+    "less": "^4.1.1",
+    "next": "10",
+    "nookies": "^2.5.0",
+    "notistack": "^1.0.4",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
+    "reactstrap": "^8.9.0",
+    "rsuite": "^4.9.3",
+    "typescript": "^4.0.5"
+  }
+}
