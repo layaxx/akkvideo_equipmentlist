@@ -11,8 +11,11 @@ import {
 } from '@material-ui/core'
 import InputAdornment from '@material-ui/core/InputAdornment/InputAdornment'
 import axios from 'axios'
+import { useRouter } from 'next/dist/client/router'
+import { useSnackbar } from 'notistack'
 import React from 'react'
 import { Button } from 'reactstrap'
+import Device from '../../lib/types/Device'
 import { DialogMode } from '../../pages/technik/index'
 import MultiSelect from './MultiSelect'
 import SingleSelect from './SingleSelect'
@@ -37,10 +40,23 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 )
 
-export default function DeviceDialog(props: any) {
+export default function DeviceDialog(props: {
+  activeDevice: Device | null
+  mode: any
+  show: boolean
+  updateState: Function
+  options: any
+  handleClose: any
+}) {
   const classes = useStyles()
   const { activeDevice, mode, show, updateState, options, handleClose } = props
   const readOnly = mode === DialogMode.ReadOnly
+
+  // used for navigation an query params
+  const router = useRouter()
+
+  // used to show notifications
+  const { enqueueSnackbar } = useSnackbar()
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     updateState({
@@ -52,11 +68,25 @@ export default function DeviceDialog(props: any) {
   }
 
   const handleEdit = () => {
-    axios.post('/api/devices/edit', activeDevice)
+    axios
+      .post('/api/devices/edit', activeDevice)
+      .then(() => router.reload())
+      .catch(() =>
+        enqueueSnackbar('Failed to edit device ' + activeDevice?.description, {
+          variant: 'error',
+        })
+      )
   }
 
   const handleAdd = () => {
-    axios.post('/api/devices/add', activeDevice)
+    axios
+      .post('/api/devices/add', activeDevice)
+      .then(() => router.reload())
+      .catch(() =>
+        enqueueSnackbar('Failed to add device ' + activeDevice?.description, {
+          variant: 'error',
+        })
+      )
   }
 
   const createNew = mode === DialogMode.Create

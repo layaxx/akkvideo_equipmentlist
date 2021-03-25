@@ -3,6 +3,7 @@ import Autocomplete, {
   createFilterOptions,
 } from '@material-ui/lab/Autocomplete/Autocomplete'
 import React from 'react'
+import Device from '../../lib/types/Device'
 
 interface OptionsType {
   inputValue?: string
@@ -11,8 +12,8 @@ interface OptionsType {
 
 export default function MultiSelect(props: {
   options: any
-  label: any
-  activeDevice: any
+  label: 'category' | 'location'
+  activeDevice: Device | null
   updateState: any
 }) {
   const { options, label, activeDevice, updateState } = props
@@ -23,20 +24,20 @@ export default function MultiSelect(props: {
       value={activeDevice?.[label]
         .split('+++')
         .filter((val: string) => val !== '')}
-      onChange={(_, newValue) => {
+      onChange={(_, newValue: any) => {
         updateState(() => {
           return {
             dialogActiveDevice: {
               ...activeDevice,
               [label]: newValue
-                .map((val) =>
+                .map((val: { inputValue: any; title: any }) =>
                   typeof val === 'string'
                     ? val
                     : !!val.inputValue
                     ? val.inputValue
                     : val.title
                 )
-                .sort((a, b) => a.localeCompare(b))
+                .sort((a: string, b: string) => a.localeCompare(b))
                 .join('+++'),
             },
           }

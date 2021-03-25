@@ -4,12 +4,7 @@ import { firebaseAdmin } from '../../firebaseAdmin'
 import { GetServerSidePropsContext } from 'next'
 import Device, { EmptyDevice } from '../../lib/types/Device'
 import roles from '../../lib/auth/roles'
-import {
-  DataGrid,
-  GridCellParams,
-  GridRowId,
-  GridRowModel,
-} from '@material-ui/data-grid'
+import { DataGrid, GridCellParams, GridRowId } from '@material-ui/data-grid'
 import { Button } from '@material-ui/core'
 import CustomNoRowsOverlay from '../../components/technik/customNoRowsOverlay'
 import CustomToolbar from '../../components/technik/customToolbar'
@@ -81,7 +76,7 @@ export enum DialogMode {
 
 interface DeviceState {
   dialogShow: boolean
-  dialogActiveDevice: GridRowModel | null
+  dialogActiveDevice: Device | null
   dialogMode: DialogMode
   selectionModel: GridRowId[]
   showMenu: boolean
@@ -122,7 +117,7 @@ class TechnikOverview extends React.Component<
         onClick={() =>
           this.setState({
             dialogShow: true,
-            dialogActiveDevice: params.row,
+            dialogActiveDevice: params.row as Device,
             dialogMode: this.isAdmin ? DialogMode.Edit : DialogMode.ReadOnly,
           })
         }
@@ -253,7 +248,6 @@ class TechnikOverview extends React.Component<
                     this.setState({
                       selectionModel: newSelection.selectionModel,
                     })
-                    console.log(newSelection)
                   }}
                   selectionModel={this.state.selectionModel}
                   components={{
@@ -297,7 +291,7 @@ class TechnikOverview extends React.Component<
           activeDevice={this.state.dialogActiveDevice}
           mode={this.state.dialogMode}
           show={this.state.dialogShow}
-          updateState={(newState: { dialogActiveDevice: GridRowModel }) =>
+          updateState={(newState: { dialogActiveDevice: Device }) =>
             this.setState(newState)
           }
           options={this.options}
