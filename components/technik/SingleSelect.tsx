@@ -14,11 +14,13 @@ export default function SingleSelect(props: {
   label: any
   activeDevice: any
   updateState: any
+  readOnly: boolean
 }) {
-  const { options, label, activeDevice, updateState } = props
+  const { options, label, activeDevice, updateState, readOnly } = props
 
   return (
     <Autocomplete
+      disabled={readOnly}
       value={activeDevice?.[label]}
       onChange={(_, newValue) => {
         if (typeof newValue === 'string') {

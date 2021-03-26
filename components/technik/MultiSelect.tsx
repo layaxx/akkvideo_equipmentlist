@@ -14,12 +14,14 @@ export default function MultiSelect(props: {
   options: any
   label: 'category' | 'location'
   activeDevice: Device | null
-  updateState: any
+  updateState: Function
+  readOnly: boolean
 }) {
-  const { options, label, activeDevice, updateState } = props
+  const { options, label, activeDevice, updateState, readOnly } = props
 
   return (
     <Autocomplete
+      disabled={readOnly}
       multiple
       value={activeDevice?.[label]
         .split('+++')

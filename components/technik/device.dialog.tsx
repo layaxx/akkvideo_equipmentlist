@@ -121,6 +121,7 @@ export default function DeviceDialog(props: {
           <Grid container spacing={3}>
             <Grid item xs={12} md={4} sm={6}>
               <SingleSelect
+                readOnly={readOnly}
                 options={options.brand.map((brand: string) => ({
                   inputValue: '',
                   title: brand,
@@ -157,6 +158,7 @@ export default function DeviceDialog(props: {
             </Grid>
             <Grid item xs={12} md={4} sm={6}>
               <SingleSelect
+                readOnly={readOnly}
                 options={options.location.map((location: string) => ({
                   inputValue: '',
                   title: location,
@@ -168,6 +170,7 @@ export default function DeviceDialog(props: {
             </Grid>
             <Grid item xs={12} md={4} sm={6}>
               <SingleSelect
+                readOnly={readOnly}
                 options={options.location_prec.map((location_prec: string) => ({
                   inputValue: '',
                   title: location_prec,
@@ -179,6 +182,7 @@ export default function DeviceDialog(props: {
             </Grid>
             <Grid item xs={12} md={4} sm={6}>
               <SingleSelect
+                readOnly={readOnly}
                 options={options.container.map((container: string) => ({
                   inputValue: '',
                   title: container,
@@ -203,7 +207,7 @@ export default function DeviceDialog(props: {
             </Grid>
             <Grid item xs={12} sm={6} md={4}>
               <MultiSelect
-                /* TODO: add possibility for multiple categories */
+                readOnly={readOnly}
                 options={options.category.map((category: string) => ({
                   inputValue: '',
                   title: category,
@@ -246,8 +250,8 @@ export default function DeviceDialog(props: {
                 type="date"
                 value={activeDevice?.buyDate}
                 onChange={handleChange}
+                disabled={readOnly}
                 InputLabelProps={{
-                  disabled: readOnly,
                   shrink: true,
                 }}
               />

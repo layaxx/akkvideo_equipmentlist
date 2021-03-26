@@ -12,5 +12,3 @@ Based on github.com/vriad/next-firebase-ssr
 * refactor inline CSS
 * add e-mail notifications for Admins
 * add notification on /login, /register, /resetPassword if currently logged in
-* FIX readonly devices (Single- & MultiSelect)
-
