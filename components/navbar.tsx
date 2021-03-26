@@ -59,7 +59,11 @@ const NavBar: FC = () => {
   }
 
   return (
-    <Navbar style={{ backgroundColor: gray }} dark expand="md">
+    <Navbar
+      style={{ backgroundColor: gray, marginBottom: '2rem' }}
+      dark
+      expand="md"
+    >
       <NavbarBrand href="/">AK Video [intern]</NavbarBrand>
       <NavbarToggler onClick={toggle} />
       <Collapse isOpen={isOpen} navbar>

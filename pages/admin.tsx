@@ -74,7 +74,7 @@ const AdminPage = (
   const [user, setUser] = useState({})
 
   return (
-    <div style={{ margin: 'auto', paddingTop: '4rem', maxWidth: '40rem' }}>
+    <div style={{ margin: 'auto', maxWidth: '40rem' }}>
       <h1 style={{ textAlign: 'center', marginBottom: '3rem' }}>
         Admin-Dashboard
       </h1>

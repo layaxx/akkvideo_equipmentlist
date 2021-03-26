@@ -227,7 +227,7 @@ class TechnikOverview extends React.Component<
 
   render() {
     return (
-      <div style={{ margin: 'auto', paddingTop: '4rem', maxWidth: '40rem' }}>
+      <div style={{ margin: 'auto', maxWidth: '40rem' }}>
         <h1 style={{ textAlign: 'center', marginBottom: '3rem' }}>
           Technikverwaltung
         </h1>
