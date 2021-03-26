@@ -148,7 +148,7 @@ const AccountAction = ({ isRegister = false }: { isRegister?: boolean }) => {
           ) : (
             <Grid container>
               <Grid item xs>
-                <Link href="#">Forgot password?</Link>
+                <Link href="/resetPassword">Forgot Password?</Link>
               </Grid>
               <Grid item>
                 <Link href="/register">Don't have an account? Sign Up</Link>

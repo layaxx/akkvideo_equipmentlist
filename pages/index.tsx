@@ -13,9 +13,7 @@ const MainPage = () => {
       <div style={{ padding: '40px' }}>
         <p>{`User ID: ${user ? user.uid : 'no user signed in'}`}</p>
         {router.query.msg ? (
-          <Alert severity="error">
-            There was a mistake: {router.query.msg}
-          </Alert>
+          <Alert severity="error">An error occurred: {router.query.msg}</Alert>
         ) : null}
 
         <p>

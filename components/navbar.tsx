@@ -19,7 +19,6 @@ import { useRouter } from 'next/dist/client/router'
 import { firebaseClient } from '../firebaseClient'
 import nookies from 'nookies'
 import { useAuth } from '../auth'
-import roles from '../lib/auth/roles'
 import { gray } from '../lib/colors'
 
 const styles = {
@@ -59,10 +58,6 @@ const NavBar: FC = () => {
     router.push('/')
   }
 
-  console.log(
-    user?.getIdTokenResult().then((x) => x.claims.role == roles.Admin)
-  )
-
   return (
     <Navbar style={{ backgroundColor: gray }} dark expand="md">
       <NavbarBrand href="/">AK Video [intern]</NavbarBrand>
@@ -82,12 +77,9 @@ const NavBar: FC = () => {
               <DropdownItem>Option 2</DropdownItem>
             </DropdownMenu>
           </UncontrolledDropdown>
-          {user?.getIdTokenResult && (
-            <NavItem>
-              <NavLink href="/admin/">Admin</NavLink>
-            </NavItem>
-          )}
-          )
+          <NavItem>
+            <NavLink href="/admin/">Admin</NavLink>
+          </NavItem>
         </Nav>
         <NavbarText>
           <div style={styles.container}>
