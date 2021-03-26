@@ -15,8 +15,10 @@ import {
 import { LockOutlined } from '@material-ui/icons'
 import { useSnackbar } from 'notistack'
 import axios from 'axios'
+import { useAuth } from '../../auth'
+import { Alert } from '@material-ui/lab'
 
-const useStyles = makeStyles((theme) => ({
+export const useStyles = makeStyles((theme) => ({
   paper: {
     marginTop: theme.spacing(8),
     display: 'flex',
@@ -34,6 +36,9 @@ const useStyles = makeStyles((theme) => ({
   submit: {
     margin: theme.spacing(3, 0, 2),
   },
+  alert: {
+    marginBottom: theme.spacing(3),
+  },
 }))
 
 const AccountAction = ({ isRegister = false }: { isRegister?: boolean }) => {
@@ -42,6 +47,7 @@ const AccountAction = ({ isRegister = false }: { isRegister?: boolean }) => {
   const router = useRouter()
   const classes = useStyles()
   const { enqueueSnackbar } = useSnackbar()
+  const { user } = useAuth()
 
   const handleSubmit: MouseEventHandler = async (event) => {
     event.preventDefault()
@@ -86,6 +92,11 @@ const AccountAction = ({ isRegister = false }: { isRegister?: boolean }) => {
     <Container component="main" maxWidth="xs">
       <CssBaseline />
       <div className={classes.paper}>
+        {!!user && (
+          <Alert severity="info" className={classes.alert}>
+            You are currently logged in as {user?.email}.
+          </Alert>
+        )}
         <Avatar className={classes.avatar}>
           <LockOutlined />
         </Avatar>

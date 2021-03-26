@@ -2,7 +2,6 @@ import {
   CssBaseline,
   Typography,
   TextField,
-  makeStyles,
   Button,
   Container,
   Avatar,
@@ -11,32 +10,16 @@ import { LockOutlined } from '@material-ui/icons'
 import React, { useState } from 'react'
 import { firebaseClient } from '../firebaseClient'
 import { useSnackbar } from 'notistack'
-import { useRouter } from 'next/dist/client/router'
-
-const useStyles = makeStyles((theme) => ({
-  paper: {
-    marginTop: theme.spacing(8),
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-  },
-  avatar: {
-    margin: theme.spacing(1),
-    backgroundColor: theme.palette.secondary.main,
-  },
-  form: {
-    width: '100%', // Fix IE 11 issue.
-    marginTop: theme.spacing(1),
-  },
-  submit: {
-    margin: theme.spacing(3, 0, 2),
-  },
-}))
+import { useAuth } from '../auth'
+import { Alert } from '@material-ui/lab'
+import { useStyles } from '../components/account/accountAction'
 
 export default function ResetPassword() {
   const [email, setEmail] = useState('')
   const classes = useStyles()
   const { enqueueSnackbar } = useSnackbar()
+  const { user } = useAuth()
+
   const handlePasswordReset = () => {
     if (!email || email.indexOf('@') === -1) {
       enqueueSnackbar('You need to supply a valid E-Mail address.', {
@@ -64,6 +47,11 @@ export default function ResetPassword() {
     <Container component="main" maxWidth="xs">
       <CssBaseline />
       <div className={classes.paper}>
+        {!!user && (
+          <Alert severity="info" className={classes.alert}>
+            You are currently logged in as {user?.email}.
+          </Alert>
+        )}
         <Avatar className={classes.avatar}>
           <LockOutlined />
         </Avatar>

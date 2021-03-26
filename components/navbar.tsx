@@ -101,7 +101,13 @@ const NavBar: FC = () => {
               </p>
             ) : (
               <>
-                <Link href="/login">
+                <Link
+                  href={
+                    router.asPath === '/' || router.asPath === '/login'
+                      ? 'login'
+                      : `/login?redirect=${router.asPath.substring(1)}`
+                  }
+                >
                   <a>
                     <Button type="button" style={styles.button}>
                       Sign in
