@@ -5,24 +5,24 @@ import { firebaseAdmin } from '../firebaseAdmin'
 import roles from '../lib/auth/roles'
 import AdminRoleInfo from '../components/account/roleinfo/admin'
 import PublicRoleInfo from '../components/account/roleinfo/public'
-import { Button } from 'reactstrap'
 import { useAuth } from '../auth'
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Button,
+} from '@material-ui/core'
+import axios from 'axios'
+import signout from '../lib/auth/signout'
+import { useRouter } from 'next/dist/client/router'
+import { useSnackbar } from 'notistack'
 
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   try {
     const cookies = nookies.get(ctx)
     const token = await firebaseAdmin.auth().verifyIdToken(cookies.token)
-    /*     firebaseAdmin
-      .auth()
-      .setCustomUserClaims(token.uid, { role: roles.Admin })
-      .then(() => {
-        // The new custom claims will propagate to the user's ID token the
-        // next time a new one is issued.
-      }) */
-    // const { uid, email } = token;
-
-    // the user is authenticated!
-    // FETCH STUFF HERE
 
     return {
       props: { user: token },
@@ -55,6 +55,35 @@ const AccountPage: FC = (props: any) => {
     [roles.Public]: <PublicRoleInfo />,
   }
   const { user } = useAuth()
+  const router = useRouter()
+  const handleDelete = () => {
+    axios
+      .get('/api/deleteOwnAccount?confirm=true')
+      .then(() => {
+        setOpen(false)
+        signout()
+        router.push('/')
+      })
+      .catch(() =>
+        enqueueSnackbar('Failed to delete Account', {
+          variant: 'error',
+        })
+      )
+  }
+
+  const [open, setOpen] = React.useState(false)
+
+  const handleClickOpen = () => {
+    setOpen(true)
+  }
+
+  const handleClose = () => {
+    setOpen(false)
+  }
+
+  // used to show notifications
+  const { enqueueSnackbar } = useSnackbar()
+
   return (
     <div style={{ marginTop: '3rem' }}>
       <h1>Hello, {props.user.email}!</h1>
@@ -67,11 +96,23 @@ const AccountPage: FC = (props: any) => {
             onClick={() =>
               user
                 ?.sendEmailVerification()
-                .then(() => alert('email sent'))
-                .catch(() => alert('failed to send email'))
+                .then(() =>
+                  enqueueSnackbar(
+                    'Sent E-Mail for Verification to ' + user.email,
+                    {
+                      variant: 'success',
+                    }
+                  )
+                )
+                .catch(() =>
+                  enqueueSnackbar('Failed to sent E-Mail to ' + user.email, {
+                    variant: 'error',
+                  })
+                )
             }
+            variant="contained"
           >
-            verify Email
+            verify e-Mail address
           </Button>
         </>
       ) : (
@@ -84,6 +125,40 @@ const AccountPage: FC = (props: any) => {
         access to:
       </p>
       {lookup[role]}
+      <div>
+        <h2>Dangerzone:</h2>
+        <Button
+          onClick={handleClickOpen}
+          variant="contained"
+          style={{ backgroundColor: 'indianred', color: 'white' }}
+        >
+          Delete Account
+        </Button>
+      </div>
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          Do you really want to delete your Account?
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            This action cannot be undone. Changes you made to devices etc will
+            not be deleted.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDelete} color="primary">
+            Delete Account
+          </Button>
+          <Button onClick={handleClose} color="secondary" autoFocus>
+            Cancel
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   )
 }

@@ -12,3 +12,4 @@ Based on github.com/vriad/next-firebase-ssr
 * refactor inline CSS
 * add e-mail notifications for Admins
 * add Front-page
+* there seems to be an issue with the redirect after registering an account

@@ -9,6 +9,8 @@ import {
   makeStyles,
   Typography,
 } from '@material-ui/core'
+import { Alert } from '@material-ui/lab'
+import { useRouter } from 'next/dist/client/router'
 
 const useStyles = makeStyles({
   root: {
@@ -26,11 +28,15 @@ const useStyles = makeStyles({
 
 const MainPage = () => {
   const classes = useStyles()
+  const router = useRouter()
 
   return (
     <>
       <h1>Arbeitskreis Video</h1>
       <h2>Internal administration platform</h2>
+      {router.query.msg ? (
+        <Alert severity="error">An error occurred: {router.query.msg}</Alert>
+      ) : null}
       <Grid container spacing={3} justify="space-evenly">
         <Grid item xs={12} sm={6}>
           <Card className={classes.root} variant="outlined">
