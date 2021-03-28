@@ -11,7 +11,7 @@ export function AuthProvider({ children }: any) {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      ;(window as any).nookies = nookies
+      (window as any).nookies = nookies
     }
     return firebaseClient.auth().onIdTokenChanged(async (userParam) => {
       // console.log(`token changed!`)

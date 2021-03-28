@@ -27,7 +27,7 @@ export default async (
           console.error(
             `Request to /devices/add without Admin claim (${claims.email})`
           )
-          throw 'Authentication failed'
+          throw new Error('Authentication failed')
         }
       })
     const db = firebaseAdmin.firestore()
