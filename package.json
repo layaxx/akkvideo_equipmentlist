@@ -1,7 +1,13 @@
 {
   "name": "akvideo-internal",
-  "version": "0.0.1",
+  "version": "3.0.1",
   "private": true,
+  "author": {
+    "name" : "Yannick Lang",
+    "email" : "yl@arbeitskreis.video",
+    "url" : "https://y-lang.eu/"
+  },
+  "homepage": "https://intern.arbeitskreis.video",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
