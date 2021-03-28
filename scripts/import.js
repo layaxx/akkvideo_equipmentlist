@@ -57,7 +57,7 @@ function import_devices(deleteEverything) {
       devices.push(row)
     })
     .on('end', () => {
-      devicesNew = devices.map((obj) => {
+      var devicesNew = devices.map((obj) => {
         return {
           ...obj,
           category: obj.tags
@@ -78,19 +78,6 @@ function import_devices(deleteEverything) {
       devicesNew.forEach((device) =>
         firebaseAdmin.firestore().collection('devices').add(device)
       )
-
-      /*  Tutorial.bulkCreate(devices)
-        .then(() => {
-          res.status(200).send({
-            message: 'Uploaded the file successfully: ' + req.file.originalname,
-          })
-        })
-        .catch((error) => {
-          res.status(500).send({
-            message: 'Fail to import data into database!',
-            error: error.message,
-          })
-        }) */
     })
 }
 
@@ -126,46 +113,3 @@ async function deleteQueryBatch(db, query, resolve) {
     deleteQueryBatch(db, query, resolve)
   })
 }
-
-/* 
-async function addDevice() {
-  if (!req.cookies.token) {
-    console.error('Request to /devices/add without token cookie.')
-    res.status(401).end()
-  }
-
-  const db = firebaseAdmin.firestore()
-  const {
-    amount,
-    brand,
-    category,
-    comments,
-    container,
-    description,
-    location,
-    location_prec,
-    price,
-    store,
-    buyDate,
-  } = req.body
-  if (!location || !description) {
-    res.status(400).end()
-  }
-  await db.collection('devices').add({
-    amount: Math.max(amount, 1),
-    brand: brand || '',
-    category: category || '',
-    comments: comments || '',
-    container: container || '',
-    location,
-    description,
-    location_prec: location_prec || '',
-    price: price || '',
-    status: Status.NotOnLoan,
-    store: store || '',
-    lastEdit: new Date().toISOString(),
-    buyDate: buyDate || '',
-  })
-  res.status(200).end()
-}
- */

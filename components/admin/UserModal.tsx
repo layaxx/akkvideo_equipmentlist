@@ -14,7 +14,7 @@ import {
 } from 'reactstrap'
 import roles from '../../lib/auth/roles'
 
-const ModalExample = (props: any) => {
+const UserModal = (props: any) => {
   const user: { email: string; role: roles; uid: string } = props.user
 
   const [nestedModal, setNestedModal] = useState(false)
@@ -105,9 +105,7 @@ const ModalExample = (props: any) => {
   return (
     <div style={{ textAlign: 'center' }}>
       <Modal isOpen={!!user.email} toggle={toggle}>
-        <ModalHeader toggle={toggle} charCode="x">
-          Update {user.email}
-        </ModalHeader>
+        <ModalHeader toggle={toggle}>Update {user.email}</ModalHeader>
         <ModalBody>
           <div>
             <div>
@@ -175,4 +173,4 @@ const ModalExample = (props: any) => {
   )
 }
 
-export default ModalExample
+export default UserModal

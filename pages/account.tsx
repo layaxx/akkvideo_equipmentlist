@@ -3,8 +3,8 @@ import React, { FC } from 'react'
 import nookies from 'nookies'
 import { firebaseAdmin } from '../firebaseAdmin'
 import roles from '../lib/auth/roles'
-import AdminRoleInfo from '../components/account/roleinfo/admin'
-import PublicRoleInfo from '../components/account/roleinfo/public'
+import AdminRoleInfo from '../components/account/roleinfo/AdminRoleInfo'
+import PublicRoleInfo from '../components/account/roleinfo/PublicRoleInfo'
 import { useAuth } from '../auth'
 import {
   Dialog,

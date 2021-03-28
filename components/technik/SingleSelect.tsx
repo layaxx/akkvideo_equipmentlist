@@ -53,8 +53,11 @@ export default function SingleSelect(props: {
           })
         }
       }}
-      filterOptions={(options, params) => {
-        const filtered = createFilterOptions<OptionsType>()(options, params)
+      filterOptions={(optionsParam, params) => {
+        const filtered = createFilterOptions<OptionsType>()(
+          optionsParam,
+          params
+        )
 
         // Suggest the creation of a new value
         if (params.inputValue !== '') {

@@ -5,7 +5,7 @@ import { firebaseAdmin } from '../firebaseAdmin'
 import { InferGetServerSidePropsType, GetServerSidePropsContext } from 'next'
 import roles from '../lib/auth/roles'
 import { Button, Table } from 'reactstrap'
-import ModalUser from '../components/admin/user.modal'
+import ModalUser from '../components/admin/UserModal'
 import Done from '@material-ui/icons/Done'
 import styles from '../styles/admin.module.css'
 
@@ -93,13 +93,13 @@ const AdminPage = (
           <tbody>
             {Object.values(roles).map((val) =>
               props.users
-                .filter((user) => user.role === val)
-                .map((user) => (
-                  <tr key={user.email}>
+                .filter((userParam) => userParam.role === val)
+                .map((userParam) => (
+                  <tr key={userParam.email}>
                     <th scope="row"></th>
-                    <td>{user.email}</td>
-                    <td>{user.emailVerified && <Done />}</td>
-                    <td>{user.role}</td>
+                    <td>{userParam.email}</td>
+                    <td>{userParam.emailVerified && <Done />}</td>
+                    <td>{userParam.role}</td>
                     <td
                       style={{
                         padding: 0,
@@ -108,7 +108,9 @@ const AdminPage = (
                       }}
                     >
                       {val === roles.Admin ? null : (
-                        <Button onClick={() => setUser(user)}>Update</Button>
+                        <Button onClick={() => setUser(userParam)}>
+                          Update
+                        </Button>
                       )}
                     </td>
                   </tr>

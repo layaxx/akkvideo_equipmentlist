@@ -1,6 +1,7 @@
 import { firebaseAdmin } from '../../../firebaseAdmin'
 import roles from '../../../lib/auth/roles'
 import Device from '../../../lib/types/Device'
+import Status from '../../../lib/types/device.status'
 
 export default async (
   req: {
@@ -13,7 +14,6 @@ export default async (
     ) => { (): any; new (): any; end: { (): void; new (): any } }
   }
 ) => {
-  console.log(req)
   if (!req.cookies.token) {
     res.status(401).end()
   }
@@ -56,7 +56,7 @@ export default async (
       location,
       location_prec,
       price,
-      status,
+      status: status || Status.NotOnLoan,
       store,
       buyDate,
       lastEdit: new Date().toISOString(),

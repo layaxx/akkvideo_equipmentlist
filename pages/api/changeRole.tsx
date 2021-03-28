@@ -13,7 +13,7 @@ export default async (req: any, res: any) => {
       .verifyIdToken(req.cookies.token)
       .then((claims: any) => {
         if (claims.role != roles.Admin) {
-          throw 'Authentication failed'
+          throw new Error('Authentication failed')
         }
       })
     await firebaseAdmin

@@ -8,7 +8,7 @@ import { DataGrid, GridCellParams, GridRowId } from '@material-ui/data-grid'
 import { Button } from '@material-ui/core'
 import CustomNoRowsOverlay from '../../components/technik/customNoRowsOverlay'
 import CustomToolbar from '../../components/technik/customToolbar'
-import DeviceDialog from '../../components/technik/device.dialog'
+import DeviceDialog from '../../components/technik/DeviceDialog'
 import { Add } from '@material-ui/icons'
 
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {

@@ -120,9 +120,7 @@ export default function DeviceDialog(props: {
       ) : (
         <DialogTitle id="dialog-title">
           Details for {activeDevice?.description} ({activeDevice?.id}){' '}
-          {readOnly ? (
-            <small style={{ marginLeft: '2rem' }}>Readonly</small>
-          ) : null}
+          {readOnly && <small style={{ marginLeft: '2rem' }}>Readonly</small>}
         </DialogTitle>
       )}
       <DialogContent>
@@ -302,15 +300,17 @@ export default function DeviceDialog(props: {
           <Button onClick={handleEdit} color="primary">
             Submit Change
           </Button>
-        ) : createNew &&
+        ) : (
+          createNew &&
           !!activeDevice &&
           !!activeDevice.description &&
           !!activeDevice.location &&
-          !!activeDevice.amount ? (
-          <Button onClick={handleAdd} color="primary">
-            Add Device
-          </Button>
-        ) : null}
+          !!activeDevice.amount && (
+            <Button onClick={handleAdd} color="primary">
+              Add Device
+            </Button>
+          )
+        )}
         <Button onClick={handleClose} color="secondary">
           Close
         </Button>

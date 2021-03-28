@@ -15,7 +15,7 @@ export default async (req: req, res: res) => {
       .verifyIdToken(req.body.token.i)
       .then((claims: any) => {
         if (claims.role) {
-          throw 'Already has Role'
+          throw new Error('Already has Role')
         }
       })
 

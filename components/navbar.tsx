@@ -7,10 +7,6 @@ import {
   Nav,
   NavItem,
   NavLink,
-  UncontrolledDropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
   NavbarText,
   Button,
 } from 'reactstrap'
@@ -71,6 +67,8 @@ const NavBar: FC = () => {
           <NavItem>
             <NavLink href="/technik/">Technikverwaltung</NavLink>
           </NavItem>
+          {/* 
+          // TODO: will be implemented later on
           <UncontrolledDropdown nav inNavbar>
             <DropdownToggle nav caret>
               Assets
@@ -80,7 +78,7 @@ const NavBar: FC = () => {
               <DropdownItem divider />
               <DropdownItem>Option 2</DropdownItem>
             </DropdownMenu>
-          </UncontrolledDropdown>
+          </UncontrolledDropdown> */}
           <NavItem>
             <NavLink href="/admin/">Admin</NavLink>
           </NavItem>
@@ -106,11 +104,12 @@ const NavBar: FC = () => {
             ) : (
               <>
                 <Link
-                  href={
-                    router.asPath === '/' || router.asPath === '/login'
-                      ? 'login'
-                      : `/login?redirect=${router.asPath.substring(1)}`
-                  }
+                  href={(() => {
+                    if (router.asPath === '/' || router.asPath === '/login') {
+                      return 'login'
+                    }
+                    return `/login?redirect=${router.asPath.substring(1)}`
+                  })()}
                 >
                   <a>
                     <Button type="button" style={styles.button}>

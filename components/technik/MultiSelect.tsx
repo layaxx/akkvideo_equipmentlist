@@ -32,21 +32,25 @@ export default function MultiSelect(props: {
             dialogActiveDevice: {
               ...activeDevice,
               [label]: newValue
-                .map((val: { inputValue: any; title: any }) =>
-                  typeof val === 'string'
-                    ? val
-                    : !!val.inputValue
-                    ? val.inputValue
-                    : val.title
-                )
+                .map((val: { inputValue: any; title: any }) => {
+                  if (typeof val === 'string') {
+                    return val
+                  } else if (!!val.inputValue) {
+                    return val.inputValue
+                  }
+                  return val.title
+                })
                 .sort((a: string, b: string) => a.localeCompare(b))
                 .join('+++'),
             },
           }
         })
       }}
-      filterOptions={(options, params) => {
-        const filtered = createFilterOptions<OptionsType>()(options, params)
+      filterOptions={(optionsParam, params) => {
+        const filtered = createFilterOptions<OptionsType>()(
+          optionsParam,
+          params
+        )
 
         // Suggest the creation of a new value
         if (params.inputValue !== '') {
