@@ -128,6 +128,7 @@ class TechnikOverview extends React.Component<
     this.toggleMenu = this.toggleMenu.bind(this)
     this.data = {
       columns: [
+        { field: 'amount', headerName: 'Amount', width: 100, type: 'number' },
         { field: 'brand', headerName: 'Brand', width: 150 },
         {
           field: 'description',

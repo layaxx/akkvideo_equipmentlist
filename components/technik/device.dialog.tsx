@@ -67,6 +67,15 @@ export default function DeviceDialog(props: {
     })
   }
 
+  const handleChangeAmount = (event: React.ChangeEvent<HTMLInputElement>) => {
+    updateState({
+      dialogActiveDevice: {
+        ...activeDevice,
+        ...{ amount: Math.max(parseInt(event.target.value), 1) },
+      },
+    })
+  }
+
   const handleEdit = () => {
     axios
       .post('/api/devices/edit', activeDevice)
@@ -245,6 +254,22 @@ export default function DeviceDialog(props: {
             </Grid>
             <Grid item xs={12} sm={6} md={4}>
               <TextField
+                id="amount"
+                label="Amount"
+                type="number"
+                value={activeDevice?.amount}
+                onChange={handleChangeAmount}
+                required
+                disabled={readOnly}
+                InputLabelProps={{
+                  disabled: readOnly,
+                  'aria-valuemin': 1,
+                  'aria-valuemax': 9999,
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6} md={4}>
+              <TextField
                 id="buyDate"
                 label="Date of Purchase"
                 type="date"
@@ -280,7 +305,8 @@ export default function DeviceDialog(props: {
         ) : createNew &&
           !!activeDevice &&
           !!activeDevice.description &&
-          !!activeDevice.location ? (
+          !!activeDevice.location &&
+          !!activeDevice.amount ? (
           <Button onClick={handleAdd} color="primary">
             Add Device
           </Button>

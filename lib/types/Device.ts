@@ -1,5 +1,7 @@
 export default interface Device {
+  amount: number
   brand: string
+  buyDate: string
   category: string
   comments: string
   container: string
@@ -11,10 +13,10 @@ export default interface Device {
   status: string
   store: string
   lastEdit: string
-  buyDate: string
 }
 
 export const EmptyDevice: Device = {
+  amount: 1,
   brand: '',
   category: '',
   comments: '',

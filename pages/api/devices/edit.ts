@@ -1,23 +1,11 @@
 import { firebaseAdmin } from '../../../firebaseAdmin'
 import roles from '../../../lib/auth/roles'
+import Device from '../../../lib/types/Device'
 
 export default async (
   req: {
     cookies: { token: string }
-    body: {
-      buyDate?: any
-      id?: any
-      brand?: any
-      category?: any
-      comments?: any
-      container?: any
-      description?: any
-      location?: any
-      location_prec?: any
-      price?: any
-      status?: any
-      store?: any
-    }
+    body: Device
   },
   res: {
     status: (
@@ -40,6 +28,7 @@ export default async (
       })
     const db = firebaseAdmin.firestore()
     const {
+      amount,
       id,
       brand,
       category,
@@ -58,6 +47,7 @@ export default async (
     }
     const ref = db.collection('devices').doc(id)
     const editedDevice = {
+      amount: Math.max(amount, 1),
       brand,
       category,
       comments,

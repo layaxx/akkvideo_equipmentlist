@@ -1,23 +1,12 @@
 import { firebaseAdmin } from '../../../firebaseAdmin'
 import roles from '../../../lib/auth/roles'
+import Device from '../../../lib/types/Device'
 import Status from '../../../lib/types/device.status'
 
 export default async (
   req: {
     cookies: { token: string }
-    body: {
-      brand: any
-      category: any
-      comments: any
-      container: any
-      description: any
-      location: any
-      location_prec: any
-      price: any
-      status: any
-      store: any
-      buyDate: any
-    }
+    body: Device
   },
   res: {
     status: (
@@ -43,6 +32,7 @@ export default async (
       })
     const db = firebaseAdmin.firestore()
     const {
+      amount,
       brand,
       category,
       comments,
@@ -58,6 +48,7 @@ export default async (
       res.status(400).end()
     }
     await db.collection('devices').add({
+      amount: Math.max(amount, 1),
       brand: brand || '',
       category: category || '',
       comments: comments || '',
