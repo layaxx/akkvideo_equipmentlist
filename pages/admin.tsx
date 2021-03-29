@@ -13,7 +13,7 @@ import { firebaseAdmin } from '../firebaseAdmin'
 import { InferGetServerSidePropsType, GetServerSidePropsContext } from 'next'
 import roles from '../lib/auth/roles'
 import { Table } from 'reactstrap'
-import ModalUser from '../components/admin/UserModal'
+import ModalUser from '../components/admin/UserDialog'
 import Done from '@material-ui/icons/Done'
 
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
