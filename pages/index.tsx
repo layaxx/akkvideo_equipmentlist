@@ -111,7 +111,7 @@ const MainPage = () => {
             </CardContent>
             <CardActions>
               <Link href="/admin">
-                <Button size="small">Access (Admin only)</Button>
+                <Button size="small">Access</Button>
               </Link>
             </CardActions>
           </Card>

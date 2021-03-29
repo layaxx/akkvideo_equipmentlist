@@ -67,6 +67,7 @@ function import_devices(deleteEverything) {
             : obj.category.split(',').join('+++'),
           buyDate: '',
           lastEdit: new Date().toISOString(),
+          status: status.NotOnLoan,
         }
       })
 

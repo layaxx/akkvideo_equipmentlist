@@ -1,13 +1,20 @@
 import React, { useState } from 'react'
-
+import {
+  Button,
+  makeStyles,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+} from '@material-ui/core'
 import nookies from 'nookies'
 import { firebaseAdmin } from '../firebaseAdmin'
 import { InferGetServerSidePropsType, GetServerSidePropsContext } from 'next'
 import roles from '../lib/auth/roles'
-import { Button, Table } from 'reactstrap'
+import { Table } from 'reactstrap'
 import ModalUser from '../components/admin/UserModal'
 import Done from '@material-ui/icons/Done'
-import styles from '../styles/admin.module.css'
 
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   try {
@@ -68,58 +75,81 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   }
 }
 
+interface IUser {
+  email: string
+  emailVerified: boolean
+  role: roles
+}
+
+const useStyles = makeStyles({
+  table: {
+    minWidth: 630,
+  },
+})
+
 const AdminPage = (
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) => {
-  const [user, setUser] = useState({})
+  const [user, setUser]: [IUser | null, any] = useState(null)
+  const classes = useStyles()
 
   return (
-    <div style={{ margin: 'auto', maxWidth: '40rem' }}>
+    <div style={{ margin: 'auto', maxWidth: '45rem' }}>
       <h1 style={{ textAlign: 'center', marginBottom: '3rem' }}>
         Admin-Dashboard
       </h1>
       <h2>Registered users</h2>
-      <div className={styles.tablewrap} style={{ overflow: 'auto' }}>
-        <Table>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>E-Mail</th>
-              <th>verified</th>
-              <th>Role</th>
-              <th style={{ textAlign: 'right' }}>Change Properties</th>
-            </tr>
-          </thead>
-          <tbody>
+      <TableContainer style={{ overflow: 'auto' }}>
+        <Table className={classes.table} aria-label="registered users">
+          <TableHead>
+            <TableRow>
+              <TableCell align="right">E-Mail</TableCell>
+              <TableCell align="right">Verified</TableCell>
+              <TableCell align="right">Role</TableCell>
+              <TableCell align="right">Change Properties</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
             {Object.values(roles).map((val) =>
               props.users
                 .filter((userParam) => userParam.role === val)
                 .map((userParam) => (
-                  <tr key={userParam.email}>
-                    <th scope="row"></th>
-                    <td>{userParam.email}</td>
-                    <td>{userParam.emailVerified && <Done />}</td>
-                    <td>{userParam.role}</td>
-                    <td
+                  <TableRow key={userParam.email}>
+                    <TableCell component="th" scope="row" align="right">
+                      {userParam.email}
+                    </TableCell>
+                    <TableCell component="th" scope="row" align="right">
+                      {userParam.emailVerified && <Done />}
+                    </TableCell>
+                    <TableCell component="th" scope="row" align="right">
+                      {userParam.role}
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      component="th"
+                      scope="row"
                       style={{
                         padding: 0,
-                        textAlign: 'right',
                         verticalAlign: 'inherit',
                       }}
                     >
                       {val === roles.Admin ? null : (
-                        <Button onClick={() => setUser(userParam)}>
+                        <Button
+                          variant="outlined"
+                          onClick={() => setUser(userParam)}
+                        >
                           Update
                         </Button>
                       )}
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))
             )}
-          </tbody>
+          </TableBody>
         </Table>
-      </div>
-      <ModalUser user={user} clear={() => setUser({})}></ModalUser>
+      </TableContainer>
+
+      <ModalUser user={user} clear={() => setUser(null)}></ModalUser>
     </div>
   )
 }
