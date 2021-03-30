@@ -45,8 +45,8 @@ function import_devices(deleteEverything) {
   if (deleteEverything) {
     deleteCollection(firebaseAdmin.firestore(), 'devices', 20)
   }
-  let devices = []
-  let path = './scripts/Inventar_akvideo.csv'
+  const devices = []
+  const path = './scripts/Inventar_akvideo.csv'
 
   fs.createReadStream(path)
     .pipe(csv.parse({ headers: true, delimiter: ';' }))
@@ -61,9 +61,9 @@ function import_devices(deleteEverything) {
         return {
           ...obj,
           category: obj.tags
-            ? obj.category.split(',').join('+++') +
-              '+++' +
-              obj.tags.split(',').join('+++')
+            ? `${obj.category.split(',').join('+++')}+++${obj.tags
+                .split(',')
+                .join('+++')}`
             : obj.category.split(',').join('+++'),
           buyDate: '',
           lastEdit: new Date().toISOString(),
