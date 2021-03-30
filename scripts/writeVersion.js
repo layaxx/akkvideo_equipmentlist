@@ -9,7 +9,7 @@ new Promise((resolve, reject) => {
         console.warn(error)
       } else if (stdout) {
         fs.writeFile(
-          './lib/version.tsx',
+          './lib/version.ts',
           'export default ' + stdout,
           function (err) {
             if (err) {
