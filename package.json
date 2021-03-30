@@ -3,12 +3,13 @@
   "version": "3.0.1",
   "private": true,
   "author": {
-    "name" : "Yannick Lang",
-    "email" : "yl@arbeitskreis.video",
-    "url" : "https://y-lang.eu/"
+    "name": "Yannick Lang",
+    "email": "yl@arbeitskreis.video",
+    "url": "https://y-lang.eu/"
   },
   "homepage": "https://intern.arbeitskreis.video",
   "scripts": {
+    "postinstall": "node scripts/writeVersion.js",
     "dev": "next dev",
     "build": "next build",
     "export": "next export",

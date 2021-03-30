@@ -4,6 +4,8 @@ import HelpOutlineIcon from '@material-ui/icons/HelpOutline'
 import { makeStyles } from '@material-ui/core/styles'
 import React from 'react'
 import Link from 'next/link'
+import { Tooltip } from '@material-ui/core'
+import Version from '../lib/version'
 
 export const useStyles = makeStyles((theme) => ({
   footer: {
@@ -47,10 +49,12 @@ export default function footer() {
     <footer className={classes.footer}>
       <div className={classes.greyBG}>
         <p>
-          © 2021{' '}
           <Link href="https://arbeitskreis.video/">
             <a>AK Video</a>
-          </Link>
+          </Link>{' '}
+          <Tooltip title="Abbreviated hash of the deployed commit">
+            <small>v.{Version}</small>
+          </Tooltip>
         </p>
       </div>
 
