@@ -8,7 +8,7 @@ exec(
       console.warn(error)
     } else if (stdout) {
       fs.writeFile(
-        './lib/version.ts',
+        './lib/version.tsx',
         'export default ' + stdout,
         function (err) {
           if (err) {
