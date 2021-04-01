@@ -28,6 +28,7 @@
     "next": "10",
     "nookies": "^2.5.0",
     "notistack": "^1.0.4",
+    "pdfjs": "^2.4.2",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "reactstrap": "^8.9.0",

@@ -9,7 +9,7 @@ export default interface Device {
   id: string
   location: string
   location_prec: string
-  price: string
+  price: number
   status: string
   store: string
   lastEdit: string
@@ -25,7 +25,7 @@ export const EmptyDevice: Device = {
   id: '',
   location: '',
   location_prec: '',
-  price: '',
+  price: 0,
   status: '',
   store: '',
   lastEdit: new Date().toISOString(),

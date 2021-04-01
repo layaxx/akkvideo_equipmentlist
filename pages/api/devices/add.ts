@@ -56,7 +56,7 @@ export default async (
       location,
       description,
       location_prec: location_prec || '',
-      price: price || '',
+      price: price || 0,
       status: Status.NotOnLoan,
       store: store || '',
       lastEdit: new Date().toISOString(),
