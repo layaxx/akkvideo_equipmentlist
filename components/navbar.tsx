@@ -106,7 +106,7 @@ const NavBar: FC = () => {
                 <Link
                   href={(() => {
                     if (router.asPath === '/' || router.asPath === '/login') {
-                      return 'login'
+                      return '/login'
                     }
                     return `/login?redirect=${router.asPath.substring(1)}`
                   })()}

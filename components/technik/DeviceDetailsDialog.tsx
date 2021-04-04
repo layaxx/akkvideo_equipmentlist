@@ -1,4 +1,5 @@
 import {
+  Button,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -14,7 +15,6 @@ import axios from 'axios'
 import { useRouter } from 'next/dist/client/router'
 import { useSnackbar } from 'notistack'
 import React from 'react'
-import { Button } from 'reactstrap'
 import Device from '../../lib/types/Device'
 import { DialogMode } from '../../pages/technik/index'
 import MultiSelect from './MultiSelect'
@@ -40,7 +40,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 )
 
-export default function DeviceDialog(props: {
+export default function DeviceDetailsDialog(props: {
   activeDevice: Device | null
   mode: any
   show: boolean

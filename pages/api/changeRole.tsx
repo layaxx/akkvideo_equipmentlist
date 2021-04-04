@@ -5,6 +5,7 @@ export default async (req: any, res: any) => {
   // console.log(req)
   if (!req.cookies.token) {
     res.status(401).end()
+    return
   }
   try {
     // verify identity of submitter

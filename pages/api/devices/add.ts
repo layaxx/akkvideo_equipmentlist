@@ -17,6 +17,7 @@ export default async (
   if (!req.cookies.token) {
     console.error('Request to /devices/add without token cookie.')
     res.status(401).end()
+    return
   }
   try {
     await firebaseAdmin
@@ -46,6 +47,7 @@ export default async (
     } = req.body
     if (!location || !description) {
       res.status(400).end()
+      return
     }
     await db.collection('devices').add({
       amount: Math.max(amount, 1),

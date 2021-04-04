@@ -16,6 +16,7 @@ export default async (
 ) => {
   if (!req.cookies.token) {
     res.status(401).end()
+    return
   }
   try {
     await firebaseAdmin
@@ -44,6 +45,7 @@ export default async (
     var buyDate = req.body.buyDate || ''
     if (!location || !description || !id) {
       res.status(400).end()
+      return
     }
     const ref = db.collection('devices').doc(id)
     const editedDevice = {
@@ -70,6 +72,7 @@ export default async (
         // The document probably doesn't exist.
         console.error('Error updating document: ', error)
         res.status(500).end()
+        return
       })
 
     res.status(200).end()

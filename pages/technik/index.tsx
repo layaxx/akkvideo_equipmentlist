@@ -8,10 +8,12 @@ import { DataGrid, GridCellParams, GridRowId } from '@material-ui/data-grid'
 import { Button, Grid } from '@material-ui/core'
 import CustomNoRowsOverlay from '../../components/technik/customNoRowsOverlay'
 import CustomToolbar from '../../components/technik/customToolbar'
-import DeviceDialog from '../../components/technik/DeviceDialog'
+import DeviceDetailsDialog from '../../components/technik/DeviceDetailsDialog'
 import { Add } from '@material-ui/icons'
 import ListAltIcon from '@material-ui/icons/ListAlt'
 import GetAppIcon from '@material-ui/icons/GetApp'
+import DeviceLendingDialog from '../../components/technik/DeviceLendingDialog'
+import Head from 'next/head'
 const pdf = require('pdfjs')
 const helvetica = require('pdfjs/font/Helvetica')
 const helveticaBold = require('pdfjs/font/Helvetica-Bold')
@@ -80,9 +82,10 @@ export enum DialogMode {
 }
 
 interface DeviceState {
-  dialogShow: boolean
-  dialogActiveDevice: Device | null
-  dialogMode: DialogMode
+  dialogDetailsShow: boolean
+  dialogDetailsActiveDevice: Device | null
+  dialogDetailsMode: DialogMode
+  dialogLendingShow: boolean
   selectionModel: GridRowId[]
   showMenu: boolean
   pdfb64: string
@@ -106,9 +109,10 @@ class TechnikOverview extends React.Component<
     super(props)
     this.isAdmin = props.isAdmin
     this.state = {
-      dialogShow: false,
-      dialogMode: this.isAdmin ? DialogMode.Edit : DialogMode.ReadOnly,
-      dialogActiveDevice: null,
+      dialogLendingShow: false,
+      dialogDetailsShow: false,
+      dialogDetailsMode: this.isAdmin ? DialogMode.Edit : DialogMode.ReadOnly,
+      dialogDetailsActiveDevice: null,
       selectionModel: [],
       showMenu: false,
       pdfb64: '',
@@ -123,9 +127,11 @@ class TechnikOverview extends React.Component<
         aria-label="open details"
         onClick={() =>
           this.setState({
-            dialogShow: true,
-            dialogActiveDevice: params.row as Device,
-            dialogMode: this.isAdmin ? DialogMode.Edit : DialogMode.ReadOnly,
+            dialogDetailsShow: true,
+            dialogDetailsActiveDevice: params.row as Device,
+            dialogDetailsMode: this.isAdmin
+              ? DialogMode.Edit
+              : DialogMode.ReadOnly,
           })
         }
       >
@@ -235,197 +241,230 @@ class TechnikOverview extends React.Component<
   }
 
   createPDF() {
-    var doc = new pdf.Document({
-      font: helvetica,
-      padding: 40,
-      lineHeight: 1.3,
-      properties: { title: 'AK Video Geräteliste' },
-    })
-    fetch('/logo.jpg').then((x) => {
-      x.arrayBuffer()
-        .then((m) => new pdf.Image(m))
-        .then((logo) => {
-          var header = doc
-            .header()
-            .table({ widths: [null, null], paddingBottom: 1 * pdf.cm })
-            .row()
-          header.cell().image(logo, { height: 2 * pdf.cm })
-          header
-            .cell()
-            .text({ textAlign: 'right', fontSize: 25, font: helveticaBold })
-            .add('Geräteliste')
-            .text({ textAlign: 'right', fontSize: 12, font: helvetica })
-            .add(`Stand: ${new Date().toLocaleDateString()}`)
+    try {
+      var doc = new pdf.Document({
+        font: helvetica,
+        padding: 40,
+        lineHeight: 1.3,
+        properties: { title: 'AK Video Geräteliste' },
+      })
+      fetch('/logo.jpg').then((x) => {
+        x.arrayBuffer()
+          .then((m) => new pdf.Image(m))
+          .then((logo) => {
+            var header = doc
+              .header()
+              .table({ widths: [null, null], paddingBottom: 1 * pdf.cm })
+              .row()
+            header.cell().image(logo, { height: 2 * pdf.cm })
+            header
+              .cell()
+              .text({ textAlign: 'right', fontSize: 25, font: helveticaBold })
+              .add('Geräteliste')
+              .text({ textAlign: 'right', fontSize: 12, font: helvetica })
+              .add(`Stand: ${new Date().toLocaleDateString()}`)
 
-          doc.footer().pageNumber(
-            function (curr: number, total: number) {
-              return `Seite ${curr} von ${total}`
-            },
-            { textAlign: 'right' }
-          )
+            doc.footer().pageNumber(
+              function (curr: number, total: number) {
+                return `Seite ${curr} von ${total}`
+              },
+              { textAlign: 'right' }
+            )
 
-          doc.cell()
+            doc.cell()
 
-          var table = doc.table({
-            widths: [1.5 * pdf.cm, null, 3 * pdf.cm, 2 * pdf.cm, 2.5 * pdf.cm],
-            borderHorizontalWidths: function (i: number) {
-              return i == 0 ? 0 : i < 2 ? 2 : 0.01
-            },
-            padding: 5,
-          })
+            var table = doc.table({
+              widths: [
+                1.5 * pdf.cm,
+                null,
+                3 * pdf.cm,
+                2 * pdf.cm,
+                2.5 * pdf.cm,
+              ],
+              borderHorizontalWidths: function (i: number) {
+                return i == 0 ? 0 : i < 2 ? 2 : 0.01
+              },
+              padding: 5,
+            })
 
-          var tr = table.header({
-            font: helveticaBold,
-            borderBottomWidth: 1.5,
-          })
-          tr.cell('#')
-          tr.cell().text('Name').add('(Marke)', { font: helvetica })
-          tr.cell('Lagerort', { textAlign: 'right' })
-          tr.cell('Preis', { textAlign: 'right' })
-          tr.cell('Kaufjahr', { textAlign: 'right' })
+            var tr = table.header({
+              font: helveticaBold,
+              borderBottomWidth: 1.5,
+            })
+            tr.cell('#')
+            tr.cell().text('Name').add('(Marke)', { font: helvetica })
+            tr.cell('Lagerort', { textAlign: 'right' })
+            tr.cell('Preis', { textAlign: 'right' })
+            tr.cell('Kaufjahr', { textAlign: 'right' })
 
-          function addRow(device: Device) {
-            var tr = table.row()
-            tr.cell(device.amount.toString())
-            var article = tr.cell().text()
-            article
-              .add(device.description, { font: helveticaBold })
-              .add(device.brand ? `(${device.brand})` : '', {
-                fontSize: 11,
-                textAlign: 'justify',
+            function addRow(device: Device) {
+              var tr = table.row()
+              tr.cell(device.amount.toString())
+              var article = tr.cell().text()
+              article
+                .add(device.description, { font: helveticaBold })
+                .add(device.brand ? `(${device.brand})` : '', {
+                  fontSize: 11,
+                  textAlign: 'justify',
+                })
+              tr.cell(device.location, { textAlign: 'right' })
+              tr.cell(device.price ? device.price + ' €' : '', {
+                textAlign: 'right',
               })
-            tr.cell(device.location, { textAlign: 'right' })
-            tr.cell(device.price ? device.price + ' €' : '', {
-              textAlign: 'right',
-            })
-            tr.cell(device.buyDate.substring(device.buyDate.length - 4), {
-              textAlign: 'right',
-            })
-          }
+              tr.cell(device.buyDate.substring(device.buyDate.length - 4), {
+                textAlign: 'right',
+              })
+            }
 
-          if (this.data.rows) {
-            this.data.rows.forEach((device: Device) => addRow(device))
-          } else {
-            console.error('Cannot create a report for 0 devices')
-          }
-          doc.asBuffer().then((buf: any) => {
-            this.setState({
-              pdfb64: `data:application/pdf;base64,${buf.toString('base64')}`,
+            if (this.data.rows) {
+              this.data.rows.forEach((device: Device) => addRow(device))
+            } else {
+              console.error('Cannot create a report for 0 devices')
+            }
+            doc.asBuffer().then((buf: any) => {
+              this.setState({
+                pdfb64: `data:application/pdf;base64,${buf.toString('base64')}`,
+              })
             })
           })
-        })
-    })
+      })
+    } catch (error) {
+      console.error('Failed to create a report: ' + error)
+    }
   }
 
   render() {
     return (
-      <div style={{ margin: 'auto', maxWidth: '40rem' }}>
-        <h1 style={{ textAlign: 'center', marginBottom: '3rem' }}>
-          Technikverwaltung
-        </h1>
-        <div>
-          <h2>Registered devices</h2>
-          <div style={{ display: 'flex', placeContent: 'space-between' }}>
-            <em>Click on name for details</em>
-            <em onClick={this.toggleMenu} style={{ cursor: 'pointer' }}>
-              {this.state.showMenu ? 'hide menu' : 'show menu'}
-            </em>
-          </div>
-          <div style={{ height: 600, width: '100%' }}>
-            <div style={{ display: 'flex', height: '100%' }}>
-              <div style={{ flexGrow: 1 }}>
-                <DataGrid
-                  checkboxSelection
-                  onSelectionModelChange={(newSelection) => {
-                    this.setState({
-                      selectionModel: newSelection.selectionModel,
-                    })
-                  }}
-                  selectionModel={this.state.selectionModel}
-                  components={{
-                    Toolbar: this.state.showMenu ? CustomToolbar : undefined,
-                    NoRowsOverlay: CustomNoRowsOverlay,
-                  }}
-                  {...this.data}
-                  pageSize={50}
-                />
+      <>
+        <Head>
+          <title>Technik | AK Video intern</title>
+        </Head>
+        <div style={{ margin: 'auto', maxWidth: '40rem' }}>
+          <h1 style={{ textAlign: 'center', marginBottom: '3rem' }}>
+            Technikverwaltung
+          </h1>
+          <div>
+            <h2>Registered devices</h2>
+            <div style={{ display: 'flex', placeContent: 'space-between' }}>
+              <em>Click on name for details</em>
+              <em onClick={this.toggleMenu} style={{ cursor: 'pointer' }}>
+                {this.state.showMenu ? 'hide menu' : 'show menu'}
+              </em>
+            </div>
+            <div style={{ height: 600, width: '100%' }}>
+              <div style={{ display: 'flex', height: '100%' }}>
+                <div style={{ flexGrow: 1 }}>
+                  <DataGrid
+                    checkboxSelection
+                    onSelectionModelChange={(newSelection) => {
+                      this.setState({
+                        selectionModel: newSelection.selectionModel,
+                      })
+                    }}
+                    selectionModel={this.state.selectionModel}
+                    components={{
+                      Toolbar: this.state.showMenu ? CustomToolbar : undefined,
+                      NoRowsOverlay: CustomNoRowsOverlay,
+                    }}
+                    {...this.data}
+                    pageSize={50}
+                  />
+                </div>
               </div>
             </div>
-          </div>
-          {this.isAdmin ? (
             <Grid
               container
               justify="space-evenly"
               alignItems="center"
-              style={{ whiteSpace: 'break-spaces' }}
+              style={{ whiteSpace: 'break-spaces', marginTop: '1rem' }}
             >
               <Grid item>
                 <Button
-                  style={{ marginTop: '1rem' }}
                   variant="outlined"
-                  onClick={() =>
-                    this.setState((state) => {
-                      return {
-                        dialogActiveDevice:
-                          state.dialogMode === DialogMode.Create
-                            ? state.dialogActiveDevice
-                            : EmptyDevice,
-                        dialogShow: true,
-                        dialogMode: DialogMode.Create,
-                      }
-                    })
-                  }
+                  onClick={() => this.setState({ dialogLendingShow: true })}
                 >
-                  <Add /> new Device
+                  Start lending process for selected Devices
                 </Button>
               </Grid>
-              <Grid item>
-                <Button
-                  variant="outlined"
-                  onClick={this.createPDF}
-                  style={{ marginTop: '1rem' }}
-                >
-                  <ListAltIcon /> generate Report
-                </Button>
-              </Grid>
-              {!!this.state.pdfb64 && (
+            </Grid>
+            {this.isAdmin && (
+              <Grid
+                container
+                justify="space-evenly"
+                alignItems="center"
+                style={{ whiteSpace: 'break-spaces' }}
+              >
                 <Grid item>
                   <Button
                     style={{ marginTop: '1rem' }}
                     variant="outlined"
-                    href={this.state.pdfb64}
-                    download="akvideo-geraeteliste.pdf"
+                    onClick={() =>
+                      this.setState((state) => {
+                        return {
+                          dialogDetailsActiveDevice:
+                            state.dialogDetailsMode === DialogMode.Create
+                              ? state.dialogDetailsActiveDevice
+                              : EmptyDevice,
+                          dialogDetailsShow: true,
+                          dialogDetailsMode: DialogMode.Create,
+                        }
+                      })
+                    }
                   >
-                    <GetAppIcon /> download Report
+                    <Add /> new Device
                   </Button>
                 </Grid>
-              )}
-            </Grid>
-          ) : null}
+                <Grid item>
+                  <Button
+                    variant="outlined"
+                    onClick={this.createPDF}
+                    style={{ marginTop: '1rem' }}
+                  >
+                    <ListAltIcon /> generate Report
+                  </Button>
+                </Grid>
+                {!!this.state.pdfb64 && (
+                  <Grid item>
+                    <Button
+                      style={{ marginTop: '1rem' }}
+                      variant="outlined"
+                      href={this.state.pdfb64}
+                      download="akvideo-geraeteliste.pdf"
+                    >
+                      <GetAppIcon /> download Report
+                    </Button>
+                  </Grid>
+                )}
+              </Grid>
+            )}
+          </div>
+
+          <iframe
+            width="100%"
+            height="1000rem"
+            hidden={!this.state.pdfb64}
+            src={this.state.pdfb64}
+            style={{ marginTop: '2rem' }}
+          />
+          <DeviceLendingDialog
+            handleClose={() => this.setState({ dialogLendingShow: false })}
+            devices={this.data.rows.filter((device: Device) =>
+              this.state.selectionModel.includes(device.id)
+            )}
+            show={this.state.dialogLendingShow}
+          />
+          <DeviceDetailsDialog
+            handleClose={() => this.setState({ dialogDetailsShow: false })}
+            activeDevice={this.state.dialogDetailsActiveDevice}
+            mode={this.state.dialogDetailsMode}
+            show={this.state.dialogDetailsShow}
+            updateState={(newState: { dialogDetailsActiveDevice: Device }) =>
+              this.setState(newState)
+            }
+            options={this.options}
+          />
         </div>
-        {/* <div>
-        // Will be implemented at a later point in time
-          <h2>Lend devices</h2>
-          <em>Add devices to cart to start the process</em>
-        </div> */}
-        <iframe
-          width="100%"
-          height="1000rem"
-          hidden={!this.state.pdfb64}
-          src={this.state.pdfb64}
-          style={{ marginTop: '2rem' }}
-        />
-        <DeviceDialog
-          handleClose={() => this.setState({ dialogShow: false })}
-          activeDevice={this.state.dialogActiveDevice}
-          mode={this.state.dialogMode}
-          show={this.state.dialogShow}
-          updateState={(newState: { dialogActiveDevice: Device }) =>
-            this.setState(newState)
-          }
-          options={this.options}
-        />
-      </div>
+      </>
     )
   }
 }

@@ -23,6 +23,7 @@
     "@types/react": "^16.9.56",
     "axios": "^0.21.1",
     "bootstrap": "^4.6.0",
+    "dayjs": "^1.10.4",
     "firebase": "^8.0.2",
     "firebase-admin": "^9.4.0",
     "next": "10",
