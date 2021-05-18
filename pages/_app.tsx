@@ -10,6 +10,19 @@ import { SnackbarProvider } from 'notistack'
 import theme from '../lib/theme'
 import { ThemeProvider } from '@material-ui/core/styles'
 import CssBaseline from '@material-ui/core/CssBaseline'
+import ProgressBar from '@badrap/bar-of-progress'
+import Router from 'next/router'
+
+const progress = new ProgressBar({
+  size: 5,
+  color: theme.palette.primary.main,
+  className: 'bar-of-progress',
+  delay: 100,
+})
+
+Router.events.on('routeChangeStart', progress.start)
+Router.events.on('routeChangeComplete', progress.finish)
+Router.events.on('routeChangeError', progress.finish)
 
 function MyApp({ Component, pageProps }: AppProps) {
   React.useEffect(() => {
