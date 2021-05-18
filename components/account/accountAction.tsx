@@ -88,6 +88,10 @@ const AccountAction = ({ isRegister = false }: { isRegister?: boolean }) => {
     }
   }
 
+  if (!!user && router.query.redirect) {
+    router.push('/' + router.query.redirect)
+  }
+
   return (
     <Container component="main" maxWidth="xs">
       <CssBaseline />

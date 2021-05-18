@@ -18,6 +18,12 @@ import { useAuth } from '../auth'
 import { gray } from '../lib/colors'
 
 const styles = {
+  top: { backgroundColor: gray, marginBottom: '2rem' },
+  wrapper: {
+    backgroundColor: gray,
+    margin: 'auto',
+    maxWidth: '50rem',
+  },
   container: {
     display: 'flex',
     justifyContent: 'flex-end',
@@ -55,19 +61,16 @@ const NavBar: FC = () => {
   }
 
   return (
-    <Navbar
-      style={{ backgroundColor: gray, marginBottom: '2rem' }}
-      dark
-      expand="md"
-    >
-      <NavbarBrand href="/">AK Video [intern]</NavbarBrand>
-      <NavbarToggler onClick={toggle} />
-      <Collapse isOpen={isOpen} navbar>
-        <Nav className="mr-auto" navbar>
-          <NavItem>
-            <NavLink href="/technik/">Technikverwaltung</NavLink>
-          </NavItem>
-          {/* 
+    <div style={styles.top}>
+      <Navbar style={styles.wrapper} dark expand="md">
+        <NavbarBrand href="/">AK Video [intern]</NavbarBrand>
+        <NavbarToggler onClick={toggle} />
+        <Collapse isOpen={isOpen} navbar>
+          <Nav className="mr-auto" navbar>
+            <NavItem>
+              <NavLink href="/technik/">Technikverwaltung</NavLink>
+            </NavItem>
+            {/* 
           // TODO: will be implemented later on
           <UncontrolledDropdown nav inNavbar>
             <DropdownToggle nav caret>
@@ -79,50 +82,51 @@ const NavBar: FC = () => {
               <DropdownItem>Option 2</DropdownItem>
             </DropdownMenu>
           </UncontrolledDropdown> */}
-          <NavItem>
-            <NavLink href="/admin/">Admin</NavLink>
-          </NavItem>
-        </Nav>
-        <NavbarText>
-          <div style={styles.container}>
-            {user ? (
-              <p style={{ margin: 0 }}>
-                <Link href="/account">
-                  <a> {user.email}</a>
-                </Link>
+            <NavItem>
+              <NavLink href="/admin/">Admin</NavLink>
+            </NavItem>
+          </Nav>
+          <NavbarText>
+            <div style={styles.container}>
+              {user ? (
+                <p style={{ margin: 0 }}>
+                  <Link href="/account">
+                    <a> {user.email}</a>
+                  </Link>
 
-                <Button
-                  type="button"
-                  onClick={() => {
-                    signout()
-                  }}
-                  style={styles.button}
-                >
-                  Sign out
-                </Button>
-              </p>
-            ) : (
-              <>
-                <Link
-                  href={(() => {
-                    if (router.asPath === '/' || router.asPath === '/login') {
-                      return '/login'
-                    }
-                    return `/login?redirect=${router.asPath.substring(1)}`
-                  })()}
-                >
-                  <a>
-                    <Button type="button" style={styles.button}>
-                      Sign in
-                    </Button>
-                  </a>
-                </Link>
-              </>
-            )}
-          </div>
-        </NavbarText>
-      </Collapse>
-    </Navbar>
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      signout()
+                    }}
+                    style={styles.button}
+                  >
+                    Sign out
+                  </Button>
+                </p>
+              ) : (
+                <>
+                  <Link
+                    href={(() => {
+                      if (router.asPath === '/' || router.asPath === '/login') {
+                        return '/login'
+                      }
+                      return `/login?redirect=${router.asPath.substring(1)}`
+                    })()}
+                  >
+                    <a>
+                      <Button type="button" style={styles.button}>
+                        Sign in
+                      </Button>
+                    </a>
+                  </Link>
+                </>
+              )}
+            </div>
+          </NavbarText>
+        </Collapse>
+      </Navbar>
+    </div>
   )
 }
 

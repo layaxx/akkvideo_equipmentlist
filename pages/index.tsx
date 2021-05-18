@@ -110,7 +110,7 @@ const MainPage = () => {
               </Typography>
             </CardContent>
             <CardActions>
-              <Link href="/admin">
+              <Link href="/account">
                 <Button size="small">Access</Button>
               </Link>
             </CardActions>
