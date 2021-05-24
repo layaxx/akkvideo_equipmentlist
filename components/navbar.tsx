@@ -63,12 +63,16 @@ const NavBar: FC = () => {
   return (
     <div style={styles.top}>
       <Navbar style={styles.wrapper} dark expand="md">
-        <NavbarBrand href="/">AK Video [intern]</NavbarBrand>
+        <NavbarBrand>
+          <Link href="/">AK Video [intern]</Link>
+        </NavbarBrand>
         <NavbarToggler onClick={toggle} />
         <Collapse isOpen={isOpen} navbar>
           <Nav className="mr-auto" navbar>
             <NavItem>
-              <NavLink href="/technik/">Technikverwaltung</NavLink>
+              <NavLink>
+                <Link href="/technik/">Technikverwaltung</Link>
+              </NavLink>
             </NavItem>
             {/* 
           // TODO: will be implemented later on
@@ -83,7 +87,9 @@ const NavBar: FC = () => {
             </DropdownMenu>
           </UncontrolledDropdown> */}
             <NavItem>
-              <NavLink href="/admin/">Admin</NavLink>
+              <NavLink>
+                <Link href="/admin/">Admin</Link>
+              </NavLink>
             </NavItem>
           </Nav>
           <NavbarText>
