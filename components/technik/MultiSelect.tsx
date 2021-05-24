@@ -29,7 +29,7 @@ export default function MultiSelect(props: {
       onChange={(_, newValue: any) => {
         updateState(() => {
           return {
-            dialogActiveDevice: {
+            dialogDetailsActiveDevice: {
               ...activeDevice,
               [label]: newValue
                 .map((val: { inputValue: any; title: any }) => {

@@ -23,10 +23,11 @@ export default function SingleSelect(props: {
       disabled={readOnly}
       value={activeDevice?.[label]}
       onChange={(_, newValue) => {
+        console.log('sdnou')
         if (typeof newValue === 'string') {
           updateState(() => {
             return {
-              dialogActiveDevice: {
+              dialogDetailsActiveDevice: {
                 ...activeDevice,
                 [label]: newValue,
               },
@@ -36,7 +37,7 @@ export default function SingleSelect(props: {
           // Create a new value from the user input
           updateState(() => {
             return {
-              dialogActiveDevice: {
+              dialogDetailsActiveDevice: {
                 ...activeDevice,
                 [label]: newValue.inputValue,
               },
@@ -45,7 +46,7 @@ export default function SingleSelect(props: {
         } else {
           updateState(() => {
             return {
-              dialogActiveDevice: {
+              dialogDetailsActiveDevice: {
                 ...activeDevice,
                 [label]: newValue?.title || '',
               },

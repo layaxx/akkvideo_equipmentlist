@@ -59,8 +59,9 @@ export default function DeviceDetailsDialog(props: {
   const { enqueueSnackbar } = useSnackbar()
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    console.log(event)
     updateState({
-      dialogActiveDevice: {
+      dialogDetailsActiveDevice: {
         ...activeDevice,
         ...{ [event.target.id]: event.target.value },
       },
@@ -69,7 +70,7 @@ export default function DeviceDetailsDialog(props: {
 
   const handleChangeAmount = (event: React.ChangeEvent<HTMLInputElement>) => {
     updateState({
-      dialogActiveDevice: {
+      dialogDetailsActiveDevice: {
         ...activeDevice,
         ...{ amount: Math.max(parseInt(event.target.value), 1) },
       },

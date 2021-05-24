@@ -458,9 +458,10 @@ class TechnikOverview extends React.Component<
             activeDevice={this.state.dialogDetailsActiveDevice}
             mode={this.state.dialogDetailsMode}
             show={this.state.dialogDetailsShow}
-            updateState={(newState: { dialogDetailsActiveDevice: Device }) =>
+            updateState={(newState: { dialogDetailsActiveDevice: Device }) => {
+              console.log('dfnjo')
               this.setState(newState)
-            }
+            }}
             options={this.options}
           />
         </div>
