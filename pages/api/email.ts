@@ -14,9 +14,11 @@ export default async (
     }
   },
   res: {
-    status: (
-      arg0: number
-    ) => { (): any; new (): any; end: { (): void; new (): any } }
+    status: (arg0: number) => {
+      (): any
+      new (): any
+      end: { (): void; new (): any }
+    }
   }
 ) => {
   if (!req.cookies.token) {
@@ -54,6 +56,7 @@ export default async (
       )
       .then(() => res.status(200).end())
       .catch(() => res.status(500).end())
+    res.status(200).end()
   } catch (error) {
     res.status(401).end()
   }

@@ -142,7 +142,7 @@ class TechnikOverview extends React.Component<
     this.createPDF = this.createPDF.bind(this)
     this.data = {
       columns: [
-        { field: 'amount', headerName: 'Amount', width: 100, type: 'number' },
+        { field: 'amount', headerName: 'Amount', width: 50, type: 'number' },
         { field: 'brand', headerName: 'Brand', width: 150 },
         {
           field: 'description',

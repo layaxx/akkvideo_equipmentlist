@@ -63,14 +63,14 @@ const NavBar: FC = () => {
   return (
     <div style={styles.top}>
       <Navbar style={styles.wrapper} dark expand="md">
-        <NavbarBrand>
+        <NavbarBrand tag="div">
           <Link href="/">AK Video [intern]</Link>
         </NavbarBrand>
         <NavbarToggler onClick={toggle} />
         <Collapse isOpen={isOpen} navbar>
           <Nav className="mr-auto" navbar>
             <NavItem>
-              <NavLink>
+              <NavLink tag="div">
                 <Link href="/technik/">Technikverwaltung</Link>
               </NavLink>
             </NavItem>
@@ -87,7 +87,7 @@ const NavBar: FC = () => {
             </DropdownMenu>
           </UncontrolledDropdown> */}
             <NavItem>
-              <NavLink>
+              <NavLink tag="div">
                 <Link href="/admin/">Admin</Link>
               </NavLink>
             </NavItem>
