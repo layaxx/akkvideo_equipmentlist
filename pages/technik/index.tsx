@@ -14,6 +14,7 @@ import ListAltIcon from '@material-ui/icons/ListAlt'
 import GetAppIcon from '@material-ui/icons/GetApp'
 import DeviceLendingDialog from '../../components/technik/DeviceLendingDialog'
 import Head from 'next/head'
+import DeviceBulkEditDialog from '../../components/technik/DeviceBulkEditDialog'
 const pdf = require('pdfjs')
 const helvetica = require('pdfjs/font/Helvetica')
 const helveticaBold = require('pdfjs/font/Helvetica-Bold')
@@ -86,6 +87,7 @@ interface DeviceState {
   dialogDetailsActiveDevice: Device | null
   dialogDetailsMode: DialogMode
   dialogLendingShow: boolean
+  dialogBulkEditShow: boolean
   selectionModel: GridRowId[]
   showMenu: boolean
   pdfb64: string
@@ -111,6 +113,7 @@ class TechnikOverview extends React.Component<
     this.state = {
       dialogLendingShow: false,
       dialogDetailsShow: false,
+      dialogBulkEditShow: false,
       dialogDetailsMode: this.isAdmin ? DialogMode.Edit : DialogMode.ReadOnly,
       dialogDetailsActiveDevice: null,
       selectionModel: [],
@@ -386,6 +389,16 @@ class TechnikOverview extends React.Component<
                   Start lending process for selected Devices
                 </Button>
               </Grid>
+              {this.isAdmin && (
+                <Grid item>
+                  <Button
+                    variant="outlined"
+                    onClick={() => this.setState({ dialogBulkEditShow: true })}
+                  >
+                    Bulk edit selected devices
+                  </Button>
+                </Grid>
+              )}
             </Grid>
             {this.isAdmin && (
               <Grid
@@ -446,6 +459,14 @@ class TechnikOverview extends React.Component<
             src={this.state.pdfb64}
             style={{ marginTop: '2rem' }}
           />
+          <DeviceBulkEditDialog
+            handleClose={() => this.setState({ dialogBulkEditShow: false })}
+            devices={this.data.rows.filter((device: Device) =>
+              this.state.selectionModel.includes(device.id)
+            )}
+            show={this.state.dialogBulkEditShow}
+          />
+
           <DeviceLendingDialog
             handleClose={() => this.setState({ dialogLendingShow: false })}
             devices={this.data.rows.filter((device: Device) =>

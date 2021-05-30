@@ -12,9 +12,8 @@ import {
 } from '@material-ui/core'
 import InputAdornment from '@material-ui/core/InputAdornment/InputAdornment'
 import axios from 'axios'
-import { useRouter } from 'next/dist/client/router'
 import { useSnackbar } from 'notistack'
-import React from 'react'
+import React, { useState } from 'react'
 import Device from '../../lib/types/Device'
 import { DialogMode } from '../../pages/technik/index'
 import MultiSelect from './MultiSelect'
@@ -48,18 +47,33 @@ export default function DeviceDetailsDialog(props: {
   options: any
   handleClose: any
 }) {
-  const classes = useStyles()
+  const handleCloseExtended = () => {
+    setHasBeenEdited(false)
+    handleClose()
+  }
   const { activeDevice, mode, show, updateState, options, handleClose } = props
   const readOnly = mode === DialogMode.ReadOnly
+  const isCreateNew = mode === DialogMode.Create
+  const [hasBeenEdited, setHasBeenEdited] = useState(false)
+  const displayAddButton =
+    isCreateNew &&
+    !!activeDevice &&
+    !!activeDevice.description &&
+    !!activeDevice.location &&
+    !!activeDevice.amount
+  const restProps = { updateState, activeDevice }
 
-  // used for navigation an query params
-  const router = useRouter()
+  const classes = useStyles()
 
   // used to show notifications
   const { enqueueSnackbar } = useSnackbar()
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(event)
+  const handleChange = (
+    event:
+      | React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>
+      | React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setHasBeenEdited(true)
     updateState({
       dialogDetailsActiveDevice: {
         ...activeDevice,
@@ -69,6 +83,7 @@ export default function DeviceDetailsDialog(props: {
   }
 
   const handleChangeAmount = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setHasBeenEdited(true)
     updateState({
       dialogDetailsActiveDevice: {
         ...activeDevice,
@@ -80,7 +95,16 @@ export default function DeviceDetailsDialog(props: {
   const handleEdit = () => {
     axios
       .post('/api/devices/edit', activeDevice)
-      .then(() => router.reload())
+      .then(() =>
+        enqueueSnackbar(
+          'Successfully edited Device ' +
+            activeDevice?.description +
+            '. Reload page to see changes in effect.',
+          {
+            variant: 'success',
+          }
+        )
+      )
       .catch(() =>
         enqueueSnackbar('Failed to edit device ' + activeDevice?.description, {
           variant: 'error',
@@ -91,7 +115,16 @@ export default function DeviceDetailsDialog(props: {
   const handleAdd = () => {
     axios
       .post('/api/devices/add', activeDevice)
-      .then(() => router.reload())
+      .then(() =>
+        enqueueSnackbar(
+          'Successfully added Device ' +
+            activeDevice?.description +
+            ' reload page to see changes in effect.',
+          {
+            variant: 'success',
+          }
+        )
+      )
       .catch(() =>
         enqueueSnackbar('Failed to add device ' + activeDevice?.description, {
           variant: 'error',
@@ -99,19 +132,17 @@ export default function DeviceDetailsDialog(props: {
       )
   }
 
-  const createNew = mode === DialogMode.Create
-
   return (
     <Dialog
-      disableBackdropClick={createNew}
-      disableEscapeKeyDown={createNew}
+      disableBackdropClick={isCreateNew}
+      disableEscapeKeyDown={isCreateNew}
       fullWidth={true}
       maxWidth={'md'}
       open={show}
-      onClose={handleClose}
+      onClose={handleCloseExtended}
       aria-labelledby="dialog-title"
     >
-      {createNew ? (
+      {isCreateNew ? (
         <DialogTitle id="dialog-title">
           Add a new device{' '}
           <small style={{ marginLeft: '2rem' }}>
@@ -124,6 +155,7 @@ export default function DeviceDetailsDialog(props: {
           {readOnly && <small style={{ marginLeft: '2rem' }}>Readonly</small>}
         </DialogTitle>
       )}
+
       <DialogContent>
         <form className={classes.root} noValidate autoComplete="off">
           <Grid container spacing={3}>
@@ -135,8 +167,7 @@ export default function DeviceDetailsDialog(props: {
                   title: brand,
                 }))}
                 label="brand"
-                updateState={updateState}
-                activeDevice={activeDevice}
+                {...restProps}
               />
             </Grid>
             <Grid item xs={12} md={4} sm={6}>
@@ -172,8 +203,7 @@ export default function DeviceDetailsDialog(props: {
                   title: location,
                 }))}
                 label="location"
-                updateState={updateState}
-                activeDevice={activeDevice}
+                {...restProps}
               />
             </Grid>
             <Grid item xs={12} md={4} sm={6}>
@@ -184,8 +214,7 @@ export default function DeviceDetailsDialog(props: {
                   title: location_prec,
                 }))}
                 label="location_prec"
-                updateState={updateState}
-                activeDevice={activeDevice}
+                {...restProps}
               />
             </Grid>
             <Grid item xs={12} md={4} sm={6}>
@@ -196,16 +225,15 @@ export default function DeviceDetailsDialog(props: {
                   title: container,
                 }))}
                 label="container"
-                updateState={updateState}
-                activeDevice={activeDevice}
+                {...restProps}
               />
             </Grid>
             <Grid item xs={12}>
               <TextField
                 id="comments"
                 label="Comments"
-                value={activeDevice?.comments}
-                onChange={handleChange}
+                defaultValue={activeDevice?.comments}
+                onBlur={handleChange}
                 fullWidth
                 margin="normal"
                 InputProps={{
@@ -221,8 +249,7 @@ export default function DeviceDetailsDialog(props: {
                   title: category,
                 }))}
                 label="category"
-                updateState={updateState}
-                activeDevice={activeDevice}
+                {...restProps}
               />
             </Grid>
             <Grid item xs={12} sm={6} md={4}>
@@ -296,23 +323,20 @@ export default function DeviceDetailsDialog(props: {
           </Grid>
         </form>
       </DialogContent>
+
       <DialogActions>
-        {!readOnly && !createNew ? (
-          <Button onClick={handleEdit} color="primary">
-            Submit Change
-          </Button>
-        ) : (
-          createNew &&
-          !!activeDevice &&
-          !!activeDevice.description &&
-          !!activeDevice.location &&
-          !!activeDevice.amount && (
-            <Button onClick={handleAdd} color="primary">
-              Add Device
-            </Button>
-          )
-        )}
-        <Button onClick={handleClose} color="secondary">
+        {!readOnly && !isCreateNew
+          ? hasBeenEdited && (
+              <Button onClick={handleEdit} color="primary">
+                Submit Change
+              </Button>
+            )
+          : displayAddButton && (
+              <Button onClick={handleAdd} color="primary">
+                Add Device
+              </Button>
+            )}
+        <Button onClick={handleCloseExtended} color="secondary">
           Close
         </Button>
       </DialogActions>
