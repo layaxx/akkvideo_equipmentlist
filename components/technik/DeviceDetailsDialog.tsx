@@ -61,7 +61,13 @@ export default function DeviceDetailsDialog(props: {
     !!activeDevice.description &&
     !!activeDevice.location &&
     !!activeDevice.amount
-  const restProps = { updateState, activeDevice }
+  const restProps = {
+    updateState: (x: any) => {
+      updateState(x)
+      setHasBeenEdited(true)
+    },
+    activeDevice,
+  }
 
   const classes = useStyles()
 
@@ -257,7 +263,7 @@ export default function DeviceDetailsDialog(props: {
                 id="store"
                 label="Store"
                 value={activeDevice?.store}
-                onChange={handleChange}
+                onBlur={handleChange}
                 InputProps={{
                   disabled: readOnly,
                 }}
@@ -269,7 +275,7 @@ export default function DeviceDetailsDialog(props: {
                 label="Price"
                 type="number"
                 value={activeDevice?.price}
-                onChange={handleChange}
+                onBlur={handleChange}
                 InputProps={{
                   disabled: readOnly,
                   startAdornment: (
