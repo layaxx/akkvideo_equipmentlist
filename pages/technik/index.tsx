@@ -465,6 +465,7 @@ class TechnikOverview extends React.Component<
               this.state.selectionModel.includes(device.id)
             )}
             show={this.state.dialogBulkEditShow}
+            options={this.options}
           />
 
           <DeviceLendingDialog

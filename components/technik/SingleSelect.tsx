@@ -4,7 +4,7 @@ import Autocomplete, {
 } from '@material-ui/lab/Autocomplete/Autocomplete'
 import React from 'react'
 
-interface OptionsType {
+export interface OptionsType {
   inputValue?: string
   title: string
 }
@@ -23,7 +23,6 @@ export default function SingleSelect(props: {
       disabled={readOnly}
       value={activeDevice?.[label]}
       onChange={(_, newValue) => {
-        console.log('sdnou')
         if (typeof newValue === 'string') {
           updateState(() => {
             return {
