@@ -13,6 +13,7 @@ export default interface Device {
   status: string
   store: string
   lastEdit: string
+  associated: number
 }
 
 export const EmptyDevice: Device = {
@@ -30,4 +31,5 @@ export const EmptyDevice: Device = {
   store: '',
   lastEdit: new Date().toISOString(),
   buyDate: '',
+  associated: -1,
 }

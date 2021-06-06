@@ -9,9 +9,11 @@ export default async (
     body: Device
   },
   res: {
-    status: (
-      arg0: number
-    ) => { (): any; new (): any; end: { (): void; new (): any } }
+    status: (arg0: number) => {
+      (): any
+      new (): any
+      end: { (): void; new (): any }
+    }
   }
 ) => {
   if (!req.cookies.token) {
@@ -41,6 +43,7 @@ export default async (
       price,
       status,
       store,
+      associated,
     } = req.body
     var buyDate = req.body.buyDate || ''
     if (!location || !description || !id) {
@@ -58,6 +61,7 @@ export default async (
       location,
       location_prec,
       price,
+      associated,
       status: status || Status.NotOnLoan,
       store,
       buyDate,

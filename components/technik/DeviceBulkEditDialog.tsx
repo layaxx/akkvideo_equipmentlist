@@ -64,9 +64,11 @@ export default function DeviceBulkEditDialog(props: {
       maxWidth={'md'}
       open={show}
       onClose={handleClose}
-      aria-labelledby="dialog-title"
+      aria-labelledby="bulk-edit-dialog-title"
     >
-      <DialogTitle id="dialog-title">Request Lending Devices</DialogTitle>
+      <DialogTitle id="bulk-edit-dialog-title">
+        Request Lending Devices
+      </DialogTitle>
 
       <DialogContent>
         {devices.length === 0 && (
@@ -99,16 +101,21 @@ export default function DeviceBulkEditDialog(props: {
               id="demo-simple-select"
               defaultValue={'location'}
               onChange={(event) => {
-                console.log(props.options)
+                const newCat = event.target.value as string
+                if (newCat === 'associated') {
+                  setActiveCat({ name: 'associated', options: [] })
+                  return
+                }
                 setActiveCat({
-                  name: event.target.value as string,
-                  options: props.options[event.target.value as string] ?? [],
+                  name: newCat,
+                  options: props.options[newCat] ?? [],
                 })
               }}
             >
               <MenuItem value={'location'}>Location</MenuItem>
               <MenuItem value={'location_prec'}>Location Precise</MenuItem>
               <MenuItem value={'container'}>Container</MenuItem>
+              <MenuItem value="associated">Associated</MenuItem>
             </Select>
             <Autocomplete
               /* value={activeDevice?.[label]} */

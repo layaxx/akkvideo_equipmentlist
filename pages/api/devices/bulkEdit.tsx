@@ -22,7 +22,7 @@ export default async (
     !req.body.cat ||
     !req.body.value ||
     !req.body.ids ||
-    !/location|location_prec|container/.test(req.body.cat)
+    !/location|location_prec|container|associated/.test(req.body.cat)
   ) {
     console.error('Invalid Request to /api/devices/bulkEdit')
     console.log(req.body)
@@ -48,7 +48,7 @@ export default async (
         .doc(id)
         .update({ [cat]: value })
         .then(() => {
-          console.log('Document ' + id + 'successfully updated!')
+          console.log('Document ' + id + ' successfully updated!')
         })
         .catch((error) => {
           // The document probably doesn't exist.

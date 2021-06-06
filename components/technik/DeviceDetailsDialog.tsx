@@ -9,6 +9,9 @@ import {
   makeStyles,
   Theme,
   Grid,
+  List,
+  ListItem,
+  ListItemText,
 } from '@material-ui/core'
 import InputAdornment from '@material-ui/core/InputAdornment/InputAdornment'
 import axios from 'axios'
@@ -40,6 +43,7 @@ const useStyles = makeStyles((theme: Theme) =>
 )
 
 export default function DeviceDetailsDialog(props: {
+  associatedDeviceNames?: string[]
   activeDevice: Device | null
   mode: any
   show: boolean
@@ -146,17 +150,17 @@ export default function DeviceDetailsDialog(props: {
       maxWidth={'md'}
       open={show}
       onClose={handleCloseExtended}
-      aria-labelledby="dialog-title"
+      aria-labelledby="details-dialog-title"
     >
       {isCreateNew ? (
-        <DialogTitle id="dialog-title">
+        <DialogTitle id="details-dialog-title">
           Add a new device{' '}
           <small style={{ marginLeft: '2rem' }}>
             [Only available for Admins]
           </small>
         </DialogTitle>
       ) : (
-        <DialogTitle id="dialog-title">
+        <DialogTitle id="details-dialog-title">
           Details for {activeDevice?.description} ({activeDevice?.id}){' '}
           {readOnly && <small style={{ marginLeft: '2rem' }}>Readonly</small>}
         </DialogTitle>
@@ -181,8 +185,8 @@ export default function DeviceDetailsDialog(props: {
                 id="description"
                 label="Name"
                 required
-                value={activeDevice?.description}
-                onChange={handleChange}
+                defaultValue={activeDevice?.description}
+                onBlur={handleChange}
                 InputProps={{
                   disabled: readOnly,
                 }}
@@ -193,7 +197,6 @@ export default function DeviceDetailsDialog(props: {
                 id="id"
                 label="ID (read-only)"
                 value={activeDevice?.id}
-                onChange={handleChange}
                 className={classes.noEdit}
                 InputProps={{
                   readOnly: true,
@@ -262,7 +265,7 @@ export default function DeviceDetailsDialog(props: {
               <TextField
                 id="store"
                 label="Store"
-                value={activeDevice?.store}
+                defaultValue={activeDevice?.store}
                 onBlur={handleChange}
                 InputProps={{
                   disabled: readOnly,
@@ -274,7 +277,7 @@ export default function DeviceDetailsDialog(props: {
                 id="price"
                 label="Price"
                 type="number"
-                value={activeDevice?.price}
+                defaultValue={activeDevice?.price}
                 onBlur={handleChange}
                 InputProps={{
                   disabled: readOnly,
@@ -325,6 +328,29 @@ export default function DeviceDetailsDialog(props: {
                   readOnly: true,
                 }}
               />
+            </Grid>
+            <Grid item xs={12} sm={6} md={4}>
+              <TextField
+                id="associated"
+                label="Associated Devices"
+                type="number"
+                defaultValue={activeDevice?.associated}
+                onBlur={handleChange}
+                InputProps={{
+                  disabled: readOnly,
+                }}
+              />
+            </Grid>
+          </Grid>
+          <Grid container>
+            <Grid item>
+              <List dense>
+                {props.associatedDeviceNames?.map((name) => (
+                  <ListItem key={name}>
+                    <ListItemText primary={name} />
+                  </ListItem>
+                ))}
+              </List>
             </Grid>
           </Grid>
         </form>

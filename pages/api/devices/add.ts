@@ -9,9 +9,11 @@ export default async (
     body: Device
   },
   res: {
-    status: (
-      arg0: number
-    ) => { (): any; new (): any; end: { (): void; new (): any } }
+    status: (arg0: number) => {
+      (): any
+      new (): any
+      end: { (): void; new (): any }
+    }
   }
 ) => {
   if (!req.cookies.token) {
@@ -44,6 +46,7 @@ export default async (
       price,
       store,
       buyDate,
+      associated,
     } = req.body
     if (!location || !description) {
       res.status(400).end()
@@ -51,6 +54,7 @@ export default async (
     }
     await db.collection('devices').add({
       amount: Math.max(amount, 1),
+      associated: associated || -1,
       brand: brand || '',
       category: category || '',
       comments: comments || '',

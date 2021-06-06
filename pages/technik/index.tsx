@@ -171,6 +171,12 @@ class TechnikOverview extends React.Component<
         },
         { field: 'id', headerName: 'ID', hide: true },
         {
+          field: 'associated',
+          headerName: 'associated',
+          hide: true,
+          type: 'number',
+        },
+        {
           field: 'location_prec',
           headerName: 'Location precise',
           width: 150,
@@ -476,12 +482,19 @@ class TechnikOverview extends React.Component<
             show={this.state.dialogLendingShow}
           />
           <DeviceDetailsDialog
+            associatedDeviceNames={this.data.rows
+              .filter(
+                (device: Device) =>
+                  (this.state.dialogDetailsActiveDevice?.associated ?? 1) ===
+                    (device.associated ?? 2) &&
+                  device !== this.state.dialogDetailsActiveDevice
+              )
+              .map((device: Device) => device.description)}
             handleClose={() => this.setState({ dialogDetailsShow: false })}
             activeDevice={this.state.dialogDetailsActiveDevice}
             mode={this.state.dialogDetailsMode}
             show={this.state.dialogDetailsShow}
             updateState={(newState: { dialogDetailsActiveDevice: Device }) => {
-              console.log('dfnjo')
               this.setState(newState)
             }}
             options={this.options}
