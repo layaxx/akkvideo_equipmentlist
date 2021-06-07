@@ -348,7 +348,7 @@ class TechnikOverview extends React.Component<
         <Head>
           <title>Technik | AK Video intern</title>
         </Head>
-        <div style={{ margin: 'auto', maxWidth: '40rem' }}>
+        <div style={{ margin: 'auto', maxWidth: '70rem' }}>
           <h1 style={{ textAlign: 'center', marginBottom: '3rem' }}>
             Technikverwaltung
           </h1>

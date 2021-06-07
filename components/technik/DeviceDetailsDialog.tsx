@@ -345,8 +345,8 @@ export default function DeviceDetailsDialog(props: {
           <Grid container>
             <Grid item>
               <List dense>
-                {props.associatedDeviceNames?.map((name) => (
-                  <ListItem key={name}>
+                {props.associatedDeviceNames?.map((name, index) => (
+                  <ListItem key={index}>
                     <ListItemText primary={name} />
                   </ListItem>
                 ))}
