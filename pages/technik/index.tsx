@@ -14,7 +14,7 @@ import ListAltIcon from '@material-ui/icons/ListAlt'
 import GetAppIcon from '@material-ui/icons/GetApp'
 import DeviceLendingDialog from '../../components/technik/DeviceLendingDialog'
 import Head from 'next/head'
-import DeviceBulkEditDialog from '../../components/technik/DeviceBulkEditDialog'
+import DeviceBulkEditDialog from '../../components/technik/dialogs/bulkEdit/DeviceBulkEditDialog'
 const pdf = require('pdfjs')
 const helvetica = require('pdfjs/font/Helvetica')
 const helveticaBold = require('pdfjs/font/Helvetica-Bold')
