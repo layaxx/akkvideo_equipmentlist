@@ -1,21 +1,10 @@
 import { firebaseAdmin } from '../../../firebaseAdmin'
 import roles from '../../../lib/auth/roles'
-import Device from '../../../lib/types/Device'
 import Status from '../../../lib/types/device.status'
+import { res } from '../../../lib/types/api/response'
+import { req_editDevice } from '../../../lib/types/api/requests'
 
-export default async (
-  req: {
-    cookies: { token: string }
-    body: Device
-  },
-  res: {
-    status: (arg0: number) => {
-      (): any
-      new (): any
-      end: { (): void; new (): any }
-    }
-  }
-) => {
+export default async (req: req_editDevice, res: res) => {
   if (!req.cookies.token) {
     res.status(401).end()
     return

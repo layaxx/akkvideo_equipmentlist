@@ -1,6 +1,6 @@
 enum Status {
-  NotOnLoan = 'nol',
-  OnLoan = 'lo',
+  NotOnLoan = '---',
+  OnLoan = 'verliehen',
 }
 
 export default Status

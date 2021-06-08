@@ -17,10 +17,10 @@ import InputAdornment from '@material-ui/core/InputAdornment/InputAdornment'
 import axios from 'axios'
 import { useSnackbar } from 'notistack'
 import React, { useState } from 'react'
-import Device from '../../lib/types/Device'
-import { DialogMode } from '../../pages/technik/index'
-import MultiSelect from './MultiSelect'
-import SingleSelect from './SingleSelect'
+import Device from '../../../lib/types/Device'
+import { DialogMode } from '../../../pages/technik/index'
+import MultiSelect from '../MultiSelect'
+import SingleSelect from '../SingleSelect'
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -335,7 +335,7 @@ export default function DeviceDetailsDialog(props: {
                 label="Associated Devices"
                 type="number"
                 defaultValue={activeDevice?.associated}
-                onBlur={handleChange}
+                onChange={handleChange}
                 InputProps={{
                   disabled: readOnly,
                 }}

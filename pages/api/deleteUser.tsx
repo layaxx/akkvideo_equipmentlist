@@ -1,7 +1,9 @@
 import { firebaseAdmin } from '../../firebaseAdmin'
 import roles from '../../lib/auth/roles'
+import { res } from '../../lib/types/api/response'
+import { req_deleteUser } from '../../lib/types/api/requests'
 
-export default async (req: any, res: any) => {
+export default async (req: req_deleteUser, res: res) => {
   // console.log(req)
   if (!req.cookies.token) {
     res.status(401).end()

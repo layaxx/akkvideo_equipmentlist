@@ -1,8 +1,9 @@
 import { firebaseAdmin } from '../../firebaseAdmin'
 import roles from '../../lib/auth/roles'
+import { res } from '../../lib/types/api/response'
+import { req_changeRole } from '../../lib/types/api/requests'
 
-export default async (req: any, res: any) => {
-  // console.log(req)
+export default async (req: req_changeRole, res: res) => {
   if (!req.cookies.token) {
     res.status(401).end()
     return

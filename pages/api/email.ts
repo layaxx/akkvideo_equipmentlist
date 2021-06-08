@@ -2,25 +2,10 @@ import axios from 'axios'
 import { firebaseAdmin } from '../../firebaseAdmin'
 import roles from '../../lib/auth/roles'
 import Device from '../../lib/types/Device'
+import { res } from '../../lib/types/api/response'
+import { req_email } from '../../lib/types/api/requests'
 
-export default async (
-  req: {
-    cookies: { token: string }
-    body: {
-      devices: Device[]
-      fromDate: string
-      untilDate: string
-      comments: string
-    }
-  },
-  res: {
-    status: (arg0: number) => {
-      (): any
-      new (): any
-      end: { (): void; new (): any }
-    }
-  }
-) => {
+export default async (req: req_email, res: res) => {
   if (!req.cookies.token) {
     res.status(401).end()
     return

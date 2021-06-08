@@ -13,7 +13,7 @@ import axios from 'axios'
 import dayjs from 'dayjs'
 import { useSnackbar } from 'notistack'
 import React, { useState } from 'react'
-import Device from '../../lib/types/Device'
+import Device from '../../../lib/types/Device'
 
 export default function DeviceLendingDialog(props: {
   devices: Device[]

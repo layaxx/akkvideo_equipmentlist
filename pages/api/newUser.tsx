@@ -1,14 +1,9 @@
 import { firebaseAdmin } from '../../firebaseAdmin'
 import roles from '../../lib/auth/roles'
+import { req_newUser } from '../../lib/types/api/requests'
+import { res } from '../../lib/types/api/response'
 
-type req = { body: { token: { i: string } } }
-type res = {
-  status: (
-    arg0: number
-  ) => { (): any; new (): any; end: { (): void; new (): any } }
-}
-
-export default async (req: req, res: res) => {
+export default async (req: req_newUser, res: res) => {
   try {
     firebaseAdmin
       .auth()

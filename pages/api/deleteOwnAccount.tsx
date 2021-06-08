@@ -1,6 +1,8 @@
 import { firebaseAdmin } from '../../firebaseAdmin'
+import { res } from '../../lib/types/api/response'
+import { req_deleteOwnAccount } from '../../lib/types/api/requests'
 
-export default async (req: any, res: any) => {
+export default async (req: req_deleteOwnAccount, res: res) => {
   // console.log(req)
   if (!req.cookies.token) {
     res.status(401).end()

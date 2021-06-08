@@ -1,3 +1,5 @@
+import Status from './device.status'
+
 export default interface Device {
   amount: number
   brand: string
@@ -10,7 +12,7 @@ export default interface Device {
   location: string
   location_prec: string
   price: number
-  status: string
+  status: Status
   store: string
   lastEdit: string
   associated: number
@@ -27,7 +29,7 @@ export const EmptyDevice: Device = {
   location: '',
   location_prec: '',
   price: 0,
-  status: '',
+  status: Status.NotOnLoan,
   store: '',
   lastEdit: new Date().toISOString(),
   buyDate: '',

@@ -7,7 +7,10 @@ import {
 import React from 'react'
 import { useController, useWatch } from 'react-hook-form'
 import { OptionsType } from '../../SingleSelect'
-import { IControllerProps, IOptions } from './types'
+import {
+  IControllerProps,
+  IOptions,
+} from '../../../../lib/types/device.dialog.types'
 
 export default function BulkEditValueInput(
   props: IControllerProps & { options: IOptions }

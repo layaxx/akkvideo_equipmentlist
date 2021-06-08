@@ -1,5 +1,5 @@
 import { UseControllerProps } from 'react-hook-form'
-import Device from '../../../../lib/types/Device'
+import Device from './Device'
 
 export interface IOptions {
   location: string[]

@@ -116,14 +116,13 @@ const AccountPage: FC = (props: any) => {
           </Button>
         </>
       ) : (
-        <p>Your e-mail is verified.</p>
+        <p>Your e-Mail is verified.</p>
       )}
 
-      <h2>Roles:</h2>
-      <p>
-        Your current Role is <em>{props.user.role}</em>. This means you have
-        access to:
-      </p>
+      <h2>
+        You are <em>{props.user.role.toUpperCase()}</em>:
+      </h2>
+      <p>This means you have access to:</p>
       {lookup[role]}
       <div>
         <h2>Dangerzone:</h2>
