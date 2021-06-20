@@ -12,9 +12,24 @@ export type IControllerProps = UseControllerProps<
   'value' | 'category'
 >
 
-export type IBulkEditDialogProps = {
+export interface IBulkEditDialogProps {
   devices: Device[]
   show: boolean
   handleClose: (event?: {}, reason?: 'backdropClick' | 'escapeKeyDown') => void
   options: IOptions
+}
+
+export interface IDetailsDialogProps {
+  devices: Device[]
+  activeDevice: Device | null
+  mode: any
+  show: boolean
+  updateState: Function
+  options: any
+  handleClose: any
+}
+
+export type IOptionsLookup = IOptions & {
+  brand: string[]
+  category: string[]
 }

@@ -110,9 +110,9 @@ const AdminPage = (
             </TableRow>
           </TableHead>
           <TableBody>
-            {Object.values(roles).map((val) =>
+            {Object.values(roles).map((role) =>
               props.users
-                .filter((userParam) => userParam.role === val)
+                .filter((userParam) => userParam.role === role)
                 .map((userParam) => (
                   <TableRow key={userParam.email}>
                     <TableCell component="th" scope="row" align="right">
@@ -133,7 +133,7 @@ const AdminPage = (
                         verticalAlign: 'inherit',
                       }}
                     >
-                      {val === roles.Admin ? null : (
+                      {role === roles.Admin ? null : (
                         <Button
                           variant="outlined"
                           onClick={() => setUser(userParam)}

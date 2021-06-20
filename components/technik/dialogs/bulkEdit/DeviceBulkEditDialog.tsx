@@ -55,7 +55,7 @@ export default function DeviceBulkEditDialog(props: IBulkEditDialogProps) {
     mode: 'onChange',
   })
 
-  const { isValid, isDirty } = useFormState({ control })
+  const { isValid, isDirty, isSubmitting } = useFormState({ control })
 
   return (
     <Dialog
@@ -109,7 +109,7 @@ export default function DeviceBulkEditDialog(props: IBulkEditDialogProps) {
               name="value"
               rules={{ required: true }}
               options={props.options}
-            ></BulkEditValueInput>
+            />
           </Grid>
         </Grid>
       </DialogContent>
@@ -121,7 +121,9 @@ export default function DeviceBulkEditDialog(props: IBulkEditDialogProps) {
         <Button
           onClick={handleSubmit(handleSendRequest)}
           color="primary"
-          disabled={!(devices.length > 0) || !isValid || !isDirty}
+          disabled={
+            !(devices.length > 0) || !isValid || !isDirty || isSubmitting
+          }
         >
           Send Request
         </Button>

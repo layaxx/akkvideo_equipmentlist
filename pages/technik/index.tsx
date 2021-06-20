@@ -8,7 +8,7 @@ import { DataGrid } from '@material-ui/data-grid'
 import { Button, Grid } from '@material-ui/core'
 import CustomNoRowsOverlay from '../../components/technik/customNoRowsOverlay'
 import CustomToolbar from '../../components/technik/customToolbar'
-import DeviceDetailsDialog from '../../components/technik/dialogs/DeviceDetailsDialog'
+import DeviceDetailsDialog from '../../components/technik/dialogs/Details/DeviceDetailsDialog'
 import { Add } from '@material-ui/icons'
 import ListAltIcon from '@material-ui/icons/ListAlt'
 import GetAppIcon from '@material-ui/icons/GetApp'
@@ -19,6 +19,7 @@ import { DeviceState } from '../../lib/types/device.state'
 import createPDF from '../../lib/technik/pdfgen'
 import genData from '../../lib/technik/genData'
 import genOptions from '../../lib/technik/genOptions'
+import { IOptionsLookup } from '../../lib/types/device.dialog.types'
 
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   try {
@@ -89,13 +90,7 @@ class TechnikOverview extends React.Component<
 > {
   data: any
   isAdmin: boolean
-  options: {
-    location: string[]
-    location_prec: string[]
-    container: string[]
-    brand: string[]
-    category: string[]
-  }
+  options: IOptionsLookup
 
   constructor(props: any) {
     super(props)
@@ -268,18 +263,7 @@ class TechnikOverview extends React.Component<
             show={this.state.dialogLendingShow}
           />
           <DeviceDetailsDialog
-            associatedDeviceNames={
-              this.state.dialogDetailsActiveDevice?.associated === -1
-                ? undefined
-                : this.data.rows
-                    .filter(
-                      (device: Device) =>
-                        (this.state.dialogDetailsActiveDevice?.associated ??
-                          1) === (device.associated ?? 2) &&
-                        device !== this.state.dialogDetailsActiveDevice
-                    )
-                    .map((device: Device) => device.description)
-            }
+            devices={this.data.rows}
             handleClose={() => this.setState({ dialogDetailsShow: false })}
             activeDevice={this.state.dialogDetailsActiveDevice}
             mode={this.state.dialogDetailsMode}
