@@ -59,7 +59,7 @@ export default async (req: req_editDevice, res: res) => {
     })
     res.status(200).end()
   } catch (error) {
-    console.log(error)
+    console.error(error)
     res.status(418).end()
   }
 }

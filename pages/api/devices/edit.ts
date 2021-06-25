@@ -50,7 +50,7 @@ export default async (req: req_editDevice, res: res) => {
       location,
       location_prec,
       price,
-      associated,
+      associated: associated || -1,
       status: status || Status.NotOnLoan,
       store,
       buyDate,
@@ -59,7 +59,7 @@ export default async (req: req_editDevice, res: res) => {
     ref
       .update(editedDevice)
       .then(() => {
-        console.log('Document successfully updated!')
+        console.log('Document ' + id + ' successfully updated!')
       })
       .catch((error) => {
         // The document probably doesn't exist.
@@ -70,7 +70,7 @@ export default async (req: req_editDevice, res: res) => {
 
     res.status(200).end()
   } catch (error) {
-    console.log(error)
+    console.error(error)
     res.status(418).end()
   }
 }

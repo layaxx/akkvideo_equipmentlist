@@ -9,12 +9,14 @@ import { IOptionsLookup } from '../../../../lib/types/device.dialog.types'
 import { OptionsType } from '../../SingleSelect'
 
 export default function CustomSelect({
+  required,
   readOnly,
   value,
   onChange,
   options,
   attr,
 }: {
+  required?: boolean
   readOnly: boolean
   value: string | null | undefined
   onChange: Function
@@ -43,7 +45,7 @@ export default function CustomSelect({
         if (state.inputValue !== '') {
           filtered.push({
             inputValue: state.inputValue,
-            title: `Add brand} "${state.inputValue}"`,
+            title: `Add ${attr} "${state.inputValue}"`,
           })
         }
         return filtered
@@ -72,7 +74,9 @@ export default function CustomSelect({
       }}
       renderOption={(option) => option.title}
       freeSolo
-      renderInput={(params) => <TextField {...params} label={attr} />}
+      renderInput={(params) => (
+        <TextField {...params} label={required ? attr + ' *' : attr} />
+      )}
       style={{ width: 200 }}
     />
   )

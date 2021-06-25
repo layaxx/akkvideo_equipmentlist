@@ -12,11 +12,14 @@ import {
   List,
   ListItem,
   ListItemText,
+  Typography,
+  Paper,
+  Container,
 } from '@material-ui/core'
 import InputAdornment from '@material-ui/core/InputAdornment/InputAdornment'
 import axios from 'axios'
 import { useSnackbar } from 'notistack'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import Device from '../../../../lib/types/Device'
 import { IDetailsDialogProps } from '../../../../lib/types/device.dialog.types'
@@ -25,6 +28,9 @@ import CustomSelect from './CustomSelect'
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
+    indicator: {
+      marginLeft: '2rem',
+    },
     root: {
       '& .MuiTextField-root': {
         margin: theme.spacing(1),
@@ -33,6 +39,9 @@ const useStyles = makeStyles((theme: Theme) =>
 
       '& .Mui-disabled': {
         color: 'black',
+      },
+      '& #list': {
+        flexGrow: 1,
       },
     },
     noEdit: {
@@ -46,7 +55,7 @@ const useStyles = makeStyles((theme: Theme) =>
 export default function DeviceDetailsDialog(props: IDetailsDialogProps) {
   const { devices, activeDevice, mode, show, options, handleClose } = props
   const handleCloseExtended = handleClose
-  const readOnly = mode === DialogMode.ReadOnly
+  const isReadOnly = mode === DialogMode.ReadOnly
   const isCreateNew = mode === DialogMode.Create
   const displayAddButton = isCreateNew
 
@@ -55,10 +64,39 @@ export default function DeviceDetailsDialog(props: IDetailsDialogProps) {
     mode: 'onChange',
   })
 
+  const buttonAdd = (
+    <Button
+      onClick={handleSubmit(
+        async (data) => handlePost(data, actionEnum.add),
+        console.error
+      )}
+      color="primary"
+      disabled={
+        !formState.isDirty || !formState.isValid || formState.isSubmitting
+      }
+    >
+      Add Device
+    </Button>
+  )
+
+  const buttonSubmit = (
+    <Button
+      onClick={handleSubmit(
+        async (data) => handlePost(data, actionEnum.edit),
+        console.error
+      )}
+      color="primary"
+      disabled={
+        !formState.isDirty || !formState.isValid || formState.isSubmitting
+      }
+    >
+      Submit Change
+    </Button>
+  )
+
   const associatedID = watch('associated')
 
   useEffect(() => {
-    console.log('resetting')
     reset(activeDevice || undefined)
   }, [activeDevice])
 
@@ -67,41 +105,25 @@ export default function DeviceDetailsDialog(props: IDetailsDialogProps) {
   // used to show notifications
   const { enqueueSnackbar } = useSnackbar()
 
-  const handleEdit = async (data: Device) => {
-    axios
-      .post('/api/devices/edit', data)
-      .then(() =>
-        enqueueSnackbar(
-          'Successfully edited Device ' +
-            data.description +
-            '. Reload page to see changes in effect.',
-          {
-            variant: 'success',
-          }
-        )
-      )
-      .catch(() =>
-        enqueueSnackbar('Failed to edit device ' + data.description, {
-          variant: 'error',
-        })
-      )
+  enum actionEnum {
+    add = 'add',
+    edit = 'edit',
   }
 
-  const handleAdd = async (data: Device) => {
+  const handlePost = (data: Device, action: actionEnum) => {
     axios
-      .post('/api/devices/add', data)
+      .post('/api/devices/' + action, data)
       .then(() =>
         enqueueSnackbar(
-          'Successfully added Device ' +
-            data.description +
-            ' reload page to see changes in effect.',
+          `Successfully ${action}ed Device ${data.description}. 
+          Reload page to see changes in effect.`,
           {
             variant: 'success',
           }
         )
       )
       .catch(() =>
-        enqueueSnackbar('Failed to add device ' + data.description, {
+        enqueueSnackbar(`Failed to ${action} device ${data.description}`, {
           variant: 'error',
         })
       )
@@ -117,485 +139,336 @@ export default function DeviceDetailsDialog(props: IDetailsDialogProps) {
       onClose={handleCloseExtended}
       aria-labelledby="details-dialog-title"
     >
-      {isCreateNew ? (
-        <DialogTitle id="details-dialog-title">
-          Add a new device{' '}
-          <small style={{ marginLeft: '2rem' }}>
-            [Only available for Admins]
-          </small>
-        </DialogTitle>
-      ) : (
-        <DialogTitle id="details-dialog-title">
-          Details for {activeDevice?.description} ({activeDevice?.id}){' '}
-          {readOnly && <small style={{ marginLeft: '2rem' }}>Readonly</small>}
-        </DialogTitle>
-      )}
+      <DialogTitle id="details-dialog-title">
+        {isCreateNew
+          ? 'Add a new device'
+          : `Details for ${activeDevice?.description} (${activeDevice?.id})`}
+
+        {(isReadOnly || isCreateNew) && (
+          <Typography
+            variant="caption"
+            component="small"
+            className={classes.indicator}
+          >
+            {isCreateNew ? '[Only available for Admins]' : '[Read-Only]'}
+          </Typography>
+        )}
+      </DialogTitle>
 
       <DialogContent>
-        <form className={classes.root} autoComplete="off">
-          <Controller
-            control={control}
-            name="brand"
-            render={({ field: { onChange, value } }) => (
-              <CustomSelect
-                readOnly={readOnly}
-                value={value}
-                onChange={onChange}
-                options={options}
-                attr="brand"
-              />
-            )}
-          />
+        <Container>
+          <form className={classes.root} autoComplete="off">
+            <Typography variant="h4" component="h2">
+              General Information
+            </Typography>
 
-          <Controller
-            control={control}
-            name="description"
-            render={({ field: { onChange, value } }) => (
-              <TextField
-                id="description"
-                label="Name"
-                required
-                value={value}
-                onChange={onChange}
-                InputProps={{
-                  disabled: readOnly,
-                }}
-              />
-            )}
-          />
+            <Grid container spacing={3}>
+              <Grid item>
+                <TextField
+                  id="id"
+                  label="ID (read-only)"
+                  value={activeDevice?.id}
+                  className={classes.noEdit}
+                  InputProps={{
+                    readOnly: true,
+                    disabled: true,
+                  }}
+                />
+              </Grid>
+              <Grid item>
+                <Controller
+                  rules={{ required: false }}
+                  control={control}
+                  name="lastEdit"
+                  render={({ field: { onChange, value } }) => (
+                    <TextField
+                      id="lastEdit"
+                      label="Last edit:"
+                      type="datetime"
+                      value={value}
+                      onChange={onChange}
+                      className={classes.noEdit}
+                      InputProps={{
+                        disabled: true,
+                        readOnly: true,
+                      }}
+                    />
+                  )}
+                />
+              </Grid>
+            </Grid>
+            <Grid container spacing={3}>
+              <Grid item>
+                <Controller
+                  rules={{ required: true }}
+                  control={control}
+                  name="description"
+                  render={({ field: { onChange, value } }) => (
+                    <TextField
+                      id="description"
+                      label="Name"
+                      required
+                      value={value}
+                      onChange={onChange}
+                      InputProps={{
+                        disabled: isReadOnly,
+                      }}
+                    />
+                  )}
+                />
+              </Grid>
+              <Grid item>
+                <Controller
+                  rules={{ required: false }}
+                  control={control}
+                  name="brand"
+                  render={({ field: { onChange, value } }) => (
+                    <CustomSelect
+                      readOnly={isReadOnly}
+                      value={value}
+                      onChange={onChange}
+                      options={options}
+                      attr="brand"
+                    />
+                  )}
+                />
+              </Grid>
 
-          <TextField
-            id="id"
-            label="ID (read-only)"
-            value={activeDevice?.id}
-            className={classes.noEdit}
-            InputProps={{
-              readOnly: true,
-              disabled: true,
-            }}
-          />
+              <Grid item>
+                <Controller
+                  rules={{ required: false }}
+                  control={control}
+                  name="category"
+                  render={({ field: { onChange, value } }) => (
+                    <CustomSelect
+                      readOnly={isReadOnly}
+                      value={value}
+                      onChange={onChange}
+                      options={options}
+                      attr="category"
+                    />
+                  )}
+                />
+              </Grid>
+              <Grid item>
+                <Controller
+                  rules={{ required: false }}
+                  control={control}
+                  name="comments"
+                  render={({ field: { onChange, value } }) => (
+                    <TextField
+                      multiline
+                      id="comments"
+                      label="comments"
+                      value={value}
+                      onChange={onChange}
+                      InputProps={{
+                        disabled: isReadOnly,
+                      }}
+                    />
+                  )}
+                />
+              </Grid>
+              <Grid item>
+                <Controller
+                  rules={{ required: true }}
+                  control={control}
+                  name="amount"
+                  render={({ field: { onChange, value } }) => (
+                    <TextField
+                      id="amount"
+                      label="amount"
+                      required
+                      type="number"
+                      value={value}
+                      onChange={onChange}
+                      InputProps={{
+                        disabled: isReadOnly,
+                        'aria-valuemin': 1,
+                        'aria-valuemax': 9999,
+                      }}
+                    />
+                  )}
+                />
+              </Grid>
+            </Grid>
+            <Grid container spacing={3}>
+              <Grid item>
+                <Controller
+                  rules={{ required: false }}
+                  control={control}
+                  name="store"
+                  render={({ field: { onChange, value } }) => (
+                    <TextField
+                      id="store"
+                      label="Store"
+                      value={value}
+                      onChange={onChange}
+                      InputProps={{
+                        disabled: isReadOnly,
+                      }}
+                    />
+                  )}
+                />
+              </Grid>
+              <Grid item>
+                <Controller
+                  rules={{ required: false }}
+                  control={control}
+                  name="price"
+                  render={({ field: { onChange, value } }) => (
+                    <TextField
+                      id="price"
+                      label="price"
+                      /*  required */
+                      type="number"
+                      value={value}
+                      onChange={onChange}
+                      InputProps={{
+                        disabled: isReadOnly,
+                        startAdornment: (
+                          <InputAdornment position="start">€</InputAdornment>
+                        ),
+                      }}
+                    />
+                  )}
+                />
+              </Grid>
 
-          <Controller
-            control={control}
-            name="location"
-            render={({ field: { onChange, value } }) => (
-              <CustomSelect
-                readOnly={readOnly}
-                value={value}
-                onChange={onChange}
-                options={options}
-                attr="location"
-              />
-            )}
-          />
+              <Grid item>
+                <Controller
+                  rules={{ required: false }}
+                  control={control}
+                  name="buyDate"
+                  render={({ field: { onChange, value } }) => (
+                    <TextField
+                      id="buyDate"
+                      label="Date of Purchase"
+                      type="date"
+                      value={value}
+                      onChange={onChange}
+                      InputProps={{
+                        disabled: isReadOnly,
+                      }}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                    />
+                  )}
+                />
+              </Grid>
+            </Grid>
 
-          <Controller
-            control={control}
-            name="location_prec"
-            render={({ field: { onChange, value } }) => (
-              <CustomSelect
-                readOnly={readOnly}
-                value={value}
-                onChange={onChange}
-                options={options}
-                attr="location_prec"
-              />
-            )}
-          />
+            <Typography variant="h4" component="h2">
+              Location
+            </Typography>
 
-          <Controller
-            control={control}
-            name="container"
-            render={({ field: { onChange, value } }) => (
-              <CustomSelect
-                readOnly={readOnly}
-                value={value}
-                onChange={onChange}
-                options={options}
-                attr="container"
-              />
-            )}
-          />
+            <Grid container spacing={3}>
+              <Grid item>
+                <Controller
+                  rules={{ required: true }}
+                  control={control}
+                  name="location"
+                  render={({ field: { onChange, value } }) => (
+                    <CustomSelect
+                      required
+                      readOnly={isReadOnly}
+                      value={value}
+                      onChange={onChange}
+                      options={options}
+                      attr="location"
+                    />
+                  )}
+                />
+              </Grid>
+              <Grid item>
+                <Controller
+                  rules={{ required: false }}
+                  control={control}
+                  name="location_prec"
+                  render={({ field: { onChange, value } }) => (
+                    <CustomSelect
+                      readOnly={isReadOnly}
+                      value={value}
+                      onChange={onChange}
+                      options={options}
+                      attr="location_prec"
+                    />
+                  )}
+                />
+              </Grid>
+              <Grid item>
+                <Controller
+                  rules={{ required: false }}
+                  control={control}
+                  name="container"
+                  render={({ field: { onChange, value } }) => (
+                    <CustomSelect
+                      readOnly={isReadOnly}
+                      value={value}
+                      onChange={onChange}
+                      options={options}
+                      attr="container"
+                    />
+                  )}
+                />
+              </Grid>
+            </Grid>
 
-          <Controller
-            control={control}
-            name="comments"
-            render={({ field: { onChange, value } }) => (
-              <TextField
-                id="comments"
-                label="comments"
-                value={value}
-                onChange={onChange}
-                fullWidth
-                InputProps={{
-                  disabled: readOnly,
-                }}
-              />
-            )}
-          />
+            <Typography variant="h4" component="h2">
+              Associated Devices
+            </Typography>
 
-          <Controller
-            control={control}
-            name="category"
-            render={({ field: { onChange, value } }) => (
-              <CustomSelect
-                readOnly={readOnly}
-                value={value}
-                onChange={onChange}
-                options={options}
-                attr="category"
-              />
-            )}
-          />
+            <Grid container spacing={3}>
+              <Grid item>
+                <Controller
+                  rules={{ required: false }}
+                  control={control}
+                  name="associated"
+                  render={({ field: { onChange, value } }) => (
+                    <TextField
+                      id="associated"
+                      label="Associated Devices:"
+                      type="number"
+                      value={value}
+                      onChange={onChange}
+                      InputProps={{
+                        disabled: isReadOnly,
+                      }}
+                    />
+                  )}
+                />
+              </Grid>
 
-          <Controller
-            control={control}
-            name="store"
-            render={({ field: { onChange, value } }) => (
-              <TextField
-                id="store"
-                label="Store"
-                value={value}
-                onChange={onChange}
-                InputProps={{
-                  disabled: readOnly,
-                }}
-              />
-            )}
-          />
-
-          <Controller
-            control={control}
-            name="price"
-            render={({ field: { onChange, value } }) => (
-              <TextField
-                id="price"
-                label="price"
-                /*  required */
-                type="number"
-                value={value}
-                onChange={onChange}
-                InputProps={{
-                  disabled: readOnly,
-                  startAdornment: (
-                    <InputAdornment position="start">€</InputAdornment>
-                  ),
-                }}
-              />
-            )}
-          />
-
-          <Controller
-            control={control}
-            name="amount"
-            render={({ field: { onChange, value } }) => (
-              <TextField
-                id="amount"
-                label="amount"
-                required
-                type="number"
-                value={value}
-                onChange={onChange}
-                InputProps={{
-                  disabled: readOnly,
-                  'aria-valuemin': 1,
-                  'aria-valuemax': 9999,
-                }}
-              />
-            )}
-          />
-
-          <Controller
-            control={control}
-            name="buyDate"
-            render={({ field: { onChange, value } }) => (
-              <TextField
-                id="buyDate"
-                label="Date of Purchase"
-                type="date"
-                value={value}
-                onChange={onChange}
-                InputProps={{
-                  disabled: readOnly,
-                }}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-              />
-            )}
-          />
-
-          <Controller
-            control={control}
-            name="lastEdit"
-            render={({ field: { onChange, value } }) => (
-              <TextField
-                id="lastEdit"
-                label="Last edit:"
-                type="datetime"
-                value={value}
-                onChange={onChange}
-                className={classes.noEdit}
-                InputProps={{
-                  disabled: true,
-                  readOnly: true,
-                }}
-              />
-            )}
-          />
-
-          <Controller
-            control={control}
-            name="associated"
-            render={({ field: { onChange, value } }) => (
-              <TextField
-                id="associated"
-                label="Associated Devices:"
-                type="number"
-                value={value}
-                onChange={onChange}
-                InputProps={{
-                  disabled: readOnly,
-                }}
-              />
-            )}
-          />
-
-          {associatedID === -1 ? undefined : (
-            <List dense>
-              {devices
-                .filter(
-                  (device: Device) =>
-                    (associatedID ?? 1) === (device.associated ?? 2) &&
-                    device !== activeDevice
-                )
-                .map((device: Device, index: number) => (
-                  <ListItem key={index}>
-                    <ListItemText primary={device.description} />
-                  </ListItem>
-                ))}
-            </List>
-          )}
-        </form>
-        {/* <form className={classes.root} noValidate autoComplete="off">
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={4} sm={6}>
-              <SingleSelect
-                readOnly={readOnly}
-                options={options.brand.map((brand: string) => ({
-                  inputValue: '',
-                  title: brand,
-                }))}
-                label="brand"
-                {...restProps}
-              />
+              {associatedID !== -1 && associatedID && (
+                <Grid item id="list">
+                  <Paper>
+                    <List dense>
+                      {devices
+                        .filter(
+                          (device: Device) =>
+                            (associatedID ?? 1) === (device.associated ?? 2) &&
+                            device !== activeDevice
+                        )
+                        .map((device: Device, index: number) => (
+                          <ListItem key={index}>
+                            <ListItemText primary={device.description} />
+                          </ListItem>
+                        ))}
+                    </List>
+                  </Paper>
+                </Grid>
+              )}
             </Grid>
-            <Grid item xs={12} md={4} sm={6}>
-              <TextField
-                id="description"
-                label="Name"
-                required
-                defaultValue={activeDevice?.description}
-                onBlur={handleChange}
-                InputProps={{
-                  disabled: readOnly,
-                }}
-              />
-            </Grid>
-            <Grid item xs={12} md={4} sm={6}>
-              <TextField
-                id="id"
-                label="ID (read-only)"
-                value={activeDevice?.id}
-                className={classes.noEdit}
-                InputProps={{
-                  readOnly: true,
-                  disabled: true,
-                }}
-              />
-            </Grid>
-            <Grid item xs={12} md={4} sm={6}>
-              <SingleSelect
-                readOnly={readOnly}
-                options={options.location.map((location: string) => ({
-                  inputValue: '',
-                  title: location,
-                }))}
-                label="location"
-                {...restProps}
-              />
-            </Grid>
-            <Grid item xs={12} md={4} sm={6}>
-              <SingleSelect
-                readOnly={readOnly}
-                options={options.location_prec.map((location_prec: string) => ({
-                  inputValue: '',
-                  title: location_prec,
-                }))}
-                label="location_prec"
-                {...restProps}
-              />
-            </Grid>
-            <Grid item xs={12} md={4} sm={6}>
-              <SingleSelect
-                readOnly={readOnly}
-                options={options.container.map((container: string) => ({
-                  inputValue: '',
-                  title: container,
-                }))}
-                label="container"
-                {...restProps}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                id="comments"
-                label="Comments"
-                defaultValue={activeDevice?.comments}
-                onBlur={handleChange}
-                fullWidth
-                margin="normal"
-                InputProps={{
-                  disabled: readOnly,
-                }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6} md={4}>
-              <MultiSelect
-                readOnly={readOnly}
-                options={options.category.map((category: string) => ({
-                  inputValue: '',
-                  title: category,
-                }))}
-                label="category"
-                {...restProps}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6} md={4}>
-              <TextField
-                id="store"
-                label="Store"
-                defaultValue={activeDevice?.store}
-                onBlur={handleChange}
-                InputProps={{
-                  disabled: readOnly,
-                }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6} md={4}>
-              <TextField
-                id="price"
-                label="Price"
-                type="number"
-                defaultValue={activeDevice?.price}
-                onBlur={handleChange}
-                InputProps={{
-                  disabled: readOnly,
-                  startAdornment: (
-                    <InputAdornment position="start">€</InputAdornment>
-                  ),
-                }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6} md={4}>
-              <TextField
-                id="amount"
-                label="Amount"
-                type="number"
-                value={activeDevice?.amount}
-                onChange={handleChangeAmount}
-                required
-                disabled={readOnly}
-                InputLabelProps={{
-                  disabled: readOnly,
-                  'aria-valuemin': 1,
-                  'aria-valuemax': 9999,
-                }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6} md={4}>
-              <TextField
-                id="buyDate"
-                label="Date of Purchase"
-                type="date"
-                value={activeDevice?.buyDate}
-                onChange={handleChange}
-                disabled={readOnly}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6} md={4}>
-              <TextField
-                id="lastEdit"
-                label="Entry updated: (read-only)"
-                value={activeDevice?.lastEdit}
-                onChange={handleChange}
-                className={classes.noEdit}
-                InputProps={{
-                  disabled: true,
-                  readOnly: true,
-                }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6} md={4}>
-              <TextField
-                id="associated"
-                label="Associated Devices"
-                type="number"
-                defaultValue={activeDevice?.associated}
-                onChange={handleChange}
-                InputProps={{
-                  disabled: readOnly,
-                }}
-              />
-            </Grid>
-          </Grid>
-          <Grid container>
-            <Grid item>
-              <List dense>
-                {props.associatedDeviceNames?.map((name, index) => (
-                  <ListItem key={index}>
-                    <ListItemText primary={name} />
-                  </ListItem>
-                ))}
-              </List>
-            </Grid>
-          </Grid>
-        </form> */}
+          </form>
+        </Container>
       </DialogContent>
 
       <DialogActions>
-        {!readOnly && !isCreateNew ? (
-          <Button
-            onClick={handleSubmit(
-              async (data) => handleEdit(data),
-              console.error
-            )}
-            color="primary"
-            disabled={!formState.isDirty || formState.isSubmitting}
-          >
-            Submit Change
-          </Button>
-        ) : (
-          displayAddButton && (
-            <Button
-              onClick={handleSubmit(
-                async (data) => handleAdd(data),
-                console.error
-              )}
-              color="primary"
-              disabled={
-                !formState.isDirty ||
-                !formState.isValid ||
-                formState.isSubmitting
-              }
-            >
-              Add Device
-            </Button>
-          )
-        )}
+        {!isReadOnly && !isCreateNew
+          ? buttonSubmit
+          : displayAddButton && buttonAdd}
+
         <Button onClick={handleClose} color="secondary">
           Close
         </Button>
