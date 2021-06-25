@@ -1,6 +1,6 @@
 import {
-  GridColumnsToolbarButton,
-  GridFilterToolbarButton,
+  GridToolbarColumnsButton,
+  GridToolbarFilterButton,
   GridToolbarContainer,
   GridToolbarExport,
 } from '@material-ui/data-grid'
@@ -9,8 +9,8 @@ import React from 'react'
 export default function CustomToolbar() {
   return (
     <GridToolbarContainer>
-      <GridColumnsToolbarButton />
-      <GridFilterToolbarButton />
+      <GridToolbarColumnsButton />
+      <GridToolbarFilterButton />
       <GridToolbarExport />
     </GridToolbarContainer>
   )

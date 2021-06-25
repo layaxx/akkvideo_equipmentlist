@@ -92,13 +92,14 @@ const renderButton = (
       size="medium"
       style={{ justifyContent: 'left' }}
       aria-label="open details"
-      onClick={() =>
+      onClick={(event) => {
+        event.stopPropagation()
         setState({
           dialogDetailsShow: true,
           dialogDetailsActiveDevice: params.row as Device,
           dialogDetailsMode: isAdmin ? DialogMode.Edit : DialogMode.ReadOnly,
         })
-      }
+      }}
     >
       {params.value}
     </Button>
