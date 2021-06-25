@@ -19,7 +19,7 @@ import { DeviceState } from '../../lib/types/device.state'
 import createPDF from '../../lib/technik/pdfgen'
 import genData from '../../lib/technik/genData'
 import genOptions from '../../lib/technik/genOptions'
-import { IOptionsLookup } from '../../lib/types/device.dialog.types'
+import { IOptionsLookup } from '../../lib/types/device.dialog'
 
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   try {

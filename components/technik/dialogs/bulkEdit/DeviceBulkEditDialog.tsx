@@ -17,7 +17,7 @@ import React from 'react'
 import { useForm, useFormState } from 'react-hook-form'
 import BulkEditCategoryInput from './BulkEditCategoryInput'
 import BulkEditValueInput from './BulkEditValueInput'
-import { IBulkEditDialogProps } from '../../../../lib/types/device.dialog.types'
+import { IBulkEditDialogProps } from '../../../../lib/types/device.dialog'
 
 export default function DeviceBulkEditDialog(props: IBulkEditDialogProps) {
   const { devices, show, handleClose } = props

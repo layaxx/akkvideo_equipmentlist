@@ -6,11 +6,8 @@ import {
 } from '@material-ui/lab'
 import React from 'react'
 import { useController, useWatch } from 'react-hook-form'
-import { OptionsType } from '../../SingleSelect'
-import {
-  IControllerProps,
-  IOptions,
-} from '../../../../lib/types/device.dialog.types'
+import { IControllerProps, IOptions } from '../../../../lib/types/device.dialog'
+import { OptionsType } from '../../../../lib/types/device.options'
 
 export default function BulkEditValueInput(
   props: IControllerProps & { options: IOptions }
@@ -18,7 +15,7 @@ export default function BulkEditValueInput(
   const { field } = useController(props)
   const category = useWatch({
     control: props.control,
-    name: 'category', // without supply name will watch the entire form, or ['firstName', 'lastName'] to watch both
+    name: 'category',
   })
 
   return (

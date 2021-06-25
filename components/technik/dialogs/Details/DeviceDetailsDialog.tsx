@@ -22,7 +22,7 @@ import { useSnackbar } from 'notistack'
 import React, { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import Device from '../../../../lib/types/Device'
-import { IDetailsDialogProps } from '../../../../lib/types/device.dialog.types'
+import { IDetailsDialogProps } from '../../../../lib/types/device.dialog'
 import { DialogMode } from '../../../../pages/technik/index'
 import CustomSelect from './CustomSelect'
 
@@ -113,7 +113,7 @@ export default function DeviceDetailsDialog(props: IDetailsDialogProps) {
   const handlePost = (data: Device, action: actionEnum) => {
     axios
       .post('/api/devices/' + action, data)
-      .then(() =>
+      .then(() => {
         enqueueSnackbar(
           `Successfully ${action}ed Device ${data.description}. 
           Reload page to see changes in effect.`,
@@ -121,7 +121,8 @@ export default function DeviceDetailsDialog(props: IDetailsDialogProps) {
             variant: 'success',
           }
         )
-      )
+        reset(data)
+      })
       .catch(() =>
         enqueueSnackbar(`Failed to ${action} device ${data.description}`, {
           variant: 'error',
@@ -241,6 +242,7 @@ export default function DeviceDetailsDialog(props: IDetailsDialogProps) {
                   name="category"
                   render={({ field: { onChange, value } }) => (
                     <CustomSelect
+                      multiSelect
                       readOnly={isReadOnly}
                       value={value}
                       onChange={onChange}

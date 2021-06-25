@@ -5,10 +5,11 @@ import {
   FilterOptionsState,
 } from '@material-ui/lab'
 import React from 'react'
-import { IOptionsLookup } from '../../../../lib/types/device.dialog.types'
-import { OptionsType } from '../../SingleSelect'
+import { IOptionsLookup } from '../../../../lib/types/device.dialog'
+import { OptionsType } from '../../../../lib/types/device.options'
 
 export default function CustomSelect({
+  multiSelect,
   required,
   readOnly,
   value,
@@ -17,26 +18,49 @@ export default function CustomSelect({
   attr,
 }: {
   required?: boolean
+  multiSelect?: boolean
   readOnly: boolean
   value: string | null | undefined
   onChange: Function
   options: IOptionsLookup
   attr: keyof IOptionsLookup
 }) {
+  const handleChangeSingle = (_: React.ChangeEvent<{}>, newValue: any) => {
+    if (typeof newValue === 'string') {
+      onChange(newValue)
+    } else if (newValue && newValue.inputValue) {
+      // Create a new value from the user input
+      onChange(newValue.inputValue)
+    } else {
+      onChange(newValue?.title || '')
+    }
+  }
+
+  const handleChangeMulti = (_: React.ChangeEvent<{}>, newValue: any) => {
+    onChange(
+      newValue
+        .map((val: { inputValue: any; title: any }) => {
+          if (typeof val === 'string') {
+            return val
+          } else if (!!val.inputValue) {
+            return val.inputValue
+          }
+          return val.title
+        })
+        .sort((a: string, b: string) => a.localeCompare(b))
+        .join('+++')
+    )
+  }
   return (
     <Autocomplete
+      multiple={multiSelect}
       disabled={readOnly}
-      value={value ?? ''}
-      onChange={(_, newValue: any) => {
-        if (typeof newValue === 'string') {
-          onChange(newValue)
-        } else if (newValue && newValue.inputValue) {
-          // Create a new value from the user input
-          onChange(newValue.inputValue)
-        } else {
-          onChange(newValue?.title || '')
-        }
-      }}
+      value={
+        multiSelect
+          ? value?.split('+++').filter((val: string) => val !== '') ?? ''
+          : value ?? ''
+      }
+      onChange={multiSelect ? handleChangeMulti : handleChangeSingle}
       filterOptions={(
         options: OptionsType[],
         state: FilterOptionsState<OptionsType>
