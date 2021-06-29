@@ -32,4 +32,5 @@ export interface IDetailsDialogProps {
 export type IOptionsLookup = IOptions & {
   brand: string[]
   category: string[]
+  status?: string[]
 }

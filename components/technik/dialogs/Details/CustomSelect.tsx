@@ -101,7 +101,6 @@ export default function CustomSelect({
       renderInput={(params) => (
         <TextField {...params} label={required ? attr + ' *' : attr} />
       )}
-      style={{ width: 200 }}
     />
   )
 }

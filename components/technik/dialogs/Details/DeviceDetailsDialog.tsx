@@ -23,6 +23,7 @@ import React, { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import Device from '../../../../lib/types/Device'
 import { IDetailsDialogProps } from '../../../../lib/types/device.dialog'
+import Status from '../../../../lib/types/device.status'
 import { DialogMode } from '../../../../pages/technik/index'
 import CustomSelect from './CustomSelect'
 
@@ -34,7 +35,7 @@ const useStyles = makeStyles((theme: Theme) =>
     root: {
       '& .MuiTextField-root': {
         margin: theme.spacing(1),
-        minWidth: '25ch',
+        width: '25ch',
       },
 
       '& .Mui-disabled': {
@@ -95,6 +96,12 @@ export default function DeviceDetailsDialog(props: IDetailsDialogProps) {
   )
 
   const associatedID = watch('associated')
+
+  const associatedDevices = devices.filter(
+    (device: Device) =>
+      (associatedID ?? 1) === (device.associated ?? 2) &&
+      device !== activeDevice
+  )
 
   useEffect(() => {
     reset(activeDevice || undefined)
@@ -163,7 +170,7 @@ export default function DeviceDetailsDialog(props: IDetailsDialogProps) {
               General Information
             </Typography>
 
-            <Grid container spacing={3}>
+            <Grid container spacing={1}>
               <Grid item>
                 <TextField
                   id="id"
@@ -198,7 +205,7 @@ export default function DeviceDetailsDialog(props: IDetailsDialogProps) {
                 />
               </Grid>
             </Grid>
-            <Grid container spacing={3}>
+            <Grid container spacing={1}>
               <Grid item>
                 <Controller
                   rules={{ required: true }}
@@ -294,7 +301,7 @@ export default function DeviceDetailsDialog(props: IDetailsDialogProps) {
                 />
               </Grid>
             </Grid>
-            <Grid container spacing={3}>
+            <Grid container spacing={1}>
               <Grid item>
                 <Controller
                   rules={{ required: false }}
@@ -365,7 +372,27 @@ export default function DeviceDetailsDialog(props: IDetailsDialogProps) {
               Location
             </Typography>
 
-            <Grid container spacing={3}>
+            <Grid container spacing={1}>
+              <Grid item>
+                <Controller
+                  rules={{ required: true }}
+                  control={control}
+                  name="status"
+                  render={({ field: { onChange, value } }) => (
+                    <CustomSelect
+                      required
+                      readOnly={isReadOnly}
+                      value={value}
+                      onChange={onChange}
+                      options={{ ...options, status: Object.values(Status) }}
+                      attr="status"
+                    />
+                  )}
+                />
+              </Grid>
+            </Grid>
+
+            <Grid container spacing={1}>
               <Grid item>
                 <Controller
                   rules={{ required: true }}
@@ -421,7 +448,7 @@ export default function DeviceDetailsDialog(props: IDetailsDialogProps) {
               Associated Devices
             </Typography>
 
-            <Grid container spacing={3}>
+            <Grid container spacing={1}>
               <Grid item>
                 <Controller
                   rules={{ required: false }}
@@ -442,25 +469,23 @@ export default function DeviceDetailsDialog(props: IDetailsDialogProps) {
                 />
               </Grid>
 
-              {associatedID !== -1 && associatedID && (
-                <Grid item id="list">
-                  <Paper>
-                    <List dense>
-                      {devices
-                        .filter(
-                          (device: Device) =>
-                            (associatedID ?? 1) === (device.associated ?? 2) &&
-                            device !== activeDevice
-                        )
-                        .map((device: Device, index: number) => (
-                          <ListItem key={index}>
-                            <ListItemText primary={device.description} />
-                          </ListItem>
-                        ))}
-                    </List>
-                  </Paper>
-                </Grid>
-              )}
+              {associatedID !== -1 &&
+                associatedID &&
+                associatedDevices.length > 0 && (
+                  <Grid item id="list">
+                    <Paper>
+                      <List dense>
+                        {associatedDevices.map(
+                          (device: Device, index: number) => (
+                            <ListItem key={index}>
+                              <ListItemText primary={device.description} />
+                            </ListItem>
+                          )
+                        )}
+                      </List>
+                    </Paper>
+                  </Grid>
+                )}
             </Grid>
           </form>
         </Container>
