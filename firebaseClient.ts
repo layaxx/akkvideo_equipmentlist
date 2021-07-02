@@ -12,7 +12,7 @@ Otherwise, go to Firebase SDK Snippet > click the "Config" radio button >
 copy/paste.
 
 */
-const CLIENT_CONFIG = {
+export const CLIENT_CONFIG = {
   apiKey: 'AIzaSyBDa6ysrsIb7PXz2biqKd-8-OaQs-tkbwk',
   authDomain: 'akvideo-demo.firebaseapp.com',
   projectId: 'akvideo-demo',

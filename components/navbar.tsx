@@ -74,6 +74,11 @@ const NavBar: FC = () => {
                 <Link href="/technik/">Technikverwaltung</Link>
               </NavLink>
             </NavItem>
+            <NavItem>
+              <NavLink tag="div">
+                <Link href="/foodle/">Foodle</Link>
+              </NavLink>
+            </NavItem>
             {/* 
           // TODO: will be implemented later on
           <UncontrolledDropdown nav inNavbar>

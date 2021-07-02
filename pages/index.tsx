@@ -98,6 +98,30 @@ const MainPage = () => {
                 color="textSecondary"
                 gutterBottom
               >
+                foodle
+              </Typography>
+              <Typography variant="h5" component="h2">
+                Terminmanagement
+              </Typography>
+              <Typography variant="body2" component="p">
+                Self-developed Doodle Alternative
+              </Typography>
+            </CardContent>
+            <CardActions>
+              <Link href="/foodle">
+                <Button size="small">Access</Button>
+              </Link>
+            </CardActions>
+          </Card>
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <Card className={classes.root} variant="outlined">
+            <CardContent>
+              <Typography
+                className={classes.title}
+                color="textSecondary"
+                gutterBottom
+              >
                 you
               </Typography>
               <Typography variant="h5" component="h2">

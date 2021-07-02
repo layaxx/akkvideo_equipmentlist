@@ -19,6 +19,9 @@ const theme = createMuiTheme({
     grey: {
       A700: '#212529',
     },
+    warning: {
+      main: '#ff0000',
+    },
   },
 })
 

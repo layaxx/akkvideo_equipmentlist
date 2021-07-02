@@ -4,6 +4,7 @@
 
 .main {
     width: 60rem;
+    max-width: 100%;
     margin: auto;
 }
 
@@ -28,4 +29,20 @@ h2 {
 
 .navbar-brand>a {
     color: white;
+}
+
+.chart {
+    margin: 0.5rem;
+    margin-bottom: 1rem;
+    text-align: center;
+    font-weight: bold;
+}
+
+.chart>p {
+    margin: 0;
+}
+
+.grayed-out {
+    opacity: 0.6;
+    filter: grayscale(100%);
 }

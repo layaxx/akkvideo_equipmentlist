@@ -12,6 +12,7 @@ import { ThemeProvider } from '@material-ui/core/styles'
 import CssBaseline from '@material-ui/core/CssBaseline'
 import ProgressBar from '@badrap/bar-of-progress'
 import Router from 'next/router'
+import { ConfirmProvider } from 'material-ui-confirm'
 
 const progress = new ProgressBar({
   size: 5,
@@ -44,7 +45,6 @@ function MyApp({ Component, pageProps }: AppProps) {
           />
         </Head>
         <ThemeProvider theme={theme}>
-          {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
           <CssBaseline />
           <div className="wrapper d-flex flex-column">
             <NavBar />
@@ -54,11 +54,12 @@ function MyApp({ Component, pageProps }: AppProps) {
                 vertical: 'bottom',
                 horizontal: 'right',
               }}
-              style={{ marginBottom: '3rem' }}
             >
-              <main className="flex-fill main">
-                <Component {...pageProps} />
-              </main>
+              <ConfirmProvider>
+                <main className="flex-fill main">
+                  <Component {...pageProps} />
+                </main>
+              </ConfirmProvider>
             </SnackbarProvider>
             <Footer />
           </div>
