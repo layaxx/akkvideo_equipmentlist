@@ -10,6 +10,7 @@ export type CalendarTheme = {
   background: string
   inactive: Color
   text: string
+  today: Color
 }
 
 export type Data = Month[]

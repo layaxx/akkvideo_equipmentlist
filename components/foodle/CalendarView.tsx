@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Dayjs } from 'dayjs'
+import dayjs, { Dayjs } from 'dayjs'
 import Box from '@material-ui/core/Box'
 import {
   Data,
@@ -61,6 +61,7 @@ const DEFAULT_THEME: CalendarTheme = {
   text: '#000',
   active: { main: '#ffbf00', secondary: '#e9d66b' },
   inactive: { main: '#6e7f80', secondary: '#b2beb5' },
+  today: { main: '#8bc34a', secondary: '#afcc8e' },
 }
 
 const DATE_FORMAT = 'YYYY-MM-DD'
@@ -92,7 +93,7 @@ const CalendarView: React.FC<CalendarProps> = ({
   function renderMonth({ weeks }: Month) {
     const theme = getTheme()
 
-    function colorLookup({ isActive, isInMonth }: CBlock) {
+    function colorLookup({ date, isActive, isInMonth }: CBlock) {
       if (isActive) {
         if (isInMonth) {
           return theme.active.main
@@ -101,9 +102,17 @@ const CalendarView: React.FC<CalendarProps> = ({
         }
       } else {
         if (isInMonth) {
-          return theme.inactive.main
+          if (date.isSame(dayjs(), 'day')) {
+            return theme.today.main
+          } else {
+            return theme.inactive.main
+          }
         } else {
-          return theme.inactive.secondary
+          if (date.isSame(dayjs(), 'day')) {
+            return theme.today.secondary
+          } else {
+            return theme.inactive.secondary
+          }
         }
       }
     }
