@@ -15,7 +15,7 @@ function generateData(dates: Dayjs[]) {
 
   const data: Data = []
 
-  let activeDate = dates[0]
+  let activeDate = dates[0].set('dates', 1)
   const endDate = dates[dates.length - 1]
 
   while (!activeDate.isAfter(endDate)) {
@@ -29,9 +29,12 @@ function generateData(dates: Dayjs[]) {
 function generateMonth(start: Dayjs, dates: Dayjs[]) {
   const monthNumber = start.get('month')
   const name = start.format("MMMM 'YY")
-  if (start.get('day') !== 1) {
-    start = start.set('days', 1)
-  }
+
+  // go to start of month
+  start = start.set('date', 1)
+  // go to Monday
+  start = start.set('day', 1)
+
   const weeks: Week[] = []
   var counter = 0
   for (let weekIndex = 0; weekIndex < 5; weekIndex++) {
@@ -164,6 +167,7 @@ const CalendarView: React.FC<CalendarProps> = ({
 
   useEffect(() => {
     const newData = generateData(dates)
+    console.log(newData)
     setData(newData)
   }, [])
 
