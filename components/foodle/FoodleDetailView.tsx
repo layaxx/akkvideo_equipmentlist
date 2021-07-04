@@ -26,12 +26,16 @@ import { generateRange } from '../../lib/helper'
 import dayjs, { Dayjs } from 'dayjs'
 import CalendarView from './CalendarView'
 import { useConfirm } from 'material-ui-confirm'
+import { CopyToClipboard } from 'react-copy-to-clipboard'
+import { useSnackbar } from 'notistack'
+
+type Props = {
+  poll: Poll
+}
 
 export default function FoodleDetailView({
   poll: { hidden, active, title, id, submissions, options },
-}: {
-  poll: Poll
-}) {
+}: Props) {
   const theme = useTheme()
 
   const [activeDate, setActiveDate] = useState<Dayjs | undefined>(undefined)
@@ -109,6 +113,8 @@ export default function FoodleDetailView({
     })
   }
 
+  const { enqueueSnackbar } = useSnackbar()
+
   return (
     <Paper style={{ flexGrow: 1, padding: '1.5rem' }}>
       <Grid container spacing={2}>
@@ -122,6 +128,17 @@ export default function FoodleDetailView({
           <Typography variant="body2" color="textSecondary">
             ID: {id}
           </Typography>
+          <CopyToClipboard
+            text={`https://intern.arbeitskreis.video/foodle/${id}`}
+            variant="contained"
+            onCopy={() =>
+              enqueueSnackbar('Successfully copied link!', {
+                variant: 'success',
+              })
+            }
+          >
+            <Button color="primary">Copy public share Link</Button>
+          </CopyToClipboard>
         </Grid>
 
         <Grid item xs>
@@ -214,6 +231,7 @@ export default function FoodleDetailView({
                             <Checkbox
                               icon={<ClearIcon />}
                               checkedIcon={<CheckIcon />}
+                              title={value ? 'attending' : 'not attending'}
                               onBlur={onBlur}
                               onChange={onChange}
                               checked={value}

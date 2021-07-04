@@ -93,7 +93,7 @@ const CalendarView: React.FC<CalendarProps> = ({
   function renderMonth({ weeks }: Month) {
     const theme = getTheme()
 
-    function colorLookup({ date, isActive, isInMonth }: CBlock) {
+    function colorLookup({ isActive, isInMonth }: CBlock) {
       if (isActive) {
         if (isInMonth) {
           return theme.active.main
@@ -102,17 +102,9 @@ const CalendarView: React.FC<CalendarProps> = ({
         }
       } else {
         if (isInMonth) {
-          if (date.isSame(dayjs(), 'day')) {
-            return theme.today.main
-          } else {
-            return theme.inactive.main
-          }
+          return theme.inactive.main
         } else {
-          if (date.isSame(dayjs(), 'day')) {
-            return theme.today.secondary
-          } else {
-            return theme.inactive.secondary
-          }
+          return theme.inactive.secondary
         }
       }
     }
@@ -139,26 +131,37 @@ const CalendarView: React.FC<CalendarProps> = ({
 
         {weeks
           .map((week) =>
-            week.map((day, index) => (
-              <rect
-                y="0"
-                x={(blockSize + blockMargin) * index}
-                width={blockSize}
-                height={blockSize}
-                fill={colorLookup(day)}
-                onMouseOver={
-                  day.isActive && setActiveDate
-                    ? () => setActiveDate(day.date)
-                    : undefined
-                }
-                onMouseOut={
-                  day.isActive && setActiveDate
-                    ? () => setActiveDate(undefined)
-                    : undefined
-                }
-                key={day.date.format(DATE_FORMAT)}
-              />
-            ))
+            week.map((day, index) =>
+              day.date.isSame(dayjs(), 'day') ? (
+                <circle
+                  key="today"
+                  cy="0"
+                  cx={(blockSize + blockMargin) * index}
+                  r={blockSize / 2}
+                  fill={colorLookup(day)}
+                  transform={`translate(${blockSize / 2} ${blockSize / 2})`}
+                />
+              ) : (
+                <rect
+                  y="0"
+                  x={(blockSize + blockMargin) * index}
+                  width={blockSize}
+                  height={blockSize}
+                  fill={colorLookup(day)}
+                  onMouseOver={
+                    day.isActive && setActiveDate
+                      ? () => setActiveDate(day.date)
+                      : undefined
+                  }
+                  onMouseOut={
+                    day.isActive && setActiveDate
+                      ? () => setActiveDate(undefined)
+                      : undefined
+                  }
+                  key={day.date.format(DATE_FORMAT)}
+                />
+              )
+            )
           )
           .map((week, x) => (
             <g
@@ -176,7 +179,6 @@ const CalendarView: React.FC<CalendarProps> = ({
 
   useEffect(() => {
     const newData = generateData(dates)
-    console.log(newData)
     setData(newData)
   }, [])
 
