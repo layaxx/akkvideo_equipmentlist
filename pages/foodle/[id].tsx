@@ -1,7 +1,6 @@
 import React from 'react'
 import { Alert } from '@material-ui/lab'
 import { useRouter } from 'next/dist/client/router'
-import firebase from 'firebase'
 import Poll from '../../lib/types/Poll'
 
 import useSWR from 'swr'
@@ -9,15 +8,14 @@ import FoodleDetailView from '../../components/foodle/FoodleDetailView'
 import Link from 'next/link'
 import Button from '@material-ui/core/Button'
 import { ArrowBack } from '@material-ui/icons'
-import app from './app'
+import { db } from '../../lib/app'
 
 const DetailPage = () => {
   const router = useRouter()
 
   const id = router.asPath.replace('/foodle/', '')
 
-  const fetcher = async (id: string) =>
-    firebase.firestore(app).collection('polls').doc(id).get()
+  const fetcher = async (id: string) => db.collection('polls').doc(id).get()
 
   const { data, error } = useSWR(id, fetcher)
 

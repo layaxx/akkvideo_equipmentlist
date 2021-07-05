@@ -10,8 +10,7 @@ import React from 'react'
 import Poll from '../../lib/types/Poll'
 import NextLink from 'next/link'
 import { useConfirm } from 'material-ui-confirm'
-import firebase from 'firebase'
-import app from '../../pages/foodle/app'
+import { db } from '../../lib/app'
 import { mutate } from 'swr'
 
 export default function FoodleOverviewItem({
@@ -22,9 +21,7 @@ export default function FoodleOverviewItem({
   const confirm = useConfirm()
 
   const handleUpdate = (newObject: Partial<Poll>) => {
-    firebase
-      .firestore(app)
-      .collection('polls')
+    db.collection('polls')
       .doc(id)
       .update(newObject)
       .then(() => mutate('all'))

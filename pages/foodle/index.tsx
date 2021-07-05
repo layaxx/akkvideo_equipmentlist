@@ -3,10 +3,9 @@ import { Box, Button, List, ListItem } from '@material-ui/core'
 import AddIcon from '@material-ui/icons/Add'
 import { Alert } from '@material-ui/lab'
 import { useAuth } from '../../auth'
-import firebase from 'firebase'
 import FoodleOverviewItem from '../../components/foodle/FoodleOverviewItem'
 import Poll from '../../lib/types/Poll'
-import app from './app'
+import { db } from '../../lib/app'
 import Link from 'next/link'
 import useSWR from 'swr'
 
@@ -29,11 +28,7 @@ const MainPage = () => {
 
   const fetcher = async () => {
     return (
-      await firebase
-        .firestore(app)
-        .collection('polls')
-        .where('hidden', '==', false)
-        .get()
+      await db.collection('polls').where('hidden', '==', false).get()
     ).docs.map(
       (entry) =>
         ({
@@ -51,11 +46,13 @@ const MainPage = () => {
       <h2>A self developed doodle alternative</h2>
 
       <Box>
-        {(error || (data?.length === 0 && !!data)) && (
-          <Alert severity="error">Failed to fetch Polls.</Alert>
-        )}
+        {error && <Alert severity="error">Failed to fetch Polls.</Alert>}
 
         {!error && !data && <Alert severity="info">Loading</Alert>}
+
+        {data?.length === 0 && !!data && (
+          <Alert severity="info">No Polls available.</Alert>
+        )}
 
         {!error && !!data && (
           <List>
@@ -67,7 +64,7 @@ const MainPage = () => {
           </List>
         )}
         <Link href="/foodle/add">
-          <Button variant="contained">
+          <Button color="primary" variant="contained">
             <AddIcon /> Add a new Poll
           </Button>
         </Link>

@@ -20,7 +20,7 @@ import CheckIcon from '@material-ui/icons/Check'
 import Poll, { Submission } from '../../lib/types/Poll'
 import { useForm, Controller, useWatch } from 'react-hook-form'
 import firebase from 'firebase'
-import app from '../../pages/foodle/app'
+import { db } from '../../lib/app'
 import { mutate } from 'swr'
 import { generateRange } from '../../lib/helper'
 import dayjs, { Dayjs } from 'dayjs'
@@ -65,9 +65,7 @@ export default function FoodleDetailView({
       active: true,
     }
 
-    firebase
-      .firestore(app)
-      .collection('polls')
+    db.collection('polls')
       .doc(id)
       .update({
         submissions: firebase.firestore.FieldValue.arrayUnion(newSubmission),
@@ -93,8 +91,6 @@ export default function FoodleDetailView({
       ...submission,
       active: false,
     }
-
-    const db = firebase.firestore(app)
 
     const batch = db.batch()
 

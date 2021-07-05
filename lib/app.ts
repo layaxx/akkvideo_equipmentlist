@@ -1,4 +1,5 @@
-import { CLIENT_CONFIG, firebaseClient } from '../../firebaseClient'
+import firebase from 'firebase'
+import { CLIENT_CONFIG, firebaseClient } from '../firebaseClient'
 
 var app: any
 if (firebaseClient.apps.length === 0) {
@@ -8,3 +9,5 @@ if (firebaseClient.apps.length === 0) {
 }
 
 export default app
+
+export const db = firebase.firestore(app)
