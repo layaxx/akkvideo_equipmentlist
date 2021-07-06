@@ -1,6 +1,8 @@
-import { Button, TextField, Grid, Paper } from '@material-ui/core'
+import { Button, TextField, Grid, Paper, Typography } from '@material-ui/core'
 import { ArrowBack } from '@material-ui/icons'
 import { Alert } from '@material-ui/lab'
+import AddIcon from '@material-ui/icons/Add'
+import RemoveIcon from '@material-ui/icons/Remove'
 import dayjs from 'dayjs'
 import firebase from 'firebase'
 import Link from 'next/dist/client/link'
@@ -134,17 +136,31 @@ export default function AddPage() {
             </Grid>
             <Grid item container>
               <h3>Possible Dates</h3>
-              <Grid item container>
+              <Grid item container spacing={2}>
                 <Grid item>
                   <Button
                     onClick={() => append({ date: '' })}
                     variant="contained"
                   >
-                    Add another Option
+                    <AddIcon /> Add option
                   </Button>
-                  <Button onClick={() => remove(0)} variant="contained">
-                    Remove last option
+                </Grid>
+                <Grid item>
+                  <Button
+                    onClick={() => remove(0)}
+                    variant="contained"
+                    disabled={controlledFields.length < 2}
+                  >
+                    <RemoveIcon /> Remove last option
                   </Button>
+                  {controlledFields.length < 2 && (
+                    <>
+                      <br />
+                      <Typography variant="caption" component="small">
+                        You need to have at least one option.
+                      </Typography>
+                    </>
+                  )}
                 </Grid>
               </Grid>
             </Grid>

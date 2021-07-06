@@ -5,13 +5,17 @@ import {
   CardActionArea,
   CardActions,
   CardContent,
+  Grid,
 } from '@material-ui/core'
+import ShareIcon from '@material-ui/icons/Share'
 import React from 'react'
 import Poll from '../../lib/types/Poll'
 import NextLink from 'next/link'
 import { useConfirm } from 'material-ui-confirm'
 import { db } from '../../lib/app'
 import { mutate } from 'swr'
+import { useSnackbar } from 'notistack'
+import { CopyToClipboard } from 'react-copy-to-clipboard'
 
 export default function FoodleOverviewItem({
   poll: { active, title, id, submissions },
@@ -19,6 +23,8 @@ export default function FoodleOverviewItem({
   poll: Poll
 }) {
   const confirm = useConfirm()
+
+  const { enqueueSnackbar } = useSnackbar()
 
   const handleUpdate = (newObject: Partial<Poll>) => {
     db.collection('polls')
@@ -68,29 +74,58 @@ export default function FoodleOverviewItem({
         </NextLink>
       </CardActionArea>
       <CardActions>
-        {active ? (
-          <Button size="small" onClick={confirmDeactivate}>
-            Deactivate
-          </Button>
-        ) : (
-          <Button
-            size="small"
-            onClick={confirmReactivate}
-            style={{ backgroundColor: 'forestgreen' }}
-          >
-            Reactivate
-          </Button>
-        )}
+        <Grid container justify="space-between" direction="row">
+          <Grid item>
+            <NextLink href={'/foodle/' + id}>
+              <Button
+                size="small"
+                color="primary"
+                variant="contained"
+                style={{ marginRight: '0.5rem' }}
+              >
+                View
+              </Button>
+            </NextLink>
+            <CopyToClipboard
+              text={`https://intern.arbeitskreis.video/foodle/${id}`}
+              onCopy={() =>
+                enqueueSnackbar('Successfully copied link!', {
+                  variant: 'success',
+                })
+              }
+            >
+              <Button size="small" color="primary">
+                <ShareIcon />
+                Share
+              </Button>
+            </CopyToClipboard>
+          </Grid>
+          <Grid item>
+            {active ? (
+              <Button size="small" onClick={confirmDeactivate}>
+                Deactivate
+              </Button>
+            ) : (
+              <Button
+                size="small"
+                onClick={confirmReactivate}
+                style={{ backgroundColor: 'forestgreen' }}
+              >
+                Reactivate
+              </Button>
+            )}
 
-        <Button
-          size="small"
-          style={{
-            color: 'indianred',
-          }}
-          onClick={confirmDelete}
-        >
-          Delete
-        </Button>
+            <Button
+              size="small"
+              style={{
+                color: 'indianred',
+              }}
+              onClick={confirmDelete}
+            >
+              Delete
+            </Button>
+          </Grid>
+        </Grid>
       </CardActions>
     </Card>
   )
