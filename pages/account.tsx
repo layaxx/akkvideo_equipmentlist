@@ -6,18 +6,12 @@ import roles from '../lib/auth/roles'
 import AdminRoleInfo from '../components/account/roleinfo/AdminRoleInfo'
 import PublicRoleInfo from '../components/account/roleinfo/PublicRoleInfo'
 import { useAuth } from '../auth'
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
-  Button,
-} from '@material-ui/core'
+import { Button } from '@material-ui/core'
 import axios from 'axios'
 import signout from '../lib/auth/signout'
 import { useRouter } from 'next/dist/client/router'
 import { useSnackbar } from 'notistack'
+import { useConfirm } from 'material-ui-confirm'
 
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   try {
@@ -60,7 +54,6 @@ const AccountPage: FC = (props: any) => {
     axios
       .get('/api/deleteOwnAccount?confirm=true')
       .then(() => {
-        setOpen(false)
         signout()
         router.push('/')
       })
@@ -71,15 +64,7 @@ const AccountPage: FC = (props: any) => {
       )
   }
 
-  const [open, setOpen] = React.useState(false)
-
-  const handleClickOpen = () => {
-    setOpen(true)
-  }
-
-  const handleClose = () => {
-    setOpen(false)
-  }
+  const confirm = useConfirm()
 
   // used to show notifications
   const { enqueueSnackbar } = useSnackbar()
@@ -120,44 +105,30 @@ const AccountPage: FC = (props: any) => {
       )}
 
       <h2>
-        You are <em>{props.user.role.toUpperCase()}</em>:
+        Your role is <em>{props.user.role?.toUpperCase() ?? roles.Public}</em>:
       </h2>
       <p>This means you have access to:</p>
       {lookup[role]}
       <div>
         <h2>Dangerzone:</h2>
         <Button
-          onClick={handleClickOpen}
+          onClick={() => {
+            confirm({
+              title: 'Dou you really want to delete your Account?',
+              description:
+                'This action cannot be undone. Changes you made to Devices, Polls, etc. will not be affected',
+              confirmationText: 'Delete',
+              confirmationButtonProps: { style: { color: 'red' } },
+            })
+              .then(handleDelete)
+              .catch(() => undefined)
+          }}
           variant="contained"
           style={{ backgroundColor: 'indianred', color: 'white' }}
         >
           Delete Account
         </Button>
       </div>
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">
-          Do you really want to delete your Account?
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            This action cannot be undone. Changes you made to devices etc will
-            not be deleted.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleDelete} color="primary">
-            Delete Account
-          </Button>
-          <Button onClick={handleClose} color="secondary" autoFocus>
-            Cancel
-          </Button>
-        </DialogActions>
-      </Dialog>
     </div>
   )
 }

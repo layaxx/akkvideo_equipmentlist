@@ -26,20 +26,32 @@ export default function ResetPassword() {
         variant: 'error',
       })
     } else {
-      console.log(firebaseClient)
       firebaseClient
         .auth()
         .sendPasswordResetEmail(email)
         .then(() =>
-          enqueueSnackbar('A password reset E-Mail was sent to your address.', {
-            variant: 'success',
-          })
+          enqueueSnackbar(
+            'If this user exists, they will have recieved a password-reset e-mail.',
+            {
+              variant: 'success',
+            }
+          )
         )
-        .catch(() =>
-          enqueueSnackbar('Password reset E-Mail could not be sent.', {
-            variant: 'error',
-          })
-        )
+        .catch((error) => {
+          if (error.code === 'auth/user-not-found') {
+            // try to leak as little information about registered users as possible
+            enqueueSnackbar(
+              'If this user exists, they will have recieved a password-reset e-mail.',
+              {
+                variant: 'success',
+              }
+            )
+          } else {
+            enqueueSnackbar('Password reset E-Mail could not be sent.', {
+              variant: 'error',
+            })
+          }
+        })
     }
   }
 

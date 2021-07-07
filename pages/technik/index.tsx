@@ -44,7 +44,7 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
       return {
         redirect: {
           permanent: false,
-          destination: '/?msg=InsufficientAuthentication',
+          destination: '/?msg=Technik%3A%20Insufficient%20Access%20Rights',
         },
       }
     }

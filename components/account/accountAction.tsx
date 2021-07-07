@@ -1,4 +1,4 @@
-import React, { MouseEventHandler, useState } from 'react'
+import React, { MouseEventHandler, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { firebaseClient } from '../../firebaseClient'
 import { useRouter } from 'next/dist/client/router'
@@ -17,6 +17,7 @@ import { useSnackbar } from 'notistack'
 import axios from 'axios'
 import { useAuth } from '../../auth'
 import { Alert } from '@material-ui/lab'
+import PrivacyNotice from './PrivacyNotice'
 
 export const useStyles = makeStyles((theme) => ({
   paper: {
@@ -50,29 +51,44 @@ const AccountAction = ({ isRegister = false }: { isRegister?: boolean }) => {
   const { user } = useAuth()
 
   const handleSubmit: MouseEventHandler = async (event) => {
-    event.preventDefault()
+    event?.preventDefault()
+    handleSubmitNoEvent()
+  }
+
+  const handleSubmitNoEvent = () => {
     if (email === '') {
-      enqueueSnackbar('You need to supply your username.', {
+      enqueueSnackbar('You need to supply a username.', {
         variant: 'error',
       })
       return
     }
     if (pass === '') {
-      enqueueSnackbar('You need to supply your password.', {
+      enqueueSnackbar('You need to supply a password.', {
         variant: 'error',
       })
       return
     }
     if (isRegister) {
+      if (pass.length < 8) {
+        enqueueSnackbar(
+          'Your password needs to be 8 characters or longer. Please choose a longer password.',
+          {
+            variant: 'error',
+          }
+        )
+        return
+      }
       firebaseClient
         .auth()
         .createUserWithEmailAndPassword(email, pass)
         .then((res) => {
-          axios.post('/api/newUser', {
-            token: res.user?.getIdToken(),
-          })
+          axios
+            .post('/api/newUser', {
+              token: res.user?.getIdToken(),
+            })
+            .then(() => router.push('/account'))
         })
-      router.push('/account')
+        .catch(() => enqueueSnackbar('Something went wrong'))
     } else {
       firebaseClient
         .auth()
@@ -81,16 +97,21 @@ const AccountAction = ({ isRegister = false }: { isRegister?: boolean }) => {
           router.push(router.query.redirect ? '/' + router.query.redirect : '/')
         )
         .catch(() =>
-          enqueueSnackbar('Something went wrong. Please try again.', {
-            variant: 'error',
-          })
+          enqueueSnackbar(
+            'Something went wrong. Most likely you supplied an incorrect email address + password combination.',
+            {
+              variant: 'error',
+            }
+          )
         )
     }
   }
 
-  if (!!user && router.query.redirect) {
-    router.push('/' + router.query.redirect)
-  }
+  useEffect(() => {
+    if (!!user && router.query.redirect) {
+      router.push('/' + router.query.redirect)
+    }
+  }, [router])
 
   return (
     <Container component="main" maxWidth="xs">
@@ -137,6 +158,11 @@ const AccountAction = ({ isRegister = false }: { isRegister?: boolean }) => {
             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
               setPass(event.target.value)
             }}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') {
+                handleSubmitNoEvent()
+              }
+            }}
           />
           <Button
             fullWidth
@@ -144,6 +170,7 @@ const AccountAction = ({ isRegister = false }: { isRegister?: boolean }) => {
             color="primary"
             className={classes.submit}
             onClick={handleSubmit}
+            autoFocus
           >
             {isRegister ? 'Register' : 'Sign In'}
           </Button>
@@ -158,6 +185,9 @@ const AccountAction = ({ isRegister = false }: { isRegister?: boolean }) => {
                   it@arbeitskreis.video in order to receive a clearance level
                   that will allow you to actually see and interact with content.
                 </small>
+                <br />
+
+                <PrivacyNotice />
               </Grid>
             </Grid>
           ) : (
@@ -169,11 +199,7 @@ const AccountAction = ({ isRegister = false }: { isRegister?: boolean }) => {
                 <Link href="/register">Don't have an account? Sign Up</Link>
               </Grid>
               <Grid item xs={12}>
-                <small>
-                  This action will leave a cookie on your machine. This is used
-                  for authentication only and is necessary if you want to access
-                  protected sites.
-                </small>
+                <PrivacyNotice />
               </Grid>
             </Grid>
           )}

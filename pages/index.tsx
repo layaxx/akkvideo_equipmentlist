@@ -122,7 +122,7 @@ const MainPage = () => {
                 color="textSecondary"
                 gutterBottom
               >
-                you
+                account
               </Typography>
               <Typography variant="h5" component="h2">
                 Your Account

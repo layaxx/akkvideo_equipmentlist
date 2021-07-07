@@ -7,12 +7,12 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Table,
 } from '@material-ui/core'
 import nookies from 'nookies'
 import { firebaseAdmin } from '../firebaseAdmin'
 import { InferGetServerSidePropsType, GetServerSidePropsContext } from 'next'
 import roles from '../lib/auth/roles'
-import { Table } from 'reactstrap'
 import ModalUser from '../components/admin/UserDialog'
 import Done from '@material-ui/icons/Done'
 
@@ -53,7 +53,7 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     })
 
     return {
-      props: { users: users },
+      props: { users },
     }
   } catch (err) {
     // either the `token` cookie didn't exist
@@ -75,10 +75,11 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   }
 }
 
-interface IUser {
+export interface IUser {
   email: string
   emailVerified: boolean
   role: roles
+  uid: string
 }
 
 const useStyles = makeStyles({
@@ -106,7 +107,7 @@ const AdminPage = (
               <TableCell align="right">E-Mail</TableCell>
               <TableCell align="right">Verified</TableCell>
               <TableCell align="right">Role</TableCell>
-              <TableCell align="right">Change Properties</TableCell>
+              <TableCell align="right"></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -138,7 +139,7 @@ const AdminPage = (
                           variant="outlined"
                           onClick={() => setUser(userParam)}
                         >
-                          Update
+                          manage
                         </Button>
                       )}
                     </TableCell>
@@ -149,7 +150,7 @@ const AdminPage = (
         </Table>
       </TableContainer>
 
-      <ModalUser user={user} clear={() => setUser(null)}></ModalUser>
+      <ModalUser user={user} close={() => setUser(null)}></ModalUser>
     </div>
   )
 }
