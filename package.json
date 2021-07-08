@@ -9,8 +9,8 @@
   },
   "homepage": "https://intern.arbeitskreis.video",
   "scripts": {
-    "postinstall": "node scripts/writeVersion.js",
     "dev": "next dev",
+    "prebuild": "node scripts/writeVersion.js",
     "build": "next build",
     "export": "next export",
     "start": "next start"

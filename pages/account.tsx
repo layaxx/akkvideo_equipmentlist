@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import React, { useEffect } from 'react'
 import roles from '../lib/auth/roles'
 import AdminRoleInfo from '../components/account/roleinfo/AdminRoleInfo'
 import PublicRoleInfo from '../components/account/roleinfo/PublicRoleInfo'
@@ -9,18 +9,27 @@ import signout from '../lib/auth/signout'
 import { useRouter } from 'next/dist/client/router'
 import { useSnackbar } from 'notistack'
 import { useConfirm } from 'material-ui-confirm'
+import { NextPage } from 'next'
 
-const AccountPage: FC = () => {
+const AccountPage: NextPage = () => {
   const { user } = useAuth()
 
   const router = useRouter()
 
+  useEffect(() => {
+    if (!user) {
+      router.push(
+        '/?msg=You%20need%20to%20log%20in%20to%20access%20this%20page',
+        '/'
+      )
+    }
+  }, [user])
+
   if (!user) {
-    router.push('/?msg=You%20need%20to%20log%20in%20to%20access%20this%20page')
     return null
   }
 
-  const role: roles = user!.role
+  const role: roles = user?.role ?? roles.Public
   const lookup = {
     [roles.Admin]: <AdminRoleInfo />,
     [roles.Moderator]: null,
@@ -48,8 +57,8 @@ const AccountPage: FC = () => {
 
   return (
     <div style={{ marginTop: '3rem' }}>
-      <h1>Hello, {user!.email}!</h1>
-      {!user!.emailVerified ? (
+      <h1>Hello, {user?.email}!</h1>
+      {!user?.emailVerified ? (
         <>
           <p>
             Your E-Mail address is currently <strong>not verified</strong>
@@ -82,7 +91,7 @@ const AccountPage: FC = () => {
       )}
 
       <h2>
-        Your role is <em>{user!.role.toUpperCase() ?? roles.Public}</em>:
+        Your role is <em>{user?.role.toUpperCase() ?? roles.Public}</em>:
       </h2>
       <p>This means you have access to:</p>
       {lookup[role]}
