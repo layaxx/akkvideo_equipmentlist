@@ -24,7 +24,7 @@ import { IOptionsLookup } from '../../lib/types/device.dialog'
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   try {
     const cookies = nookies.get(ctx)
-    var hasAccess,
+    let hasAccess,
       isAdmin = false
     await firebaseAdmin
       .auth()
@@ -268,9 +268,6 @@ class TechnikOverview extends React.Component<
             activeDevice={this.state.dialogDetailsActiveDevice}
             mode={this.state.dialogDetailsMode}
             show={this.state.dialogDetailsShow}
-            updateState={(newState: { dialogDetailsActiveDevice: Device }) => {
-              this.setState(newState)
-            }}
             options={this.options}
           />
         </div>

@@ -15,7 +15,7 @@ export type IControllerProps = UseControllerProps<
 export interface IBulkEditDialogProps {
   devices: Device[]
   show: boolean
-  handleClose: (event?: {}, reason?: 'backdropClick' | 'escapeKeyDown') => void
+  handleClose: () => void
   options: IOptions
 }
 
@@ -24,7 +24,6 @@ export interface IDetailsDialogProps {
   activeDevice: Device | null
   mode: any
   show: boolean
-  updateState: Function
   options: any
   handleClose: any
 }

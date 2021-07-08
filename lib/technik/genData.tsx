@@ -1,3 +1,4 @@
+import React from 'react'
 import { GridCellParams } from '@material-ui/data-grid'
 import { Button } from '@material-ui/core'
 import { DialogMode } from '../../pages/technik'

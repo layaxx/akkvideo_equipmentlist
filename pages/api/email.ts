@@ -15,7 +15,7 @@ export default async (req: req_email, res: res) => {
     return
   }
   try {
-    var email
+    let email
     await firebaseAdmin
       .auth()
       .verifyIdToken(req.cookies.token)

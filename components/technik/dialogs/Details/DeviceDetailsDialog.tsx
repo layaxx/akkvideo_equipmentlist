@@ -60,7 +60,7 @@ export default function DeviceDetailsDialog(props: IDetailsDialogProps) {
   const isCreateNew = mode === DialogMode.Create
   const displayAddButton = isCreateNew
 
-  var { handleSubmit, control, reset, watch, formState } = useForm({
+  const { handleSubmit, control, reset, watch, formState } = useForm({
     defaultValues: activeDevice || undefined,
     mode: 'onChange',
   })

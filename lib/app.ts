@@ -1,7 +1,7 @@
 import firebase from 'firebase'
 import { CLIENT_CONFIG, firebaseClient } from '../firebaseClient'
 
-var app: any
+let app: any
 if (firebaseClient.apps.length === 0) {
   app = firebaseClient.initializeApp(CLIENT_CONFIG)
 } else {

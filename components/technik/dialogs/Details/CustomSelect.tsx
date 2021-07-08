@@ -21,11 +21,11 @@ export default function CustomSelect({
   multiSelect?: boolean
   readOnly: boolean
   value: string | null | undefined
-  onChange: Function
+  onChange: (...event: any[]) => void
   options: IOptionsLookup
   attr: keyof IOptionsLookup
 }) {
-  const handleChangeSingle = (_: React.ChangeEvent<{}>, newValue: any) => {
+  const handleChangeSingle = (_: any, newValue: any) => {
     if (typeof newValue === 'string') {
       onChange(newValue)
     } else if (newValue && newValue.inputValue) {
@@ -36,13 +36,13 @@ export default function CustomSelect({
     }
   }
 
-  const handleChangeMulti = (_: React.ChangeEvent<{}>, newValue: any) => {
+  const handleChangeMulti = (_: any, newValue: any) => {
     onChange(
       newValue
         .map((val: { inputValue: any; title: any }) => {
           if (typeof val === 'string') {
             return val
-          } else if (!!val.inputValue) {
+          } else if (val.inputValue) {
             return val.inputValue
           }
           return val.title

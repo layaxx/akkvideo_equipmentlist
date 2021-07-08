@@ -19,7 +19,7 @@ import Done from '@material-ui/icons/Done'
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   try {
     const cookies = nookies.get(ctx)
-    var isAdmin = false
+    let isAdmin = false
     await firebaseAdmin
       .auth()
       .verifyIdToken(cookies.token)

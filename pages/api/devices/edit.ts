@@ -34,7 +34,7 @@ export default async (req: req_editDevice, res: res) => {
       store,
       associated,
     } = req.body
-    var buyDate = req.body.buyDate || ''
+    const buyDate = req.body.buyDate || ''
     if (!location || !description || !id) {
       res.status(400).end()
       return

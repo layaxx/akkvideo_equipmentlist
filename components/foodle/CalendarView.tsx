@@ -36,7 +36,7 @@ function generateMonth(start: Dayjs, dates: Dayjs[]) {
   start = start.set('day', 1)
 
   const weeks: Week[] = []
-  var counter = 0
+  let counter = 0
   for (let weekIndex = 0; weekIndex < 5; weekIndex++) {
     const week = []
     for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
