@@ -1,7 +1,4 @@
-import { GetServerSidePropsContext } from 'next'
 import React, { FC } from 'react'
-import nookies from 'nookies'
-import { firebaseAdmin } from '../firebaseAdmin'
 import roles from '../lib/auth/roles'
 import AdminRoleInfo from '../components/account/roleinfo/AdminRoleInfo'
 import PublicRoleInfo from '../components/account/roleinfo/PublicRoleInfo'
@@ -13,43 +10,23 @@ import { useRouter } from 'next/dist/client/router'
 import { useSnackbar } from 'notistack'
 import { useConfirm } from 'material-ui-confirm'
 
-export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
-  try {
-    const cookies = nookies.get(ctx)
-    const token = await firebaseAdmin.auth().verifyIdToken(cookies.token)
+const AccountPage: FC = () => {
+  const { user } = useAuth()
 
-    return {
-      props: { user: token },
-    }
-  } catch (err) {
-    // either the `token` cookie didn't exist
-    // or token verification failed
-    // either way: redirect to the login page
-    // either the `token` cookie didn't exist
-    // or token verification failed
-    // either way: redirect to the login page
-    return {
-      redirect: {
-        permanent: false,
-        destination: '/login?redirect=account',
-      },
-      // `as never` is required for correct type inference
-      // by InferGetServerSidePropsType below
-      props: {} as never,
-    }
+  const router = useRouter()
+
+  if (!user) {
+    router.push('/?msg=You%20need%20to%20log%20in%20to%20access%20this%20page')
+    return null
   }
-}
 
-const AccountPage: FC = (props: any) => {
-  const role: roles = props.user.role || roles.Public
+  const role: roles = user!.role
   const lookup = {
     [roles.Admin]: <AdminRoleInfo />,
     [roles.Moderator]: null,
     [roles.Member]: null,
     [roles.Public]: <PublicRoleInfo />,
   }
-  const { user } = useAuth()
-  const router = useRouter()
   const handleDelete = () => {
     axios
       .get('/api/deleteOwnAccount?confirm=true')
@@ -71,8 +48,8 @@ const AccountPage: FC = (props: any) => {
 
   return (
     <div style={{ marginTop: '3rem' }}>
-      <h1>Hello, {props.user.email}!</h1>
-      {!props.user.email_verified ? (
+      <h1>Hello, {user!.email}!</h1>
+      {!user!.emailVerified ? (
         <>
           <p>
             Your E-Mail address is currently <strong>not verified</strong>
@@ -105,7 +82,7 @@ const AccountPage: FC = (props: any) => {
       )}
 
       <h2>
-        Your role is <em>{props.user.role?.toUpperCase() ?? roles.Public}</em>:
+        Your role is <em>{user!.role.toUpperCase() ?? roles.Public}</em>:
       </h2>
       <p>This means you have access to:</p>
       {lookup[role]}

@@ -1,17 +1,23 @@
 import React, { useState, useEffect, useContext, createContext } from 'react'
 import nookies from 'nookies'
 import { firebaseClient } from './firebaseClient'
+import firebase from 'firebase'
+import roles from './lib/auth/roles'
 
-const AuthContext = createContext<{ user: firebaseClient.User | null }>({
+export interface IFirebaseUser extends firebaseClient.User {
+  role: roles
+}
+
+const AuthContext = createContext<{ user: IFirebaseUser | null }>({
   user: null,
 })
 
 export function AuthProvider({ children }: any) {
-  const [user, setUser] = useState<firebaseClient.User | null>(null)
+  const [user, setUser] = useState<IFirebaseUser | null>(null)
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      (window as any).nookies = nookies
+      ;(window as any).nookies = nookies
     }
     return firebaseClient.auth().onIdTokenChanged(async (userParam) => {
       // console.log(`token changed!`)
@@ -25,9 +31,18 @@ export function AuthProvider({ children }: any) {
 
       // console.log(`updating token...`)
       const token = await userParam.getIdToken()
-      setUser(userParam)
-      nookies.destroy(null, 'token')
-      nookies.set(null, 'token', token, { path: '/' })
+
+      firebase
+        .auth()
+        .currentUser?.getIdTokenResult()
+        .then((idTokenResult) => {
+          setUser({
+            ...userParam,
+            role: idTokenResult.claims.role ?? roles.Public,
+          })
+          nookies.destroy(null, 'token')
+          nookies.set(null, 'token', token, { path: '/' })
+        })
     })
   }, [])
 
