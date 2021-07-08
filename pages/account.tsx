@@ -1,33 +1,22 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import roles from '../lib/auth/roles'
 import AdminRoleInfo from '../components/account/roleinfo/AdminRoleInfo'
 import PublicRoleInfo from '../components/account/roleinfo/PublicRoleInfo'
 import { useAuth } from '../auth'
-import { Button } from '@material-ui/core'
+import { Box, Button, Typography } from '@material-ui/core'
+import CheckIcon from '@material-ui/icons/Check'
 import axios from 'axios'
 import signout from '../lib/auth/signout'
 import { useRouter } from 'next/dist/client/router'
 import { useSnackbar } from 'notistack'
 import { useConfirm } from 'material-ui-confirm'
 import { NextPage } from 'next'
+import { Alert } from '@material-ui/lab'
 
 const AccountPage: NextPage = () => {
   const { user } = useAuth()
 
   const router = useRouter()
-
-  useEffect(() => {
-    if (!user) {
-      router.push(
-        '/?msg=You%20need%20to%20log%20in%20to%20access%20this%20page',
-        '/'
-      )
-    }
-  }, [user])
-
-  if (!user) {
-    return null
-  }
 
   const role: roles = user?.role ?? roles.Public
   const lookup = {
@@ -55,48 +44,72 @@ const AccountPage: NextPage = () => {
   // used to show notifications
   const { enqueueSnackbar } = useSnackbar()
 
-  return (
-    <div style={{ marginTop: '3rem' }}>
-      <h1>Hello, {user?.email}!</h1>
-      {!user?.emailVerified ? (
-        <>
-          <p>
-            Your E-Mail address is currently <strong>not verified</strong>
-          </p>
-          <Button
-            onClick={() =>
-              user
-                ?.sendEmailVerification()
-                .then(() =>
-                  enqueueSnackbar(
-                    'Sent E-Mail for Verification to ' + user.email,
-                    {
-                      variant: 'success',
-                    }
-                  )
-                )
-                .catch(() =>
-                  enqueueSnackbar('Failed to sent E-Mail to ' + user.email, {
-                    variant: 'error',
-                  })
-                )
-            }
-            variant="contained"
-          >
-            verify e-Mail address
-          </Button>
-        </>
-      ) : (
-        <p>Your e-Mail is verified.</p>
-      )}
+  if (!user) {
+    return (
+      <Alert severity="error">
+        You need to be logged in in order to access this page.
+      </Alert>
+    )
+  }
 
-      <h2>
-        Your role is <em>{user?.role.toUpperCase() ?? roles.Public}</em>:
-      </h2>
-      <p>This means you have access to:</p>
-      {lookup[role]}
-      <div>
-        <h2>Dangerzone:</h2>
+  return (
+    <>
+      <Box component="section" mb={2}>
+        <Typography component="h1" variant="h3" gutterBottom>
+          Hello, {user?.email}!
+        </Typography>
+        {!user?.emailVerified ? (
+          <>
+            <Typography variant="body1">
+              Your E-Mail address is currently <em>not verified</em>.
+            </Typography>
+            <Button
+              onClick={() =>
+                user
+                  ?.sendEmailVerification()
+                  .then(() =>
+                    enqueueSnackbar(
+                      'Sent E-Mail for Verification to ' + user.email,
+                      {
+                        variant: 'success',
+                      }
+                    )
+                  )
+                  .catch(() =>
+                    enqueueSnackbar('Failed to sent E-Mail to ' + user.email, {
+                      variant: 'error',
+                    })
+                  )
+              }
+              color="primary"
+              variant="contained"
+            >
+              verify e-Mail address
+            </Button>
+          </>
+        ) : (
+          <Typography variant="body1">
+            <CheckIcon />
+            Your e-Mail address is verified.
+          </Typography>
+        )}
+      </Box>
+      <Box component="section" mb={2}>
+        <Typography component="h2" variant="h4" gutterBottom>
+          Your role is{' '}
+          <span className="underlines">
+            {user?.role?.toUpperCase() ?? roles.Public}
+          </span>
+          :
+        </Typography>
+        <Typography variant="body1">This means you have access to:</Typography>
+        {lookup[role]}
+      </Box>
+
+      <Box component="section" mb={2}>
+        <Typography component="h2" variant="h4" gutterBottom>
+          Dangerzone:
+        </Typography>
         <Button
           onClick={() => {
             confirm({
@@ -114,8 +127,8 @@ const AccountPage: NextPage = () => {
         >
           Delete Account
         </Button>
-      </div>
-    </div>
+      </Box>
+    </>
   )
 }
 

@@ -245,7 +245,11 @@ export default function UserDialog({
                   size="small"
                   onClick={() =>
                     confirm({
-                      description: `Do you really want to delete ${user?.email}'s account?`,
+                      title: `Do you really want to delete ${user?.email}'s account?`,
+                      description:
+                        'This action cannot be undone. Changes they made to Devices, Polls, etc. will not be affected',
+                      confirmationText: 'Delete',
+                      confirmationButtonProps: { style: { color: 'red' } },
                     })
                       .then(handleDelete)
                       .catch(() => undefined)

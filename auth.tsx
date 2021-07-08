@@ -5,7 +5,7 @@ import firebase from 'firebase'
 import roles from './lib/auth/roles'
 
 export interface IFirebaseUser extends firebaseClient.User {
-  role: roles
+  role?: roles
 }
 
 const AuthContext = createContext<{ user: IFirebaseUser | null }>({
@@ -36,10 +36,9 @@ export function AuthProvider({ children }: any) {
         .auth()
         .currentUser?.getIdTokenResult()
         .then((idTokenResult) => {
-          setUser({
-            ...userParam,
-            role: idTokenResult.claims.role ?? roles.Public,
-          })
+          const user: IFirebaseUser = userParam
+          user.role = idTokenResult.claims.role
+          setUser(userParam)
           nookies.destroy(null, 'token')
           nookies.set(null, 'token', token, { path: '/' })
         })
