@@ -19,17 +19,12 @@ import Done from '@material-ui/icons/Done'
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   try {
     const cookies = nookies.get(ctx)
-    let isAdmin = false
-    await firebaseAdmin
+    const { role } = await firebaseAdmin
       .auth()
       .verifyIdToken(cookies.token)
-      .then((claims) => {
-        if (claims.role === roles.Admin) {
-          isAdmin = true
-        }
-      })
+      .then((claims) => claims)
 
-    if (!isAdmin) {
+    if (role !== roles.Admin) {
       return {
         redirect: {
           permanent: false,

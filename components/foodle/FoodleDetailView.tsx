@@ -225,8 +225,12 @@ export default function FoodleDetailView({
                             field: { onChange, onBlur, value, ref },
                           }) => (
                             <Checkbox
-                              icon={<ClearIcon />}
-                              checkedIcon={<CheckIcon />}
+                              icon={<ClearIcon color="error" />}
+                              checkedIcon={
+                                <CheckIcon
+                                  style={{ color: theme.palette.success.main }}
+                                />
+                              }
                               title={value ? 'attending' : 'not attending'}
                               onBlur={onBlur}
                               onChange={onChange}

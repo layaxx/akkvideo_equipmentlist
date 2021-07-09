@@ -12,20 +12,6 @@ import useSWR from 'swr'
 const MainPage = () => {
   const { user } = useAuth()
 
-  if (user === null) {
-    return (
-      <>
-        <h1>AK Video - Foodle</h1>
-        <h2>A self developed doodle alternative</h2>
-
-        <Alert severity="info">
-          You are currently not logged in. This means you only have access to
-          polls to which you have received a direct link.
-        </Alert>
-      </>
-    )
-  }
-
   const fetcher = async () => {
     return (
       await db.collection('polls').where('hidden', '==', false).get()
@@ -39,6 +25,20 @@ const MainPage = () => {
   }
 
   const { data, error } = useSWR('all', fetcher)
+
+  if (user === null) {
+    return (
+      <>
+        <h1>AK Video - Foodle</h1>
+        <h2>A self developed doodle alternative</h2>
+
+        <Alert severity="info">
+          You are currently not logged in. This means you only have access to
+          polls to which you have received a direct link.
+        </Alert>
+      </>
+    )
+  }
 
   return (
     <>
