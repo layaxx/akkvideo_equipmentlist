@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { FC } from 'react'
 
-export default function PrivacyNotice() {
+const PrivacyNotice: FC = () => {
   return (
     <div style={{ marginTop: '0.5rem' }}>
       <em>Privacy Notice:</em>
@@ -13,3 +13,5 @@ export default function PrivacyNotice() {
     </div>
   )
 }
+
+export default PrivacyNotice

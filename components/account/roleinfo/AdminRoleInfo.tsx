@@ -1,8 +1,8 @@
 import { List, ListItem } from '@material-ui/core'
 import Link from 'next/link'
-import React from 'react'
+import React, { FC } from 'react'
 
-const AdminRoleInfo = () => {
+const AdminRoleInfo: FC = () => {
   return (
     <List component="ul" aria-label="you have access to those sites:">
       <ListItem divider>

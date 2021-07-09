@@ -8,15 +8,23 @@ import {
   TableHead,
   TableRow,
   Table,
+  Typography,
 } from '@material-ui/core'
 import nookies from 'nookies'
 import { firebaseAdmin } from '../firebaseAdmin'
-import { InferGetServerSidePropsType, GetServerSidePropsContext } from 'next'
+import {
+  InferGetServerSidePropsType,
+  GetServerSidePropsContext,
+  GetServerSideProps,
+  NextPage,
+} from 'next'
 import roles from '../lib/auth/roles'
 import ModalUser from '../components/admin/UserDialog'
-import Done from '@material-ui/icons/Done'
+import CheckIcon from '@material-ui/icons/Check'
 
-export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
+export const getServerSideProps: GetServerSideProps = async (
+  ctx: GetServerSidePropsContext
+) => {
   try {
     const cookies = nookies.get(ctx)
     const { role } = await firebaseAdmin
@@ -71,7 +79,7 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
 }
 
 export interface IUser {
-  email: string
+  email: string | undefined
   emailVerified: boolean
   role: roles
   uid: string
@@ -83,18 +91,21 @@ const useStyles = makeStyles({
   },
 })
 
-const AdminPage = (
+const AdminPage: NextPage = (
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) => {
-  const [user, setUser]: [IUser | null, any] = useState(null)
+  const [activeUser, setActiveUser] = useState<IUser | null>(null)
   const classes = useStyles()
 
   return (
     <div style={{ margin: 'auto', maxWidth: '45rem' }}>
-      <h1 style={{ textAlign: 'center', marginBottom: '3rem' }}>
+      <Typography component="h1" variant="h3" gutterBottom>
         Admin-Dashboard
-      </h1>
-      <h2>Registered users</h2>
+      </Typography>
+      <Typography component="h2" variant="h4" gutterBottom>
+        Registered users
+      </Typography>
+
       <TableContainer style={{ overflow: 'auto' }}>
         <Table className={classes.table} aria-label="registered users">
           <TableHead>
@@ -108,17 +119,17 @@ const AdminPage = (
           <TableBody>
             {Object.values(roles).map((role) =>
               props.users
-                .filter((userParam) => userParam.role === role)
-                .map((userParam) => (
-                  <TableRow key={userParam.email}>
+                .filter((user: IUser) => user.role === role)
+                .map((user: IUser) => (
+                  <TableRow key={user.email}>
                     <TableCell component="th" scope="row" align="right">
-                      {userParam.email}
+                      {user.email}
                     </TableCell>
                     <TableCell component="th" scope="row" align="right">
-                      {userParam.emailVerified && <Done />}
+                      {user.emailVerified && <CheckIcon />}
                     </TableCell>
                     <TableCell component="th" scope="row" align="right">
-                      {userParam.role}
+                      {user.role}
                     </TableCell>
                     <TableCell
                       align="right"
@@ -132,7 +143,7 @@ const AdminPage = (
                       {role === roles.Admin ? null : (
                         <Button
                           variant="outlined"
-                          onClick={() => setUser(userParam)}
+                          onClick={() => setActiveUser(user)}
                         >
                           manage
                         </Button>
@@ -145,7 +156,10 @@ const AdminPage = (
         </Table>
       </TableContainer>
 
-      <ModalUser user={user} close={() => setUser(null)}></ModalUser>
+      <ModalUser
+        user={activeUser}
+        close={() => setActiveUser(null)}
+      ></ModalUser>
     </div>
   )
 }

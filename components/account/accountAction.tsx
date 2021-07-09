@@ -1,4 +1,4 @@
-import React, { MouseEventHandler, useEffect, useState } from 'react'
+import React, { FC, MouseEventHandler, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { firebaseClient } from '../../firebaseClient'
 import { useRouter } from 'next/dist/client/router'
@@ -42,7 +42,11 @@ export const useStyles = makeStyles((theme) => ({
   },
 }))
 
-const AccountAction = ({ isRegister = false }: { isRegister?: boolean }) => {
+type Props = {
+  isRegister?: boolean
+}
+
+const AccountAction: FC<Props> = ({ isRegister = false }: Props) => {
   const [email, setEmail] = useState('')
   const [pass, setPass] = useState('')
   const router = useRouter()
@@ -51,7 +55,7 @@ const AccountAction = ({ isRegister = false }: { isRegister?: boolean }) => {
   const { user } = useAuth()
 
   const handleSubmit: MouseEventHandler = async (event) => {
-    event?.preventDefault()
+    event.preventDefault()
     handleSubmitNoEvent()
   }
 

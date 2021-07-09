@@ -16,6 +16,7 @@ import { firebaseClient } from '../firebaseClient'
 import nookies from 'nookies'
 import { useAuth } from '../auth'
 import { gray } from '../lib/colors'
+import roles from '../lib/auth/roles'
 
 const styles = {
   top: { backgroundColor: gray, marginBottom: '2rem' },
@@ -91,11 +92,13 @@ const NavBar: FC = () => {
               <DropdownItem>Option 2</DropdownItem>
             </DropdownMenu>
           </UncontrolledDropdown> */}
-            <NavItem>
-              <NavLink tag="div">
-                <Link href="/admin/">Admin</Link>
-              </NavLink>
-            </NavItem>
+            {user?.role === roles.Admin && (
+              <NavItem>
+                <NavLink tag="div">
+                  <Link href="/admin/">Admin</Link>
+                </NavLink>
+              </NavItem>
+            )}
           </Nav>
           <NavbarText>
             <div style={styles.container}>

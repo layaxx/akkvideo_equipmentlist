@@ -1,8 +1,21 @@
 import React from 'react'
-import { GridCellParams } from '@material-ui/data-grid'
+import {
+  GridCellParams,
+  GridColDef,
+  GridValueFormatterParams,
+} from '@material-ui/data-grid'
 import { Button } from '@material-ui/core'
 import { DialogMode } from '../../pages/technik'
 import Device from '../types/Device'
+
+interface Column extends GridColDef {
+  disableClickEventBubbling?: boolean
+}
+
+export type Data = {
+  columns: Column[]
+  rows: Device[]
+}
 
 export default function genData(
   devices: Device[],
@@ -12,7 +25,7 @@ export default function genData(
     dialogDetailsMode: DialogMode
   }) => void,
   isAdmin: boolean
-) {
+): Data {
   return {
     columns: [
       { field: 'amount', headerName: 'Amount', width: 50, type: 'number' },
@@ -30,8 +43,8 @@ export default function genData(
         field: 'category',
         headerName: 'Category',
         width: 150,
-        valueFormatter: ({ value }: { value: string }) =>
-          value.split('+++').join(','),
+        valueFormatter: ({ value }: GridValueFormatterParams) =>
+          ('' + value).split('+++').join(','),
       },
       { field: 'status', headerName: 'Status', width: 100 },
       {

@@ -7,14 +7,14 @@ import {
   Avatar,
 } from '@material-ui/core'
 import { LockOutlined } from '@material-ui/icons'
-import React, { useState } from 'react'
+import React, { ReactElement, useState } from 'react'
 import { firebaseClient } from '../firebaseClient'
 import { useSnackbar } from 'notistack'
 import { useAuth } from '../auth'
 import { Alert } from '@material-ui/lab'
 import { useStyles } from '../components/account/accountAction'
 
-export default function ResetPassword() {
+export default function ResetPasswordPage(): ReactElement {
   const [email, setEmail] = useState('')
   const classes = useStyles()
   const { enqueueSnackbar } = useSnackbar()
@@ -31,7 +31,7 @@ export default function ResetPassword() {
         .sendPasswordResetEmail(email)
         .then(() =>
           enqueueSnackbar(
-            'If this user exists, they will have recieved a password-reset e-mail.',
+            'If this user exists, they will have received a password-reset e-mail.',
             {
               variant: 'success',
             }
@@ -41,7 +41,7 @@ export default function ResetPassword() {
           if (error.code === 'auth/user-not-found') {
             // try to leak as little information about registered users as possible
             enqueueSnackbar(
-              'If this user exists, they will have recieved a password-reset e-mail.',
+              'If this user exists, they will have received a password-reset e-mail.',
               {
                 variant: 'success',
               }

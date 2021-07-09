@@ -21,7 +21,7 @@ import roles from '../../lib/auth/roles'
 import axios from 'axios'
 import { useRouter } from 'next/dist/client/router'
 import { useSnackbar } from 'notistack'
-import React, { useEffect, useState } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 import { Alert } from '@material-ui/lab'
 import { useConfirm } from 'material-ui-confirm'
 import { IUser } from '../../pages/admin'
@@ -59,13 +59,12 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 )
 
-export default function UserDialog({
-  user,
-  close: close,
-}: {
+type Props = {
   user: IUser | null
   close: () => void
-}) {
+}
+
+const UserDialog: FC<Props> = ({ user, close }: Props) => {
   const classes = useStyles()
 
   // used for navigation an query params
@@ -272,3 +271,5 @@ export default function UserDialog({
     </Dialog>
   )
 }
+
+export default UserDialog

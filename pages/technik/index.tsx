@@ -1,11 +1,11 @@
-import React from 'react'
+import React, { ReactElement } from 'react'
 import nookies from 'nookies'
 import { firebaseAdmin } from '../../firebaseAdmin'
-import { GetServerSidePropsContext } from 'next'
+import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import Device, { EmptyDevice } from '../../lib/types/Device'
 import roles from '../../lib/auth/roles'
 import { DataGrid } from '@material-ui/data-grid'
-import { Button, Grid } from '@material-ui/core'
+import { Button, Grid, Typography } from '@material-ui/core'
 import CustomNoRowsOverlay from '../../components/technik/customNoRowsOverlay'
 import CustomToolbar from '../../components/technik/customToolbar'
 import DeviceDetailsDialog from '../../components/technik/dialogs/Details/DeviceDetailsDialog'
@@ -17,11 +17,13 @@ import Head from 'next/head'
 import DeviceBulkEditDialog from '../../components/technik/dialogs/bulkEdit/DeviceBulkEditDialog'
 import { DeviceState } from '../../lib/types/device.state'
 import createPDF from '../../lib/technik/pdfgen'
-import genData from '../../lib/technik/genData'
+import genData, { Data } from '../../lib/technik/genData'
 import genOptions from '../../lib/technik/genOptions'
 import { IOptionsLookup } from '../../lib/types/device.dialog'
 
-export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
+export const getServerSideProps: GetServerSideProps = async (
+  ctx: GetServerSidePropsContext
+) => {
   try {
     const cookies = nookies.get(ctx)
     let hasAccess,
@@ -84,15 +86,17 @@ export enum DialogMode {
   ReadOnly,
 }
 
-class TechnikOverview extends React.Component<
-  { devices: Device[]; isAdmin: boolean },
-  DeviceState
-> {
-  data: any
+type Props = {
+  devices: Device[]
+  isAdmin: boolean
+}
+
+class TechnikOverview extends React.Component<Props, DeviceState> {
+  data: Data
   isAdmin: boolean
   options: IOptionsLookup
 
-  constructor(props: any) {
+  constructor(props: Props) {
     super(props)
     this.isAdmin = props.isAdmin
     this.state = {
@@ -115,20 +119,23 @@ class TechnikOverview extends React.Component<
     this.options = genOptions(props.devices)
   }
 
-  toggleMenu() {
+  toggleMenu(): void {
     this.setState(({ showMenu }) => ({ showMenu: !showMenu }))
   }
 
-  render() {
+  render(): ReactElement {
     return (
       <>
         <Head>
           <title>Technik | AK Video intern</title>
         </Head>
         <div style={{ margin: 'auto', maxWidth: '70rem' }}>
-          <h1 style={{ textAlign: 'center', marginBottom: '3rem' }}>
+          <Typography component="h1" variant="h3" gutterBottom>
+            Arbeitskreis Video
+          </Typography>
+          <Typography component="h2" variant="h4" gutterBottom>
             Technikverwaltung
-          </h1>
+          </Typography>
           <div>
             <h2>Registered devices</h2>
             <div style={{ display: 'flex', placeContent: 'space-between' }}>

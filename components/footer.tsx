@@ -2,7 +2,7 @@ import Language from '@material-ui/icons/Language'
 import Code from '@material-ui/icons/Code'
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline'
 import { makeStyles } from '@material-ui/core/styles'
-import React from 'react'
+import React, { FC } from 'react'
 import Link from 'next/link'
 import { Tooltip } from '@material-ui/core'
 import version from '../lib/version'
@@ -43,7 +43,7 @@ export const useStyles = makeStyles((theme) => ({
   },
 }))
 
-export default function footer() {
+const Footer: FC = () => {
   const classes = useStyles()
   return (
     <footer className={classes.footer}>
@@ -86,3 +86,5 @@ export default function footer() {
     </footer>
   )
 }
+
+export default Footer

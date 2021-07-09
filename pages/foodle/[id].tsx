@@ -9,15 +9,17 @@ import Link from 'next/link'
 import Button from '@material-ui/core/Button'
 import { ArrowBack } from '@material-ui/icons'
 import { db } from '../../lib/app'
+import { NextPage } from 'next'
+import { Typography } from '@material-ui/core'
 
-const DetailPage = () => {
+const FoodleDetailPage: NextPage = () => {
   const router = useRouter()
 
-  const id = router.asPath.replace('/foodle/', '')
+  const { id } = router.query
 
   const fetcher = async (id: string) => db.collection('polls').doc(id).get()
 
-  const { data, error } = useSWR(id, fetcher)
+  const { data, error } = useSWR(id ?? '-invalid-id-', fetcher)
 
   const poll: Poll | undefined = {
     ...data?.data(),
@@ -26,7 +28,9 @@ const DetailPage = () => {
 
   return (
     <>
-      <h1>AK Video - Foodle</h1>
+      <Typography component="h1" variant="h3" gutterBottom>
+        AK Video - Foodle
+      </Typography>
 
       <Link href="/foodle">
         <Button>
@@ -47,4 +51,4 @@ const DetailPage = () => {
   )
 }
 
-export default DetailPage
+export default FoodleDetailPage

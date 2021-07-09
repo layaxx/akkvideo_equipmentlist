@@ -1,5 +1,5 @@
 import React from 'react'
-import { Box, Button, List, ListItem } from '@material-ui/core'
+import { Box, Button, List, ListItem, Typography } from '@material-ui/core'
 import AddIcon from '@material-ui/icons/Add'
 import { Alert } from '@material-ui/lab'
 import { useAuth } from '../../auth'
@@ -8,8 +8,9 @@ import Poll from '../../lib/types/Poll'
 import { db } from '../../lib/app'
 import Link from 'next/link'
 import useSWR from 'swr'
+import { NextPage } from 'next'
 
-const MainPage = () => {
+const FoodleOverviewPage: NextPage = () => {
   const { user } = useAuth()
 
   const fetcher = async () => {
@@ -29,8 +30,12 @@ const MainPage = () => {
   if (user === null) {
     return (
       <>
-        <h1>AK Video - Foodle</h1>
-        <h2>A self developed doodle alternative</h2>
+        <Typography component="h1" variant="h3" gutterBottom>
+          AK Vide - Foodle
+        </Typography>
+        <Typography component="h2" variant="h4" gutterBottom>
+          A self-developed doodle alternative
+        </Typography>
 
         <Alert severity="info">
           You are currently not logged in. This means you only have access to
@@ -73,4 +78,4 @@ const MainPage = () => {
   )
 }
 
-export default MainPage
+export default FoodleOverviewPage

@@ -1,7 +1,7 @@
 import { List, ListItem } from '@material-ui/core'
-import React from 'react'
+import React, { FC } from 'react'
 
-const PublicRoleInfo = () => {
+const PublicRoleInfo: FC = () => {
   return (
     <List component="ul" aria-label="you have access to those sites:">
       <ListItem>

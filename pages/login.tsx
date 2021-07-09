@@ -1,7 +1,8 @@
+import { NextPage } from 'next'
 import React from 'react'
 import AccountAction from '../components/account/accountAction'
 
-const LoginPage = (_props: any) => {
+const LoginPage: NextPage = () => {
   return <AccountAction />
 }
 

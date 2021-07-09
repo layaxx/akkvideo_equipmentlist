@@ -11,6 +11,7 @@ import {
 } from '@material-ui/core'
 import { Alert } from '@material-ui/lab'
 import { useRouter } from 'next/dist/client/router'
+import { NextPage } from 'next'
 
 const useStyles = makeStyles({
   root: {
@@ -26,14 +27,18 @@ const useStyles = makeStyles({
   },
 })
 
-const MainPage = () => {
+const MainPage: NextPage = () => {
   const classes = useStyles()
   const router = useRouter()
 
   return (
     <>
-      <h1>Arbeitskreis Video</h1>
-      <h2>Internal administration platform</h2>
+      <Typography component="h1" variant="h3" gutterBottom>
+        Arbeitskreis Video
+      </Typography>
+      <Typography component="h2" variant="h4" gutterBottom>
+        Internal administration platform
+      </Typography>
       {router.query.msg ? (
         <Alert severity="error">An error occurred: {router.query.msg}</Alert>
       ) : null}
@@ -48,7 +53,7 @@ const MainPage = () => {
               >
                 devices
               </Typography>
-              <Typography variant="h5" component="h2">
+              <Typography variant="h5" component="h3">
                 Technikverwaltung
               </Typography>
               <Typography variant="body2" component="p">
@@ -74,7 +79,7 @@ const MainPage = () => {
               >
                 users
               </Typography>
-              <Typography variant="h5" component="h2">
+              <Typography variant="h5" component="h3">
                 Nutzerverwaltung
               </Typography>
               <Typography variant="body2" component="p">
@@ -100,7 +105,7 @@ const MainPage = () => {
               >
                 foodle
               </Typography>
-              <Typography variant="h5" component="h2">
+              <Typography variant="h5" component="h3">
                 Terminmanagement
               </Typography>
               <Typography variant="body2" component="p">
@@ -124,7 +129,7 @@ const MainPage = () => {
               >
                 account
               </Typography>
-              <Typography variant="h5" component="h2">
+              <Typography variant="h5" component="h3">
                 Your Account
               </Typography>
               <Typography variant="body2" component="p">

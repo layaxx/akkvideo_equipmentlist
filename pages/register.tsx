@@ -1,7 +1,8 @@
+import { NextPage } from 'next'
 import React from 'react'
 import AccountAction from '../components/account/accountAction'
 
-const RegisterPage = (_props: any) => {
+const RegisterPage: NextPage = () => {
   return <AccountAction isRegister />
 }
 

@@ -13,13 +13,14 @@ import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { useAuth } from '../../auth'
 import { NewPoll } from '../../lib/types/Poll'
 import { db } from '../../lib/app'
+import { NextPage } from 'next'
 
 type FormValues = {
   title: string
   options: { date: string }[]
 }
 
-export default function AddPage() {
+const FoodleAddPage: NextPage = () => {
   const { user } = useAuth()
 
   const {
@@ -88,8 +89,12 @@ export default function AddPage() {
 
   return (
     <>
-      <h1>AK Video - Foodle</h1>
-      <h2>Add a new Poll</h2>
+      <Typography component="h1" variant="h3" gutterBottom>
+        AK Video - Foodle
+      </Typography>
+      <Typography component="h2" variant="h4" gutterBottom>
+        Add a new Poll
+      </Typography>
 
       <Link href="/foodle">
         <Button>
@@ -199,3 +204,5 @@ export default function AddPage() {
     </>
   )
 }
+
+export default FoodleAddPage
