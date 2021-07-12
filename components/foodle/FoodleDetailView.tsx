@@ -28,21 +28,24 @@ import CalendarView from './CalendarView'
 import { useConfirm } from 'material-ui-confirm'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { useSnackbar } from 'notistack'
+import { NextPage } from 'next'
 
 type Props = {
   poll: Poll
 }
 
-export default function FoodleDetailView({
+type FieldValues = { [key: string]: boolean | string }
+
+const FoodleDetailView: NextPage<Props> = ({
   poll: { hidden, active, title, id, submissions, options },
-}: Props) {
+}: Props) => {
   const theme = useTheme()
 
   const [activeDate, setActiveDate] = useState<Dayjs | undefined>(undefined)
 
   const filteredSubmissions = submissions.filter((s) => s.active)
 
-  const defaultValues: any = { name: '' }
+  const defaultValues: FieldValues = { name: '' }
 
   const range = generateRange(options.length)
 
@@ -54,7 +57,13 @@ export default function FoodleDetailView({
     control,
   })
 
-  const handleAdd = ({ name, ...checkboxValues }: any) => {
+  const handleAdd = ({
+    name,
+    ...checkboxValues
+  }: {
+    name: string
+    [key: number]: boolean
+  }) => {
     const newOptions: number[] = range.map((index: number) =>
       checkboxValues[index] ? 1 : 0
     )
@@ -234,7 +243,7 @@ export default function FoodleDetailView({
                               title={value ? 'attending' : 'not attending'}
                               onBlur={onBlur}
                               onChange={onChange}
-                              checked={value}
+                              checked={value === 'true'}
                               inputRef={ref}
                             />
                           )}
@@ -286,3 +295,5 @@ export default function FoodleDetailView({
     </Paper>
   )
 }
+
+export default FoodleDetailView
