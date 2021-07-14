@@ -1,35 +1,60 @@
 import React from 'react'
-import Link from 'next/link'
-import {
-  Button,
-  Card,
-  CardActions,
-  CardContent,
-  Grid,
-  makeStyles,
-  Typography,
-} from '@material-ui/core'
+import { Grid, Typography } from '@material-ui/core'
 import { Alert } from '@material-ui/lab'
 import { useRouter } from 'next/dist/client/router'
 import { NextPage } from 'next'
+import LandingPageOverviewItem from '../components/landingpage/OverviewItem'
+import roles from '../lib/auth/roles'
+import { useAuth } from '../auth'
+import Link from 'next/link'
 
-const useStyles = makeStyles({
-  root: {
-    minWidth: 275,
-    minHeight: 200,
-    margin: '1rem',
-  },
-  title: {
-    fontSize: 14,
-  },
-  pos: {
-    marginBottom: 12,
-  },
-})
+export type PageDescription = {
+  link: string
+  description: string
+  title: string
+  requirements?: roles[] | null
+  /* Requirements are interpreted as follows:
+    null => user doesn't event need to be logged in to have (some kind of) access 
+    [] / empty Array => user needs to be logged in but role doesn't matter
+    [role1, role2] => user needs to be logged in and have either role1 or role2 assigned 
+    */
+}
 
 const MainPage: NextPage = () => {
-  const classes = useStyles()
   const router = useRouter()
+
+  const { user } = useAuth()
+
+  const items: PageDescription[] = [
+    {
+      link: '/technik',
+      title: 'Technikverwaltung',
+      description:
+        'Overview over registered Devices.<br />Add or edit devices (Admin only).',
+      requirements: [roles.Member, roles.Moderator, roles.Admin],
+    },
+    {
+      link: '/admin',
+      title: 'Nutzerverwaltung',
+      description:
+        'Overview over registered Users.<br />Delete accounts and change access rights.',
+      requirements: [roles.Admin],
+    },
+    {
+      link: '/foodle',
+      title: 'Terminmanagement',
+      description:
+        'Self-developed Doodle alternative. <br /> No Advertisements. No Cookies (unless you are logged in). No Tracking.',
+      requirements: null,
+    },
+    {
+      link: '/account',
+      title: 'Your Account',
+      description:
+        'Overview over your account details.<br />Delete your account, verify your e-Mail address.',
+      requirements: [],
+    },
+  ]
 
   return (
     <>
@@ -42,109 +67,35 @@ const MainPage: NextPage = () => {
       {router.query.msg ? (
         <Alert severity="error">An error occurred: {router.query.msg}</Alert>
       ) : null}
+
+      {!user && (
+        <Typography variant="body1" gutterBottom>
+          You are currently not logged in. This means you only have access to{' '}
+          <Link href="/foodle">Foodle Polls</Link> for which you have received a
+          direct share link.
+        </Typography>
+      )}
+
       <Grid container spacing={3} justify="space-evenly">
-        <Grid item xs={12} sm={6}>
-          <Card className={classes.root} variant="outlined">
-            <CardContent>
-              <Typography
-                className={classes.title}
-                color="textSecondary"
-                gutterBottom
-              >
-                devices
-              </Typography>
-              <Typography variant="h5" component="h3">
-                Technikverwaltung
-              </Typography>
-              <Typography variant="body2" component="p">
-                Overview over registered Devices.
-                <br />
-                Add or edit devices (Admin only).
-              </Typography>
-            </CardContent>
-            <CardActions>
-              <Link href="/technik">
-                <Button size="small">Access</Button>
-              </Link>
-            </CardActions>
-          </Card>
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <Card className={classes.root} variant="outlined">
-            <CardContent>
-              <Typography
-                className={classes.title}
-                color="textSecondary"
-                gutterBottom
-              >
-                users
-              </Typography>
-              <Typography variant="h5" component="h3">
-                Nutzerverwaltung
-              </Typography>
-              <Typography variant="body2" component="p">
-                Overview over registered Users.
-                <br />
-                Delete accounts and change access rights.
-              </Typography>
-            </CardContent>
-            <CardActions>
-              <Link href="/admin">
-                <Button size="small">Access (Admin only)</Button>
-              </Link>
-            </CardActions>
-          </Card>
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <Card className={classes.root} variant="outlined">
-            <CardContent>
-              <Typography
-                className={classes.title}
-                color="textSecondary"
-                gutterBottom
-              >
-                foodle
-              </Typography>
-              <Typography variant="h5" component="h3">
-                Terminmanagement
-              </Typography>
-              <Typography variant="body2" component="p">
-                Self-developed Doodle Alternative
-              </Typography>
-            </CardContent>
-            <CardActions>
-              <Link href="/foodle">
-                <Button size="small">Access</Button>
-              </Link>
-            </CardActions>
-          </Card>
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <Card className={classes.root} variant="outlined">
-            <CardContent>
-              <Typography
-                className={classes.title}
-                color="textSecondary"
-                gutterBottom
-              >
-                account
-              </Typography>
-              <Typography variant="h5" component="h3">
-                Your Account
-              </Typography>
-              <Typography variant="body2" component="p">
-                Overview over your account details.
-                <br />
-                Delete your account, verify your e-Mail address.
-              </Typography>
-            </CardContent>
-            <CardActions>
-              <Link href="/account">
-                <Button size="small">Access</Button>
-              </Link>
-            </CardActions>
-          </Card>
-        </Grid>
+        {items
+          .filter((item) => {
+            const accessForEveryone = item.requirements === null
+            if (accessForEveryone) return true
+            const accessForEveryLoggedInUser =
+              !item.requirements || item.requirements.length === 0
+            if (accessForEveryLoggedInUser) return !!user
+            const accessForSpecificRoles =
+              user &&
+              user.role &&
+              item.requirements &&
+              item.requirements.indexOf(user.role) !== -1
+            return accessForSpecificRoles
+          })
+          .map((item, index) => (
+            <Grid item xs={12} sm={6} key={'' + index}>
+              <LandingPageOverviewItem {...item} />
+            </Grid>
+          ))}
       </Grid>
     </>
   )

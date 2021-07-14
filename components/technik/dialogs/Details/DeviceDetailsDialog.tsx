@@ -19,7 +19,7 @@ import {
 import InputAdornment from '@material-ui/core/InputAdornment/InputAdornment'
 import axios from 'axios'
 import { useSnackbar } from 'notistack'
-import React, { useEffect } from 'react'
+import React, { FC, useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import Device from '../../../../lib/types/Device'
 import { IDetailsDialogProps } from '../../../../lib/types/device.dialog'
@@ -53,7 +53,9 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 )
 
-export default function DeviceDetailsDialog(props: IDetailsDialogProps) {
+const DeviceDetailsDialog: FC<IDetailsDialogProps> = (
+  props: IDetailsDialogProps
+) => {
   const { devices, activeDevice, mode, show, options, handleClose } = props
   const handleCloseExtended = handleClose
   const isReadOnly = mode === DialogMode.ReadOnly
@@ -503,3 +505,5 @@ export default function DeviceDetailsDialog(props: IDetailsDialogProps) {
     </Dialog>
   )
 }
+
+export default DeviceDetailsDialog

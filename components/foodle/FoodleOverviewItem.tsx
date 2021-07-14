@@ -8,7 +8,7 @@ import {
   Grid,
 } from '@material-ui/core'
 import ShareIcon from '@material-ui/icons/Share'
-import React from 'react'
+import React, { FC } from 'react'
 import Poll from '../../lib/types/Poll'
 import NextLink from 'next/link'
 import { useConfirm } from 'material-ui-confirm'
@@ -17,11 +17,12 @@ import { mutate } from 'swr'
 import { useSnackbar } from 'notistack'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 
-export default function FoodleOverviewItem({
-  poll: { active, title, id, submissions },
-}: {
-  poll: Poll
-}) {
+const FoodleOverviewItem: FC<Poll> = ({
+  active,
+  title,
+  id,
+  submissions,
+}: Poll) => {
   const confirm = useConfirm()
 
   const { enqueueSnackbar } = useSnackbar()
@@ -130,3 +131,5 @@ export default function FoodleOverviewItem({
     </Card>
   )
 }
+
+export default FoodleOverviewItem

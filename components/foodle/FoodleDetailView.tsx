@@ -243,7 +243,7 @@ const FoodleDetailView: NextPage<Props> = ({
                               title={value ? 'attending' : 'not attending'}
                               onBlur={onBlur}
                               onChange={onChange}
-                              checked={value === 'true'}
+                              checked={!!value}
                               inputRef={ref}
                             />
                           )}
