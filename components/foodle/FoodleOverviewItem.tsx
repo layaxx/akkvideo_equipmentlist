@@ -16,6 +16,7 @@ import { db } from '../../lib/app'
 import { mutate } from 'swr'
 import { useSnackbar } from 'notistack'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
+import { domains } from '../../lib/types/config'
 
 const FoodleOverviewItem: FC<Poll> = ({
   active,
@@ -88,7 +89,7 @@ const FoodleOverviewItem: FC<Poll> = ({
               </Button>
             </NextLink>
             <CopyToClipboard
-              text={`https://intern.arbeitskreis.video/foodle/${id}`}
+              text={`https://${domains.short}/f/${id}`}
               onCopy={() =>
                 enqueueSnackbar('Successfully copied link!', {
                   variant: 'success',

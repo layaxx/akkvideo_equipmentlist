@@ -29,6 +29,7 @@ import { useConfirm } from 'material-ui-confirm'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { useSnackbar } from 'notistack'
 import { NextPage } from 'next'
+import { domains } from '../../lib/types/config'
 
 type Props = {
   poll: Poll
@@ -134,7 +135,7 @@ const FoodleDetailView: NextPage<Props> = ({
             ID: {id}
           </Typography>
           <CopyToClipboard
-            text={`https://intern.arbeitskreis.video/foodle/${id}`}
+            text={`https://${domains.short}/f/${id}`}
             variant="contained"
             onCopy={() =>
               enqueueSnackbar('Successfully copied link!', {

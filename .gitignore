@@ -47,3 +47,4 @@ lib/version.ts*
 
 
 **/*.local.tsx
+lib/clientConfig.json
