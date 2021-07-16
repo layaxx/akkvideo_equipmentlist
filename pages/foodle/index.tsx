@@ -16,7 +16,13 @@ const FoodleOverviewPage: NextPage = () => {
 
   const fetcher = async () => {
     return (
-      await db.collection('polls').where('hidden', '==', false).get()
+      await db
+        .collection('polls')
+        .where('hidden', '==', false)
+        .get()
+        .catch(() => {
+          throw new Error('Failed to fetch polls ')
+        })
     ).docs.map(
       (entry) =>
         ({

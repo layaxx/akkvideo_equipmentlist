@@ -17,14 +17,15 @@ const FoodleDetailPage: NextPage = () => {
 
   const { id } = router.query
 
-  const fetcher = async (id: string) => db.collection('polls').doc(id).get()
+  const fetcher = async (id: string) => {
+    const result = await db.collection('polls').doc(id).get()
+    if (!result.exists) {
+      throw new Error('Could not find Poll with id ' + id)
+    }
+    return result.data()
+  }
 
   const { data, error } = useSWR(id ?? '-invalid-id-', fetcher)
-
-  const poll: Poll | undefined = {
-    ...data?.data(),
-    id: data?.id,
-  } as Poll
 
   return (
     <>
@@ -38,7 +39,7 @@ const FoodleDetailPage: NextPage = () => {
         </Button>
       </Link>
 
-      {(error || (!data?.exists && !!data) || poll?.hidden) && (
+      {(error || (!!data && data.hidden)) && (
         <Alert severity="error">
           Failed to fetch Poll. Maybe id is incorrect?
         </Alert>
@@ -46,7 +47,9 @@ const FoodleDetailPage: NextPage = () => {
 
       {!error && !data && <Alert severity="info">Loading</Alert>}
 
-      {!error && !!data && poll && <FoodleDetailView poll={poll} />}
+      {!error && !!data && !data.hidden && (
+        <FoodleDetailView poll={{ ...data, id } as Poll} />
+      )}
     </>
   )
 }

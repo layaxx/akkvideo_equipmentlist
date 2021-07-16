@@ -52,7 +52,11 @@ const Footer: FC = () => {
             <a>AK Video</a>
           </Link>{' '}
           <Tooltip title="Abbreviated hash of the deployed commit">
-            <small>v.{process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA}</small>
+            <small>
+              v.
+              {process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ??
+                'development'}
+            </small>
           </Tooltip>
         </p>
       </div>
