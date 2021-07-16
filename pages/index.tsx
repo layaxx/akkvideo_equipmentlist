@@ -1,5 +1,5 @@
 import React from 'react'
-import { Grid, Typography } from '@material-ui/core'
+import { Grid, makeStyles, Typography } from '@material-ui/core'
 import { Alert } from '@material-ui/lab'
 import { useRouter } from 'next/dist/client/router'
 import { NextPage } from 'next'
@@ -7,6 +7,21 @@ import LandingPageOverviewItem from '../components/landingpage/OverviewItem'
 import roles from '../lib/auth/roles'
 import { useAuth } from '../auth'
 import Link from 'next/link'
+
+const useStyles = makeStyles({
+  root: {
+    '& .MuiGrid-item': {
+      display: 'flex',
+      '& .MuiPaper-root': {
+        /* All Elements (at least those in the same row) should have the same height */
+        flexGrow: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+      },
+    },
+  },
+})
 
 export type PageDescription = {
   link: string
@@ -24,6 +39,7 @@ const MainPage: NextPage = () => {
   const router = useRouter()
 
   const { user } = useAuth()
+  const classes = useStyles()
 
   const items: PageDescription[] = [
     {
@@ -76,7 +92,12 @@ const MainPage: NextPage = () => {
         </Typography>
       )}
 
-      <Grid container spacing={3} justify="space-evenly">
+      <Grid
+        container
+        spacing={3}
+        justify="space-evenly"
+        className={classes.root}
+      >
         {items
           .filter((item) => {
             const accessForEveryone = item.requirements === null

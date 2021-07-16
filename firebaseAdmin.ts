@@ -4,7 +4,7 @@ import serviceAccount from './serviceAccountKey.json'
 if (!firebaseAdmin.apps.length) {
   firebaseAdmin.initializeApp({
     credential: firebaseAdmin.credential.cert(
-      serviceAccount as firebaseAdmin.ServiceAccount
+      serviceAccount.admin as firebaseAdmin.ServiceAccount
     ),
   })
 }
