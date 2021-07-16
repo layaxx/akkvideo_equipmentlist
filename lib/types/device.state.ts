@@ -1,5 +1,5 @@
 import { GridRowId } from '@material-ui/data-grid'
-import { DialogMode } from '../../pages/technik'
+import { DialogMode } from 'pages/technik'
 import Device from './Device'
 
 export interface DeviceState {

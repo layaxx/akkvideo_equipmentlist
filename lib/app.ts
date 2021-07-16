@@ -1,7 +1,7 @@
-import firebase from 'firebase'
-import { CLIENT_CONFIG, firebaseClient } from '../firebaseClient'
+import firebase from 'firebase/app'
+import { CLIENT_CONFIG, firebaseClient } from 'firebaseClient'
 
-let app: any
+let app: firebase.app.App
 if (firebaseClient.apps.length === 0) {
   app = firebaseClient.initializeApp(CLIENT_CONFIG)
 } else {

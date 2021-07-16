@@ -12,11 +12,11 @@ import {
 } from 'reactstrap'
 import Link from 'next/link'
 import { useRouter } from 'next/dist/client/router'
-import { firebaseClient } from '../firebaseClient'
+import { firebaseClient } from 'firebaseClient'
 import nookies from 'nookies'
-import { useAuth } from '../auth'
-import { gray } from '../lib/colors'
-import roles from '../lib/auth/roles'
+import { useAuth } from 'auth'
+import { gray } from 'lib/colors'
+import roles from 'lib/auth/roles'
 
 const styles = {
   top: { backgroundColor: gray, marginBottom: '2rem' },

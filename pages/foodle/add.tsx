@@ -10,9 +10,9 @@ import { useRouter } from 'next/router'
 import { useSnackbar } from 'notistack'
 import React from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
-import { useAuth } from '../../auth'
-import { NewPoll } from '../../lib/types/Poll'
-import { db } from '../../lib/app'
+import { useAuth } from 'auth'
+import { NewPoll } from 'lib/types/Poll'
+import { db } from 'lib/app'
 import { NextPage } from 'next'
 
 type FormValues = {

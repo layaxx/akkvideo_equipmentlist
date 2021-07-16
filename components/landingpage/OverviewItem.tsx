@@ -9,7 +9,7 @@ import {
 } from '@material-ui/core'
 import Link from 'next/link'
 import React, { FC } from 'react'
-import { PageDescription } from '../../pages'
+import { PageDescription } from 'pages'
 
 const useStyles = makeStyles((theme) => {
   return {

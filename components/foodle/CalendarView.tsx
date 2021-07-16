@@ -8,7 +8,7 @@ import {
   CalendarTheme,
   CalendarProps,
   CBlock,
-} from '../../lib/types/Calendar'
+} from 'lib/types/Calendar'
 
 function generateData(dates: Dayjs[]) {
   dates = dates.map((d) => d.set('hour', 0).set('minute', 0))

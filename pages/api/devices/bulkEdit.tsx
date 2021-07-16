@@ -1,5 +1,5 @@
-import { firebaseAdmin } from '../../../firebaseAdmin'
-import roles from '../../../lib/auth/roles'
+import { firebaseAdmin } from 'firebaseAdmin'
+import roles from 'lib/auth/roles'
 import { NextApiHandler } from 'next'
 
 export default (async (req, res) => {

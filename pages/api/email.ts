@@ -1,7 +1,7 @@
 import axios from 'axios'
-import { firebaseAdmin } from '../../firebaseAdmin'
-import roles from '../../lib/auth/roles'
-import Device from '../../lib/types/Device'
+import { firebaseAdmin } from 'firebaseAdmin'
+import roles from 'lib/auth/roles'
+import Device from 'lib/types/Device'
 import { NextApiHandler } from 'next'
 
 export default (async (req, res) => {

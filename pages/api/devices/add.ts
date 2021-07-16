@@ -1,6 +1,6 @@
-import { firebaseAdmin } from '../../../firebaseAdmin'
-import roles from '../../../lib/auth/roles'
-import Status from '../../../lib/types/device.status'
+import { firebaseAdmin } from 'firebaseAdmin'
+import roles from 'lib/auth/roles'
+import Status from 'lib/types/device.status'
 import { NextApiHandler } from 'next'
 
 export default (async (req, res) => {

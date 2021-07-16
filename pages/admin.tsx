@@ -11,15 +11,15 @@ import {
   Typography,
 } from '@material-ui/core'
 import nookies from 'nookies'
-import { firebaseAdmin } from '../firebaseAdmin'
+import { firebaseAdmin } from 'firebaseAdmin'
 import {
   InferGetServerSidePropsType,
   GetServerSidePropsContext,
   GetServerSideProps,
   NextPage,
 } from 'next'
-import roles from '../lib/auth/roles'
-import ModalUser from '../components/admin/UserDialog'
+import roles from 'lib/auth/roles'
+import ModalUser from 'components/admin/UserDialog'
 import CheckIcon from '@material-ui/icons/Check'
 
 export const getServerSideProps: GetServerSideProps = async (

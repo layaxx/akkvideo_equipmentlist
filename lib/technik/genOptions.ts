@@ -1,6 +1,12 @@
-import Device from '../types/Device'
+import { IOptions } from 'lib/types/device.dialog'
+import Device from 'lib/types/Device'
 
-export default function genOptions(devices: Device[]) {
+interface ICompleteOptions extends IOptions {
+  brand: string[]
+  category: string[]
+}
+
+export default function genOptions(devices: Device[]): ICompleteOptions {
   return {
     location: [
       ...new Set(

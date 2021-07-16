@@ -4,14 +4,14 @@ import {
   createFilterOptions,
   Autocomplete,
 } from '@material-ui/lab'
-import React from 'react'
+import React, { ReactElement } from 'react'
 import { useController, useWatch } from 'react-hook-form'
-import { IControllerProps, IOptions } from '../../../../lib/types/device.dialog'
-import { OptionsType } from '../../../../lib/types/device.options'
+import { IControllerProps, IOptions } from 'lib/types/device.dialog'
+import { OptionsType } from 'lib/types/device.options'
 
 export default function BulkEditValueInput(
   props: IControllerProps & { options: IOptions }
-) {
+): ReactElement {
   const { field } = useController(props)
   const category = useWatch({
     control: props.control,

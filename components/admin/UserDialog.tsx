@@ -17,14 +17,14 @@ import {
   Button,
   Card,
 } from '@material-ui/core'
-import roles from '../../lib/auth/roles'
+import roles from 'lib/auth/roles'
 import axios from 'axios'
 import { useRouter } from 'next/dist/client/router'
 import { useSnackbar } from 'notistack'
 import React, { FC, useEffect, useState } from 'react'
 import { Alert } from '@material-ui/lab'
 import { useConfirm } from 'material-ui-confirm'
-import { IUser } from '../../pages/admin'
+import { IUser } from 'pages/admin'
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({

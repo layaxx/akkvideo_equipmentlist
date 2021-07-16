@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { FC } from 'react'
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles'
 import { GridOverlay } from '@material-ui/data-grid'
 
@@ -29,7 +29,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 )
 
-export default function CustomNoRowsOverlay() {
+const CustomNoRowsOverlay: FC = () => {
   const classes = useStyles()
 
   return (
@@ -77,3 +77,5 @@ export default function CustomNoRowsOverlay() {
     </GridOverlay>
   )
 }
+
+export default CustomNoRowsOverlay

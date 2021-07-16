@@ -4,9 +4,19 @@ import {
   createFilterOptions,
   FilterOptionsState,
 } from '@material-ui/lab'
-import React from 'react'
-import { IOptionsLookup } from '../../../../lib/types/device.dialog'
-import { OptionsType } from '../../../../lib/types/device.options'
+import React, { ReactElement } from 'react'
+import { IOptionsLookup } from 'lib/types/device.dialog'
+import { OptionsType } from 'lib/types/device.options'
+
+type Props = {
+  required?: boolean
+  multiSelect?: boolean
+  readOnly: boolean
+  value: string | null | undefined
+  onChange: (...event: any[]) => void
+  options: IOptionsLookup
+  attr: keyof IOptionsLookup
+}
 
 export default function CustomSelect({
   multiSelect,
@@ -16,16 +26,8 @@ export default function CustomSelect({
   onChange,
   options,
   attr,
-}: {
-  required?: boolean
-  multiSelect?: boolean
-  readOnly: boolean
-  value: string | null | undefined
-  onChange: (...event: any[]) => void
-  options: IOptionsLookup
-  attr: keyof IOptionsLookup
-}) {
-  const handleChangeSingle = (_: any, newValue: any) => {
+}: Props): ReactElement {
+  const handleChangeSingle = (_: unknown, newValue: any) => {
     if (typeof newValue === 'string') {
       onChange(newValue)
     } else if (newValue && newValue.inputValue) {
@@ -36,10 +38,10 @@ export default function CustomSelect({
     }
   }
 
-  const handleChangeMulti = (_: any, newValue: any) => {
+  const handleChangeMulti = (_: unknown, newValue: any) => {
     onChange(
       newValue
-        .map((val: { inputValue: any; title: any }) => {
+        .map((val: { inputValue: unknown; title: any }) => {
           if (typeof val === 'string') {
             return val
           } else if (val.inputValue) {

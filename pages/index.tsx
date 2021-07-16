@@ -3,9 +3,9 @@ import { Grid, makeStyles, Typography } from '@material-ui/core'
 import { Alert } from '@material-ui/lab'
 import { useRouter } from 'next/dist/client/router'
 import { NextPage } from 'next'
-import LandingPageOverviewItem from '../components/landingpage/OverviewItem'
-import roles from '../lib/auth/roles'
-import { useAuth } from '../auth'
+import LandingPageOverviewItem from 'components/landingpage/OverviewItem'
+import roles from 'lib/auth/roles'
+import { useAuth } from 'auth'
 import Link from 'next/link'
 
 const useStyles = makeStyles({

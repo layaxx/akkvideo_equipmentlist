@@ -1,6 +1,6 @@
 import React, { FC, MouseEventHandler, useEffect, useState } from 'react'
 import Link from 'next/link'
-import { firebaseClient } from '../../firebaseClient'
+import { firebaseClient } from 'firebaseClient'
 import { useRouter } from 'next/dist/client/router'
 import {
   Avatar,
@@ -15,7 +15,7 @@ import {
 import { LockOutlined } from '@material-ui/icons'
 import { useSnackbar } from 'notistack'
 import axios from 'axios'
-import { useAuth } from '../../auth'
+import { useAuth } from 'auth'
 import { Alert } from '@material-ui/lab'
 import PrivacyNotice from './PrivacyNotice'
 

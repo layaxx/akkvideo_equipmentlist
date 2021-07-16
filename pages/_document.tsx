@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react'
 import Document, { Html, Head, Main, NextScript } from 'next/document'
 import { ServerStyleSheets } from '@material-ui/core/styles'
-import theme from '../lib/theme'
+import theme from 'lib/theme'
 
 /* See https://github.com/mui-org/material-ui/blob/master/examples/nextjs/pages/_document.js */
 

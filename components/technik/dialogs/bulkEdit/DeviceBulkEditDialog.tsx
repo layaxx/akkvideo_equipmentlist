@@ -13,13 +13,15 @@ import {
 import { Alert } from '@material-ui/lab'
 import axios from 'axios'
 import { useSnackbar } from 'notistack'
-import React from 'react'
+import React, { FC } from 'react'
 import { useForm, useFormState } from 'react-hook-form'
 import BulkEditCategoryInput from './BulkEditCategoryInput'
 import BulkEditValueInput from './BulkEditValueInput'
-import { IBulkEditDialogProps } from '../../../../lib/types/device.dialog'
+import { IBulkEditDialogProps } from 'lib/types/device.dialog'
 
-export default function DeviceBulkEditDialog(props: IBulkEditDialogProps) {
+const DeviceBulkEditDialog: FC<IBulkEditDialogProps> = (
+  props: IBulkEditDialogProps
+) => {
   const { devices, show, handleClose } = props
   const handleSendRequest = (data: { value: string; category: string }) => {
     axios
@@ -131,3 +133,5 @@ export default function DeviceBulkEditDialog(props: IBulkEditDialogProps) {
     </Dialog>
   )
 }
+
+export default DeviceBulkEditDialog

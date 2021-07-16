@@ -1,5 +1,5 @@
-import { firebaseAdmin } from '../../firebaseAdmin'
-import roles from '../../lib/auth/roles'
+import { firebaseAdmin } from 'firebaseAdmin'
+import roles from 'lib/auth/roles'
 import { NextApiRequest, NextApiResponse } from 'next'
 
 export default async (

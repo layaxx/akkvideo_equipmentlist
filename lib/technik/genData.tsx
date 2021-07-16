@@ -5,8 +5,8 @@ import {
   GridValueFormatterParams,
 } from '@material-ui/data-grid'
 import { Button } from '@material-ui/core'
-import { DialogMode } from '../../pages/technik'
-import Device from '../types/Device'
+import { DialogMode } from 'pages/technik'
+import Device from 'lib/types/Device'
 
 interface Column extends GridColDef {
   disableClickEventBubbling?: boolean

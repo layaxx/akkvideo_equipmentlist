@@ -9,14 +9,14 @@ import {
 } from '@material-ui/core'
 import ShareIcon from '@material-ui/icons/Share'
 import React, { FC } from 'react'
-import Poll from '../../lib/types/Poll'
+import Poll from 'lib/types/Poll'
 import NextLink from 'next/link'
 import { useConfirm } from 'material-ui-confirm'
-import { db } from '../../lib/app'
+import { db } from 'lib/app'
 import { mutate } from 'swr'
 import { useSnackbar } from 'notistack'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
-import { domains } from '../../lib/types/config'
+import { domains } from 'lib/types/config'
 
 const FoodleOverviewItem: FC<Poll> = ({
   active,

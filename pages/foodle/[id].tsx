@@ -1,14 +1,14 @@
 import React from 'react'
 import { Alert } from '@material-ui/lab'
 import { useRouter } from 'next/dist/client/router'
-import Poll from '../../lib/types/Poll'
+import Poll from 'lib/types/Poll'
 
 import useSWR from 'swr'
-import FoodleDetailView from '../../components/foodle/FoodleDetailView'
+import FoodleDetailView from 'components/foodle/FoodleDetailView'
 import Link from 'next/link'
 import Button from '@material-ui/core/Button'
 import { ArrowBack } from '@material-ui/icons'
-import { db } from '../../lib/app'
+import { db } from 'lib/app'
 import { NextPage } from 'next'
 import { Typography } from '@material-ui/core'
 

@@ -12,15 +12,20 @@ import { Alert } from '@material-ui/lab'
 import axios from 'axios'
 import dayjs from 'dayjs'
 import { useSnackbar } from 'notistack'
-import React, { useState } from 'react'
-import Device from '../../../lib/types/Device'
+import React, { FC, useState } from 'react'
+import Device from 'lib/types/Device'
 
-export default function DeviceLendingDialog(props: {
+type Props = {
   devices: Device[]
   show: boolean
-  handleClose: any
-}) {
-  const { devices, show, handleClose } = props
+  handleClose: () => void
+}
+
+const DeviceLendingDialog: FC<Props> = ({
+  devices,
+  show,
+  handleClose,
+}: Props) => {
   const handleSendRequest = () => {
     axios
       .post('/api/email', { devices, fromDate, untilDate, comments })
@@ -122,3 +127,5 @@ export default function DeviceLendingDialog(props: {
     </Dialog>
   )
 }
+
+export default DeviceLendingDialog

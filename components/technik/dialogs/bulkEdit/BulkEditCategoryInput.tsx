@@ -1,5 +1,5 @@
 import { MenuItem, Select } from '@material-ui/core'
-import React from 'react'
+import React, { ReactElement } from 'react'
 import { UseControllerProps, useController } from 'react-hook-form'
 
 export default function BulkEditCategoryInput(
@@ -7,7 +7,7 @@ export default function BulkEditCategoryInput(
     { category: string; value: string },
     'value' | 'category'
   >
-) {
+): ReactElement {
   const { field } = useController(props)
 
   return (

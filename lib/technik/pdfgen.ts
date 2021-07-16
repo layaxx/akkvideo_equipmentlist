@@ -3,8 +3,12 @@ import Device from '../types/Device'
 import * as pdf from 'pdfjs'
 import * as helvetica from 'pdfjs/font/Helvetica'
 import * as helveticaBold from 'pdfjs/font/Helvetica-Bold'
+import { Data } from './genData'
 
-export default function createPDF(data: any, setState: any) {
+export default function createPDF(
+  data: Data,
+  setState: ({ pdfb64 }: { pdfb64: string }) => void
+): void {
   try {
     const doc = new pdf.Document({
       font: helvetica,
@@ -81,7 +85,7 @@ export default function createPDF(data: any, setState: any) {
           } else {
             console.error('Cannot create a report for 0 devices')
           }
-          doc.asBuffer().then((buf: any) => {
+          doc.asBuffer().then((buf: Buffer) => {
             setState({
               pdfb64: `data:application/pdf;base64,${buf.toString('base64')}`,
             })

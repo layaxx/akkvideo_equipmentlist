@@ -17,19 +17,19 @@ import {
 import React, { useState } from 'react'
 import ClearIcon from '@material-ui/icons/Clear'
 import CheckIcon from '@material-ui/icons/Check'
-import Poll, { Submission } from '../../lib/types/Poll'
+import Poll, { Submission } from 'lib/types/Poll'
 import { useForm, Controller, useWatch } from 'react-hook-form'
 import firebase from 'firebase'
-import { db } from '../../lib/app'
+import { db } from 'lib/app'
 import { mutate } from 'swr'
-import { generateRange } from '../../lib/helper'
+import { generateRange } from 'lib/helper'
 import dayjs, { Dayjs } from 'dayjs'
 import CalendarView from './CalendarView'
 import { useConfirm } from 'material-ui-confirm'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { useSnackbar } from 'notistack'
 import { NextPage } from 'next'
-import { domains } from '../../lib/types/config'
+import { domains } from 'lib/types/config'
 
 type Props = {
   poll: Poll
