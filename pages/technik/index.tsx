@@ -6,13 +6,10 @@ import { DataGrid, GridRowId } from '@material-ui/data-grid'
 import { Button, Grid, Typography } from '@material-ui/core'
 import CustomNoRowsOverlay from 'components/technik/customNoRowsOverlay'
 import CustomToolbar from 'components/technik/customToolbar'
-import DeviceDetailsDialog from 'components/technik/dialogs/Details/DeviceDetailsDialog'
 import { Add } from '@material-ui/icons'
 import ListAltIcon from '@material-ui/icons/ListAlt'
 import GetAppIcon from '@material-ui/icons/GetApp'
-import DeviceLendingDialog from 'components/technik/dialogs/DeviceLendingDialog'
 import Head from 'next/head'
-import DeviceBulkEditDialog from 'components/technik/dialogs/bulkEdit/DeviceBulkEditDialog'
 import createPDF from 'lib/technik/pdfgen'
 import genData from 'lib/technik/genData'
 import genOptions from 'lib/technik/genOptions'
@@ -20,12 +17,30 @@ import { db } from 'lib/app'
 import { useAuth } from 'auth'
 import useSWR from 'swr'
 import { Alert } from '@material-ui/lab'
+import dynamic from 'next/dynamic'
 
 export enum DialogMode {
   Create,
   Edit,
   ReadOnly,
 }
+
+const loading = () => <p>Loading</p>
+
+const DynamicDeviceLendingDialog = dynamic(
+  () => import('components/technik/dialogs/DeviceLendingDialog'),
+  { loading }
+)
+
+const DynamicDeviceBulkEditDialog = dynamic(
+  () => import('components/technik/dialogs/bulkEdit/DeviceBulkEditDialog'),
+  { loading }
+)
+
+const DynamicDeviceDetailsDialog = dynamic(
+  () => import('components/technik/dialogs/Details/DeviceDetailsDialog'),
+  { loading }
+)
 
 const TechnikOverview: NextPage = () => {
   const fetcher = async (): Promise<Device[]> => {
@@ -222,7 +237,7 @@ const TechnikOverview: NextPage = () => {
           src={pdfb64}
           style={{ marginTop: '2rem' }}
         />
-        <DeviceBulkEditDialog
+        <DynamicDeviceBulkEditDialog
           handleClose={() => setDialogBulkEditShow(false)}
           devices={data.rows.filter((device: Device) =>
             selectionModel.includes(device.id)
@@ -231,14 +246,14 @@ const TechnikOverview: NextPage = () => {
           options={options}
         />
 
-        <DeviceLendingDialog
+        <DynamicDeviceLendingDialog
           handleClose={() => setDialogLendingShow(false)}
           devices={data.rows.filter((device: Device) =>
             selectionModel.includes(device.id)
           )}
           show={dialogLendingShow}
         />
-        <DeviceDetailsDialog
+        <DynamicDeviceDetailsDialog
           devices={data?.rows}
           handleClose={() => setDialogDetailsShow(false)}
           activeDevice={dialogDetailsActiveDevice}
