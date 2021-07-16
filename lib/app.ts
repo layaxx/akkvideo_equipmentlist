@@ -1,4 +1,5 @@
 import firebase from 'firebase/app'
+import 'firebase/firestore'
 import { CLIENT_CONFIG, firebaseClient } from 'firebaseClient'
 
 let app: firebase.app.App

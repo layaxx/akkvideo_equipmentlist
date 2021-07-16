@@ -1,7 +1,14 @@
-import React, { useState, useEffect, useContext, createContext } from 'react'
+import React, {
+  useState,
+  useEffect,
+  useContext,
+  createContext,
+  ReactElement,
+  PropsWithChildren,
+} from 'react'
 import nookies from 'nookies'
 import { firebaseClient } from './firebaseClient'
-import firebase from 'firebase'
+import firebase from 'firebase/app'
 import roles from './lib/auth/roles'
 
 export interface IFirebaseUser extends firebaseClient.User {
@@ -12,7 +19,9 @@ const AuthContext = createContext<{ user: IFirebaseUser | null }>({
   user: null,
 })
 
-export function AuthProvider({ children }: any) {
+export function AuthProvider({
+  children,
+}: PropsWithChildren<Record<never, never>>): ReactElement {
   const [user, setUser] = useState<IFirebaseUser | null>(null)
 
   useEffect(() => {
