@@ -5,7 +5,6 @@ import { makeStyles } from '@material-ui/core/styles'
 import React, { FC } from 'react'
 import Link from 'next/link'
 import { Tooltip } from '@material-ui/core'
-import version from 'lib/version'
 
 export const useStyles = makeStyles((theme) => ({
   footer: {
@@ -53,7 +52,7 @@ const Footer: FC = () => {
             <a>AK Video</a>
           </Link>{' '}
           <Tooltip title="Abbreviated hash of the deployed commit">
-            <small>v.{version}</small>
+            <small>v.{process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA}</small>
           </Tooltip>
         </p>
       </div>
