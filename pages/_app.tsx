@@ -4,7 +4,7 @@ import { AuthProvider } from '../auth'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import NavBar from '../components/navbar'
 import Footer from '../components/footer'
-import React from 'react'
+import React, { ReactElement } from 'react'
 import '../styles/global.css'
 import { SnackbarProvider } from 'notistack'
 import theme from '../lib/theme'
@@ -25,7 +25,7 @@ Router.events.on('routeChangeStart', progress.start)
 Router.events.on('routeChangeComplete', progress.finish)
 Router.events.on('routeChangeError', progress.finish)
 
-function MyApp({ Component, pageProps }: AppProps) {
+function MyApp({ Component, pageProps }: AppProps): ReactElement {
   React.useEffect(() => {
     // Remove the server-side injected CSS.
     const jssStyles = document.querySelector('#jss-server-side')
