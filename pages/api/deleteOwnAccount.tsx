@@ -1,25 +1,25 @@
 import { firebaseAdmin } from '../../firebaseAdmin'
-import { res } from '../../lib/types/api/response'
-import { req_deleteOwnAccount } from '../../lib/types/api/requests'
+import { NextApiHandler } from 'next'
 
-export default async (req: req_deleteOwnAccount, res: res) => {
-  // console.log(req)
+export default (async (req, res) => {
   if (!req.cookies.token) {
     res.status(401).end()
     return
   }
+  if (!req.url) {
+    throw new Error('Request Url is not defined')
+  }
   const arr = req.url.split('?confirm=')
   if (!(arr.length === 2 && arr[1] === 'true')) {
-    res.status(400).end()
-    return
+    throw new Error('Safety-Check failed: ?confirm=true was not found in url')
   }
   try {
     const token = await firebaseAdmin.auth().verifyIdToken(req.cookies.token)
     await firebaseAdmin.auth().deleteUser(token.uid)
-    console.log('deleted ' + token.email)
+    console.log(token.email + ' successfully deleted their account ')
     res.status(200).end()
   } catch (error) {
     console.log(error)
-    res.status(418).end()
+    res.status(400).end()
   }
-}
+}) as NextApiHandler

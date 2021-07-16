@@ -1,10 +1,9 @@
 import { firebaseAdmin } from '../../../firebaseAdmin'
 import roles from '../../../lib/auth/roles'
 import Status from '../../../lib/types/device.status'
-import { res } from '../../../lib/types/api/response'
-import { req_editDevice } from '../../../lib/types/api/requests'
+import { NextApiHandler } from 'next'
 
-export default async (req: req_editDevice, res: res) => {
+export default (async (req, res) => {
   if (!req.cookies.token) {
     res.status(401).end()
     return
@@ -13,7 +12,7 @@ export default async (req: req_editDevice, res: res) => {
     await firebaseAdmin
       .auth()
       .verifyIdToken(req.cookies.token)
-      .then((claims: any) => {
+      .then((claims: firebaseAdmin.auth.DecodedIdToken) => {
         if (claims.role != roles.Admin) {
           throw new Error('Authentication failed')
         }
@@ -73,4 +72,4 @@ export default async (req: req_editDevice, res: res) => {
     console.error(error)
     res.status(418).end()
   }
-}
+}) as NextApiHandler

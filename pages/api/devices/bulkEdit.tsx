@@ -1,9 +1,8 @@
 import { firebaseAdmin } from '../../../firebaseAdmin'
 import roles from '../../../lib/auth/roles'
-import { res } from '../../../lib/types/api/response'
-import { req_bulkEdit } from '../../../lib/types/api/requests'
+import { NextApiHandler } from 'next'
 
-export default async (req: req_bulkEdit, res: res) => {
+export default (async (req, res) => {
   if (!req.cookies.token) {
     res.status(401).end()
     return
@@ -23,7 +22,7 @@ export default async (req: req_bulkEdit, res: res) => {
     await firebaseAdmin
       .auth()
       .verifyIdToken(req.cookies.token)
-      .then((claims: any) => {
+      .then((claims: firebaseAdmin.auth.DecodedIdToken) => {
         if (claims.role != roles.Admin) {
           throw new Error('Authentication failed')
         }
@@ -33,7 +32,7 @@ export default async (req: req_bulkEdit, res: res) => {
 
     const deviceIds = ids.split('+++')
 
-    deviceIds.forEach((id) => {
+    deviceIds.forEach((id: string) => {
       db.collection('devices')
         .doc(id)
         .update({ [cat]: value })
@@ -53,4 +52,4 @@ export default async (req: req_bulkEdit, res: res) => {
     console.log(error)
     res.status(418).end()
   }
-}
+}) as NextApiHandler

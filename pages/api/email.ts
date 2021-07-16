@@ -2,33 +2,38 @@ import axios from 'axios'
 import { firebaseAdmin } from '../../firebaseAdmin'
 import roles from '../../lib/auth/roles'
 import Device from '../../lib/types/Device'
-import { res } from '../../lib/types/api/response'
-import { req_email } from '../../lib/types/api/requests'
+import { NextApiHandler } from 'next'
 
-export default async (req: req_email, res: res) => {
+export default (async (req, res) => {
   if (!req.cookies.token) {
+    /* Invalid Request: Only requests from authenticated users are accepted, 
+      therefore if the token cookie is not present in the request, abort here */
     res.status(401).end()
     return
   }
-  if (!req.body.devices || !req.body.fromDate || !req.body.untilDate) {
+  if (
+    !req.body.devices ||
+    req.body.devices.length === 0 ||
+    !req.body.fromDate ||
+    !req.body.untilDate
+  ) {
+    /* Invalid Request: Requests must include an non-empty Array of Devices, 
+    a startDate and an endDate */
     res.status(400).end()
     return
   }
   try {
-    let email
-    await firebaseAdmin
+    const token: firebaseAdmin.auth.DecodedIdToken = await firebaseAdmin
       .auth()
       .verifyIdToken(req.cookies.token)
-      .then((claims: any) => {
-        if (
-          claims.role !== roles.Admin &&
-          claims.role !== roles.Moderator &&
-          claims.role !== roles.Member
-        ) {
-          throw new Error('Authentication failed')
-        }
-        email = claims.email
-      })
+
+    const { email, role } = token
+
+    if ([roles.Admin, roles.Moderator, roles.Member].indexOf(role) === -1) {
+      /* User needs to be authorized, ie have either Admin, Moderator or Member role. */
+      throw new Error('Authentication failed')
+    }
+
     axios
       .post(
         'https://maker.ifttt.com/trigger/test/with/key/' +
@@ -45,4 +50,4 @@ export default async (req: req_email, res: res) => {
   } catch (error) {
     res.status(401).end()
   }
-}
+}) as NextApiHandler
