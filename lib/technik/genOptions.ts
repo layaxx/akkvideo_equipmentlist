@@ -1,7 +1,7 @@
 import { IOptions } from 'lib/types/device.dialog'
 import Device from 'lib/types/Device'
 
-interface ICompleteOptions extends IOptions {
+export interface ICompleteOptions extends IOptions {
   brand: string[]
   category: string[]
 }

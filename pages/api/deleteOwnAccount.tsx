@@ -1,4 +1,4 @@
-import { firebaseAdmin } from 'firebaseAdmin'
+import { firebaseAdmin } from 'lib/firebaseAdmin'
 import { NextApiHandler } from 'next'
 
 export default (async (req, res) => {

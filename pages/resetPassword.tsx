@@ -8,9 +8,9 @@ import {
 } from '@material-ui/core'
 import { LockOutlined } from '@material-ui/icons'
 import React, { ReactElement, useState } from 'react'
-import { firebaseClient } from 'firebaseClient'
+import { firebaseClient } from 'lib/firebaseClient'
 import { useSnackbar } from 'notistack'
-import { useAuth } from 'auth'
+import { useAuth } from 'components/auth'
 import { Alert } from '@material-ui/lab'
 import { useStyles } from 'components/account/accountAction'
 

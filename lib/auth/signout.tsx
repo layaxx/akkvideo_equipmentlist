@@ -1,4 +1,4 @@
-import { firebaseClient } from '../../firebaseClient'
+import { firebaseClient } from '../firebaseClient'
 import nookies from 'nookies'
 
 const signout = async (): Promise<void> => {

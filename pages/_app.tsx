@@ -1,6 +1,6 @@
 import type { AppProps } from 'next/app'
 import Head from 'next/head'
-import { AuthProvider } from 'auth'
+import { AuthProvider } from 'components/auth'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import NavBar from 'components/navbar'
 import Footer from 'components/footer'

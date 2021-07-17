@@ -5,7 +5,7 @@ import { useRouter } from 'next/dist/client/router'
 import { NextPage } from 'next'
 import LandingPageOverviewItem from 'components/landingpage/OverviewItem'
 import roles from 'lib/auth/roles'
-import { useAuth } from 'auth'
+import { useAuth } from 'components/auth'
 import Link from 'next/link'
 
 const useStyles = makeStyles({

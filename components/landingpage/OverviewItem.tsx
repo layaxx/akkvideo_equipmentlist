@@ -60,7 +60,7 @@ const LandingPageOverviewItem: FC<Props> = ({
         </Link>
       </CardActionArea>
       <CardActions>
-        <Link href="/technik">
+        <Link href={link}>
           <Button size="small" variant="contained" color="primary" fullWidth>
             Access
           </Button>

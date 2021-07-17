@@ -7,9 +7,9 @@ import React, {
   PropsWithChildren,
 } from 'react'
 import nookies from 'nookies'
-import { firebaseClient } from './firebaseClient'
+import { firebaseClient } from '../lib/firebaseClient'
 import firebase from 'firebase/app'
-import roles from './lib/auth/roles'
+import roles from '../lib/auth/roles'
 
 export interface IFirebaseUser extends firebaseClient.User {
   role?: roles
@@ -29,25 +29,22 @@ export function AuthProvider({
       ;(window as any).nookies = nookies // eslint-disable-line
     }
     return firebaseClient.auth().onIdTokenChanged(async (userParam) => {
-      // console.log(`token changed!`)
       if (!userParam) {
-        console.log(`no token found...`)
         setUser(null)
         nookies.destroy(null, 'token')
         nookies.set(null, 'token', '', { path: '/' })
         return
       }
 
-      // console.log(`updating token...`)
       const token = await userParam.getIdToken()
 
       firebase
         .auth()
         .currentUser?.getIdTokenResult()
         .then((idTokenResult) => {
-          const user: IFirebaseUser = userParam
-          user.role = idTokenResult.claims.role
-          setUser(userParam)
+          const newUser: IFirebaseUser = userParam
+          newUser.role = idTokenResult.claims.role
+          setUser(newUser)
           nookies.destroy(null, 'token')
           nookies.set(null, 'token', token, { path: '/' })
         })
@@ -57,7 +54,6 @@ export function AuthProvider({
   // force refresh the token every 10 minutes
   useEffect(() => {
     const handle = setInterval(async () => {
-      // console.log(`refreshing token...`)
       const newUser = firebaseClient.auth().currentUser
       if (newUser) {
         await newUser.getIdToken(true)
@@ -71,6 +67,6 @@ export function AuthProvider({
   )
 }
 
-export const useAuth = () => {
+export const useAuth = (): { user: IFirebaseUser | null } => {
   return useContext(AuthContext)
 }

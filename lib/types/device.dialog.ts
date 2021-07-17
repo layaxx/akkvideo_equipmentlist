@@ -1,3 +1,5 @@
+import { ICompleteOptions } from 'lib/technik/genOptions'
+import { DialogMode } from 'pages/technik'
 import { UseControllerProps } from 'react-hook-form'
 import Device from './Device'
 
@@ -22,10 +24,10 @@ export interface IBulkEditDialogProps {
 export interface IDetailsDialogProps {
   devices: Device[]
   activeDevice: Device | null
-  mode: any
+  mode: DialogMode
   show: boolean
-  options: any
-  handleClose: any
+  options: ICompleteOptions
+  handleClose: () => void
 }
 
 export type IOptionsLookup = IOptions & {

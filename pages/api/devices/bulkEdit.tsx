@@ -1,4 +1,4 @@
-import { firebaseAdmin } from 'firebaseAdmin'
+import { firebaseAdmin } from 'lib/firebaseAdmin'
 import roles from 'lib/auth/roles'
 import { NextApiHandler } from 'next'
 

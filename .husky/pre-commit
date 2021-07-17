@@ -2,21 +2,21 @@
 . "$(dirname "$0")/_/husky.sh"
 
 # Check Prettier standards
-npm run check-format ||
+yarn check-format ||
 (
-    echo 'Prettier Check failed. Run yarn format, add changes and try commit again.';
-    false;
+    yarn format
+    true;
 )
 
 # Check ESLint Standards
-npm run check-lint ||
+yarn check-lint ||
 (
         echo 'ESLint Check-Lint failed. Make the required changes listed above, add changes and try to commit again.'
         false; 
 )
 
 # Check tsconfig standards
-npm run check-types ||
+yarn check-types ||
 (
     echo 'ESLint Check-Types failed. Fix the problems, add changes and try to commit again.'
     false;
@@ -25,7 +25,7 @@ npm run check-types ||
 
 echo 'Static Checks passed, trying to build...'
 
-npm run build ||
+yarn build ||
 (
     echo 'Next build failed: View the errors above to see why.'
     false;

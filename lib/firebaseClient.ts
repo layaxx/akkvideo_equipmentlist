@@ -1,6 +1,6 @@
 import firebaseClient from 'firebase/app'
 import 'firebase/auth'
-import config from './serviceAccountKey.json'
+import config from '../serviceAccountKey.json'
 
 export const CLIENT_CONFIG = config.client
 

@@ -11,7 +11,7 @@ import {
   Typography,
 } from '@material-ui/core'
 import nookies from 'nookies'
-import { firebaseAdmin } from 'firebaseAdmin'
+import { firebaseAdmin } from 'lib/firebaseAdmin'
 import {
   InferGetServerSidePropsType,
   GetServerSidePropsContext,
