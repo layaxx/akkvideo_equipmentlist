@@ -1,5 +1,5 @@
 enum Status {
-  NotOnLoan = '---',
+  NotOnLoan = 'nicht verliehen',
   OnLoan = 'verliehen',
 }
 

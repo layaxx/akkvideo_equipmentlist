@@ -11,39 +11,48 @@ import {
   ListItemText,
 } from '@material-ui/core'
 import { Alert } from '@material-ui/lab'
-import axios from 'axios'
 import { useSnackbar } from 'notistack'
 import React, { FC } from 'react'
 import { useForm, useFormState } from 'react-hook-form'
 import BulkEditCategoryInput from './BulkEditCategoryInput'
 import BulkEditValueInput from './BulkEditValueInput'
 import { IBulkEditDialogProps } from 'lib/types/device.dialog'
+import Device from 'lib/types/Device'
+import { db } from 'lib/app'
+import { mutate } from 'swr'
 
 const DeviceBulkEditDialog: FC<IBulkEditDialogProps> = (
   props: IBulkEditDialogProps
 ) => {
   const { devices, show, handleClose } = props
-  const handleSendRequest = (data: { value: string; category: string }) => {
-    axios
-      .post('/api/devices/bulkEdit', {
-        ids: devices.map((d) => d.id).join('+++'),
-        cat: data.category,
-        value: data.value,
-      })
+  const handleSendRequest = ({
+    value,
+    category,
+  }: {
+    value: string
+    category: string
+  }) => {
+    Promise.all(
+      devices.map(({ id }: Device) =>
+        db
+          .collection('devices')
+          .doc(id)
+          .update({ [category]: value })
+      )
+    )
       .then(() => {
-        enqueueSnackbar(
-          'Successfully updated Devices. Reload page to view Results.',
-          {
-            variant: 'success',
-          }
-        )
-        handleClose()
+        enqueueSnackbar('Documents successfully updated!', {
+          variant: 'success',
+        })
       })
-      .catch(() =>
+      .catch(() => {
         enqueueSnackbar('Failed to update Devices.', {
           variant: 'error',
         })
-      )
+      })
+
+    mutate('devices-all')
+    handleClose()
   }
 
   // used to show notifications

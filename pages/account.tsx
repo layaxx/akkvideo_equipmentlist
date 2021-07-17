@@ -27,7 +27,7 @@ const AccountPage: NextPage = () => {
   }
   const handleDelete = () => {
     axios
-      .get('/api/deleteOwnAccount?confirm=true')
+      .delete('/api/deleteOwnAccount?confirm=true')
       .then(() => {
         signout()
         router.push('/')

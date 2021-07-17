@@ -2,6 +2,11 @@ import { firebaseAdmin } from 'lib/firebaseAdmin'
 import { NextApiHandler } from 'next'
 
 export default (async (req, res) => {
+  if (req.method !== 'delete') {
+    throw new Error(
+      'Safety-Check failed: Only Requests with method === delete are handled here'
+    )
+  }
   if (!req.cookies.token) {
     res.status(401).end()
     return

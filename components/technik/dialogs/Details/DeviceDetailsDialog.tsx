@@ -17,7 +17,6 @@ import {
   Container,
 } from '@material-ui/core'
 import InputAdornment from '@material-ui/core/InputAdornment/InputAdornment'
-import axios from 'axios'
 import { useSnackbar } from 'notistack'
 import React, { FC, useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
@@ -26,6 +25,8 @@ import { IDetailsDialogProps } from 'lib/types/device.dialog'
 import Status from 'lib/types/device.status'
 import { DialogMode } from 'pages/technik/index'
 import CustomSelect from './CustomSelect'
+import { db } from 'lib/app'
+import { mutate } from 'swr'
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -57,7 +58,6 @@ const DeviceDetailsDialog: FC<IDetailsDialogProps> = (
   props: IDetailsDialogProps
 ) => {
   const { devices, activeDevice, mode, show, options, handleClose } = props
-  const handleCloseExtended = handleClose
   const isReadOnly = mode === DialogMode.ReadOnly
   const isCreateNew = mode === DialogMode.Create
   const displayAddButton = isCreateNew
@@ -120,23 +120,40 @@ const DeviceDetailsDialog: FC<IDetailsDialogProps> = (
   }
 
   const handlePost = (data: Device, action: actionEnum) => {
-    axios
-      .post('/api/devices/' + action, data)
-      .then(() => {
-        enqueueSnackbar(
-          `Successfully ${action}ed Device ${data.description}. 
-          Reload page to see changes in effect.`,
-          {
-            variant: 'success',
-          }
-        )
-        reset(data)
+    const successCallback = () => {
+      enqueueSnackbar(`Successfully ${action}ed Device ${data.description}.`, {
+        variant: 'success',
       })
-      .catch(() =>
-        enqueueSnackbar(`Failed to ${action} device ${data.description}`, {
-          variant: 'error',
+      reset(data)
+      mutate('devices-all')
+      handleClose()
+    }
+
+    const failureCallback = () =>
+      enqueueSnackbar(`Failed to ${action} device ${data.description}`, {
+        variant: 'error',
+      })
+
+    if (action === actionEnum.add) {
+      db.collection('devices')
+        .add({
+          ...data,
+          amount: Math.max(data.amount, 1),
+          lastEdit: new Date().toISOString(),
         })
-      )
+        .then(successCallback)
+        .catch(failureCallback)
+    } else if (action === actionEnum.edit) {
+      db.collection('devices')
+        .doc(data.id)
+        .update({
+          ...data,
+          amount: Math.max(data.amount, 1),
+          lastEdit: new Date().toISOString(),
+        })
+        .then(successCallback)
+        .catch(failureCallback)
+    }
   }
 
   return (
@@ -146,7 +163,7 @@ const DeviceDetailsDialog: FC<IDetailsDialogProps> = (
       fullWidth={true}
       maxWidth={'md'}
       open={show}
-      onClose={handleCloseExtended}
+      onClose={handleClose}
       aria-labelledby="details-dialog-title"
     >
       <DialogTitle id="details-dialog-title">
@@ -498,7 +515,13 @@ const DeviceDetailsDialog: FC<IDetailsDialogProps> = (
           ? buttonSubmit
           : displayAddButton && buttonAdd}
 
-        <Button onClick={handleClose} color="secondary">
+        <Button
+          onClick={() => {
+            reset(activeDevice || undefined)
+            handleClose()
+          }}
+          color="secondary"
+        >
           Close
         </Button>
       </DialogActions>

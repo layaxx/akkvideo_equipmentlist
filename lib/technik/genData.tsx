@@ -104,7 +104,7 @@ const renderButton = (
       variant="text"
       color="default"
       size="medium"
-      style={{ justifyContent: 'left' }}
+      style={{ justifyContent: 'left', width: '100%', height: '100%' }}
       aria-label="open details"
       onClick={(event) => {
         event.stopPropagation()
