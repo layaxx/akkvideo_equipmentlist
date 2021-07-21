@@ -13,6 +13,7 @@ import {
   Button,
   TableFooter,
   useTheme,
+  Link,
 } from '@material-ui/core'
 import React, { useState } from 'react'
 import ClearIcon from '@material-ui/icons/Clear'
@@ -30,6 +31,9 @@ import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { useSnackbar } from 'notistack'
 import { NextPage } from 'next'
 import { domains } from 'lib/types/config'
+import { useAuth } from 'components/auth'
+import roles from 'lib/auth/roles'
+import { Alert } from '@material-ui/lab'
 
 type Props = {
   poll: Poll
@@ -38,7 +42,17 @@ type Props = {
 type FieldValues = { [key: string]: boolean | string }
 
 const FoodleDetailView: NextPage<Props> = ({
-  poll: { hidden, active, title, id, submissions, options },
+  poll: {
+    active,
+    title,
+    id,
+    submissions,
+    options,
+    creatorID,
+    link,
+    location,
+    askForContactDetails,
+  },
 }: Props) => {
   const theme = useTheme()
 
@@ -46,7 +60,7 @@ const FoodleDetailView: NextPage<Props> = ({
 
   const filteredSubmissions = submissions.filter((s) => s.active)
 
-  const defaultValues: FieldValues = { name: '' }
+  const defaultValues: FieldValues = { name: '', email: '' }
 
   const range = generateRange(options.length)
 
@@ -58,11 +72,15 @@ const FoodleDetailView: NextPage<Props> = ({
     control,
   })
 
+  const { user } = useAuth()
+
   const handleAdd = ({
     name,
+    email,
     ...checkboxValues
   }: {
     name: string
+    email?: string
     [key: number]: boolean
   }) => {
     const newOptions: number[] = range.map((index: number) =>
@@ -73,6 +91,9 @@ const FoodleDetailView: NextPage<Props> = ({
       name,
       options: newOptions,
       active: true,
+    }
+    if (askForContactDetails && email) {
+      newSubmission.email = email
     }
 
     db.collection('polls')
@@ -90,7 +111,7 @@ const FoodleDetailView: NextPage<Props> = ({
 
   const handleConfirm = (submission: Submission) => {
     confirm({
-      description: `Do you really want to deactivate ${submission.name}s submission? You cannot reverse this action.`,
+      description: `Do you really want to deactivate ${submission.name}s submission? You cannot reverse this action. Please note that this entry will remain in the database regardless, but will not be displayed any longer.`,
     })
       .then(() => handleDeactivate(submission))
       .catch(() => undefined)
@@ -131,6 +152,23 @@ const FoodleDetailView: NextPage<Props> = ({
           <Typography variant="body2" gutterBottom>
             {filteredSubmissions.length} Submission[s]
           </Typography>
+
+          {location && (
+            <Typography variant="body2" gutterBottom>
+              Intended Location: {location}
+            </Typography>
+          )}
+          {link && (
+            <>
+              <Typography variant="body2">
+                The initiator of this poll has provided additional information:
+              </Typography>
+              <Link href={link} target="_blank" rel="noreferrer">
+                {link}
+              </Link>
+            </>
+          )}
+
           <Typography variant="body2" color="textSecondary">
             ID: {id}
           </Typography>
@@ -179,7 +217,16 @@ const FoodleDetailView: NextPage<Props> = ({
                 {filteredSubmissions.map((submission, sIndex) => (
                   <TableRow key={'' + sIndex}>
                     <TableCell component="th" scope="row">
-                      {submission.name}
+                      {submission.name}{' '}
+                      {askForContactDetails &&
+                        submission.email &&
+                        user &&
+                        (user.role === roles.Admin ||
+                          user.uid === creatorID) && (
+                          <Link href={'mailto:' + submission.email}>
+                            {submission.email}
+                          </Link>
+                        )}
                     </TableCell>
                     {submission.options.map((option, index) => (
                       <TableCell
@@ -209,23 +256,52 @@ const FoodleDetailView: NextPage<Props> = ({
 
                 {active && (
                   <TableRow key="input">
-                    <TableCell component="th" scope="row">
+                    <TableCell
+                      component="th"
+                      scope="row"
+                      style={{ display: 'flex' }}
+                    >
                       <Controller
                         name={'name'}
                         control={control}
                         rules={{ required: true }}
-                        render={({ field }) => (
+                        render={({ field, fieldState: { error } }) => (
                           <TextField
                             id="input-name"
                             label="Your Name"
                             required
                             aria-required
                             style={{ width: '8rem' }}
+                            error={!!error}
                             {...field}
                           />
                         )}
                       />
+                      {askForContactDetails && (
+                        <Controller
+                          name={'email'}
+                          control={control}
+                          rules={{
+                            required: askForContactDetails,
+                            pattern:
+                              /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/,
+                          }}
+                          render={({ field, fieldState: { error } }) => (
+                            <TextField
+                              id="input-email"
+                              label="E-Mail address"
+                              required
+                              type="email"
+                              aria-required
+                              style={{ width: '8rem' }}
+                              error={!!error}
+                              {...field}
+                            />
+                          )}
+                        />
+                      )}
                     </TableCell>
+
                     {options.map((_, index) => (
                       <TableCell align="center" key={'check-' + index}>
                         <Controller
@@ -256,7 +332,6 @@ const FoodleDetailView: NextPage<Props> = ({
                         variant="contained"
                         color="primary"
                         onClick={handleSubmit(handleAdd, console.error)}
-                        disabled={!active || hidden || !values.name}
                       >
                         submit
                       </Button>
@@ -285,6 +360,31 @@ const FoodleDetailView: NextPage<Props> = ({
               </TableFooter>
             </Table>
           </TableContainer>
+          {askForContactDetails && (
+            <Alert severity="info">
+              The Creator of this Poll has asked Submitters to provide a email
+              address via which you can be contacted once a date has been
+              selected. Only the Creator and Admins will be able to view your
+              address.
+            </Alert>
+          )}
+          {askForContactDetails &&
+            user &&
+            (user.role === roles.Admin || user.uid === creatorID) && (
+              <CopyToClipboard
+                text={submissions
+                  .filter((sub) => sub.active)
+                  .map((sub) => sub.email)
+                  .join('; ')}
+                onCopy={() =>
+                  enqueueSnackbar('Copied e-Mail addresses to clipboard', {
+                    variant: 'success',
+                  })
+                }
+              >
+                <Button>Copy all E-Mail addresses</Button>
+              </CopyToClipboard>
+            )}
         </Grid>
         <Grid item>
           <CalendarView

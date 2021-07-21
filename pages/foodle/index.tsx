@@ -116,7 +116,7 @@ const FoodleOverviewPage: NextPage = () => {
 
           {!error && !!data && (
             <List>
-              {data.map((poll) => (
+              {data.reverse().map((poll) => (
                 <ListItem key={poll.id}>
                   <FoodleOverviewItem {...poll}></FoodleOverviewItem>
                 </ListItem>

@@ -1,4 +1,14 @@
-import { Button, TextField, Grid, Paper, Typography } from '@material-ui/core'
+import {
+  Button,
+  TextField,
+  Grid,
+  Paper,
+  Typography,
+  Checkbox,
+  FormControlLabel,
+  Box,
+  makeStyles,
+} from '@material-ui/core'
 import { ArrowBack } from '@material-ui/icons'
 import { Alert } from '@material-ui/lab'
 import AddIcon from '@material-ui/icons/Add'
@@ -18,10 +28,31 @@ import { NextPage } from 'next'
 type FormValues = {
   title: string
   options: { date: string }[]
+  location: string
+  askForContactDetails: boolean
+  link: string
 }
+
+const useStyles = makeStyles({
+  root: {
+    padding: '1rem',
+    marginTop: '1rem',
+    '&  .MuiInputBase-root': { marginRight: '1rem' },
+    '& .MuiTypography-caption': { alignSelf: 'flex-end' },
+    '& .MuiBox-root:last-of-type': { marginTop: '1rem' },
+    '& .MuiButton-containedPrimary': { marginTop: '1.5rem' },
+    '& .MuiFormControlLabel-root': {
+      marginRight: '1rem',
+      flexShrink: 0,
+      marginBottom: 0,
+    },
+  },
+})
 
 const FoodleAddPage: NextPage = () => {
   const { user } = useAuth()
+
+  const classes = useStyles()
 
   const {
     watch,
@@ -29,7 +60,13 @@ const FoodleAddPage: NextPage = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<FormValues>({
-    defaultValues: { title: '', options: [{ date: '' }] },
+    defaultValues: {
+      title: '',
+      options: [{ date: '' }],
+      location: '',
+      askForContactDetails: false,
+      link: '',
+    },
   })
 
   const { fields, append, remove } = useFieldArray({
@@ -56,10 +93,10 @@ const FoodleAddPage: NextPage = () => {
   const handleAdd = ({
     title,
     options,
-  }: {
-    title: string
-    options: { date: string }[]
-  }) => {
+    location,
+    askForContactDetails,
+    link,
+  }: FormValues) => {
     const newPoll: NewPoll = {
       title,
       options: options
@@ -71,9 +108,12 @@ const FoodleAddPage: NextPage = () => {
       active: true,
       hidden: false,
       created: firebase.firestore.FieldValue.serverTimestamp(),
+      link,
+      askForContactDetails,
+      location,
     }
     db.collection('polls')
-      .add(newPoll)
+      .add({ ...newPoll, creatorID: user?.uid })
       .then((docRef) => {
         console.log('Document written with ID: ', docRef.id)
         router.push('/foodle/' + docRef.id)
@@ -108,39 +148,90 @@ const FoodleAddPage: NextPage = () => {
           polls to which you have received a direct link.
         </Alert>
       ) : (
-        <>
-          <Grid
-            container
-            direction="column"
-            spacing={2}
-            component={Paper}
-            style={{ margin: '2rem 0' }}
-          >
+        <Paper className={classes.root}>
+          <Grid container direction="column" spacing={2}>
             <Grid item>
-              <h3>Title</h3>
-              <Controller
-                name={'title'}
-                control={control}
-                rules={{
-                  required: {
-                    value: true,
-                    message: 'Please provide a title for your event',
-                  },
-                }}
-                render={({ field }) => (
-                  <TextField
-                    id="input-title"
-                    label="Title of Event"
-                    required
-                    aria-required
-                    style={{ width: '8rem' }}
-                    {...field}
-                  />
-                )}
-              />
+              <Typography variant="h5" component="h3">
+                General Information
+              </Typography>
+              <Box display="flex">
+                <Controller
+                  name={'title'}
+                  control={control}
+                  rules={{
+                    required: {
+                      value: true,
+                      message: 'Please provide a title for your event',
+                    },
+                  }}
+                  render={({ field }) => (
+                    <TextField
+                      id="input-title"
+                      label="Title of Event"
+                      required
+                      aria-required
+                      {...field}
+                    />
+                  )}
+                />
+                <Controller
+                  name={'location'}
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      id="input-location"
+                      label="Location of Event"
+                      {...field}
+                    />
+                  )}
+                />
+              </Box>
+              <Box display="flex" flexWrap="wrap">
+                <Controller
+                  name={'link'}
+                  control={control}
+                  rules={{ pattern: /^https?:\/\/\S+.\S+$/i }}
+                  render={({ field }) => (
+                    <TextField
+                      id="input-link"
+                      type="url"
+                      label="Link to more information "
+                      {...field}
+                    />
+                  )}
+                />
+
+                <Typography variant="caption">
+                  Can be used to provide external resources to users. For
+                  example a link to a PDF version of an official invitation or
+                  agenda. Should start with https://.
+                </Typography>
+              </Box>
+              <Box display="flex" flexWrap="wrap">
+                <Controller
+                  name={'askForContactDetails'}
+                  control={control}
+                  render={({ field }) => (
+                    <FormControlLabel
+                      control={<Checkbox id="input-askForContactDetails" />}
+                      label="Ask for contact Details"
+                      {...field}
+                    />
+                  )}
+                />
+                <Typography variant="caption">
+                  Users will be asked to provide an e-mail address when voting.
+                  This will allow you to easily contact Users after a date has
+                  been selected. Contact details will not be visible to other
+                  users, only you (the creator of this Poll) and Admins can see
+                  them.
+                </Typography>
+              </Box>
             </Grid>
             <Grid item container>
-              <h3>Possible Dates</h3>
+              <Typography variant="h5" component="h3">
+                Possible Dates
+              </Typography>
               <Grid item container spacing={2}>
                 <Grid item>
                   <Button
@@ -196,10 +287,11 @@ const FoodleAddPage: NextPage = () => {
             variant="contained"
             color="primary"
             onClick={handleSubmit(handleAdd, handleError)}
+            fullWidth
           >
             Add new Poll
           </Button>
-        </>
+        </Paper>
       )}
     </>
   )
