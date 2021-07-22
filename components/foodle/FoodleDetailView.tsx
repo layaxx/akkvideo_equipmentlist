@@ -14,6 +14,8 @@ import {
   TableFooter,
   useTheme,
   Link,
+  makeStyles,
+  Box,
 } from '@material-ui/core'
 import React, { useState } from 'react'
 import ClearIcon from '@material-ui/icons/Clear'
@@ -33,11 +35,36 @@ import { NextPage } from 'next'
 import { domains } from 'lib/types/config'
 import { useAuth } from 'components/auth'
 import roles from 'lib/auth/roles'
-import { Alert } from '@material-ui/lab'
+import { Alert, AlertTitle } from '@material-ui/lab'
 
 type Props = {
   poll: Poll
 }
+
+const useStyles = makeStyles((theme) => {
+  return {
+    optimalChoice: {
+      backgroundColor: theme.palette.primary.light,
+      color: theme.palette.primary.contrastText,
+    },
+    optimalChoiceSubtle: {
+      boxShadow:
+        'inset 2px 0px ' +
+        theme.palette.primary.light +
+        ', inset -2px 0px ' +
+        theme.palette.primary.light,
+    },
+    optimalChoiceSubtleLast: {
+      boxShadow:
+        'inset 2px 0px ' +
+        theme.palette.primary.light +
+        ', inset -2px 0px ' +
+        theme.palette.primary.light +
+        ', inset 0px -2px ' +
+        theme.palette.primary.light,
+    },
+  }
+})
 
 type FieldValues = { [key: string]: boolean | string }
 
@@ -56,6 +83,8 @@ const FoodleDetailView: NextPage<Props> = ({
 }: Props) => {
   const theme = useTheme()
 
+  const classes = useStyles()
+
   const [activeDate, setActiveDate] = useState<Dayjs | undefined>(undefined)
 
   const filteredSubmissions = submissions.filter((s) => s.active)
@@ -71,6 +100,14 @@ const FoodleDetailView: NextPage<Props> = ({
   const values = useWatch({
     control,
   })
+
+  const sums = options.map((_, index) =>
+    filteredSubmissions
+      .map((s) => s.options[index])
+      .reduce((x: number, y: number) => x + y, values[index] ? 1 : 0)
+  )
+
+  const sumsMax = Math.max(...sums)
 
   const { user } = useAuth()
 
@@ -140,6 +177,36 @@ const FoodleDetailView: NextPage<Props> = ({
     })
   }
 
+  const handleUpdate = (newObject: Partial<Poll>) => {
+    db.collection('polls')
+      .doc(id)
+      .update(newObject)
+      .then(() => mutate(id))
+  }
+
+  const confirmReactivate = () => {
+    confirm({
+      description: `Do you really want to reactivate the ${title} Poll? People will be able to vote on dates again.`,
+    })
+      .then(() => handleUpdate({ active: true }))
+      .catch(() => undefined)
+  }
+  const confirmDeactivate = () => {
+    confirm({
+      description: `Do you really want to deactivate the ${title} Poll? People will not be able to vote on dates anymore.`,
+    })
+      .then(() => handleUpdate({ active: false }))
+      .catch(() => undefined)
+  }
+
+  const confirmDelete = () => {
+    confirm({
+      description: `Do you really want to delete the ${title} Poll? This action cannot be undone. `,
+    })
+      .then(() => handleUpdate({ hidden: true }))
+      .catch(() => undefined)
+  }
+
   const { enqueueSnackbar } = useSnackbar()
 
   return (
@@ -203,6 +270,11 @@ const FoodleDetailView: NextPage<Props> = ({
                               ? `5px solid ${theme.palette.primary.main}`
                               : 'None',
                         }}
+                        className={
+                          sums[index] > 0 && sums[index] === sumsMax
+                            ? classes.optimalChoice
+                            : ''
+                        }
                       >
                         {date.format('DD.MM.YYYY')}
                         <br />
@@ -232,6 +304,13 @@ const FoodleDetailView: NextPage<Props> = ({
                       <TableCell
                         align="center"
                         key={'submission-' + sIndex + '-' + index}
+                        className={
+                          sums[index] > 0 && sums[index] === sumsMax
+                            ? sIndex === filteredSubmissions.length - 1
+                              ? classes.optimalChoiceSubtleLast
+                              : classes.optimalChoiceSubtle
+                            : ''
+                        }
                       >
                         <Checkbox
                           name={submission.name + index}
@@ -303,7 +382,15 @@ const FoodleDetailView: NextPage<Props> = ({
                     </TableCell>
 
                     {options.map((_, index) => (
-                      <TableCell align="center" key={'check-' + index}>
+                      <TableCell
+                        align="center"
+                        key={'check-' + index}
+                        className={
+                          sumsMax !== 0 && sums[index] === sumsMax
+                            ? classes.optimalChoiceSubtle
+                            : ''
+                        }
+                      >
                         <Controller
                           name={'' + index}
                           control={control}
@@ -346,13 +433,16 @@ const FoodleDetailView: NextPage<Props> = ({
                     Overview
                   </TableCell>
                   {options.map((_, index) => (
-                    <TableCell align="center" key={'sums-' + index}>
-                      {filteredSubmissions
-                        .map((s) => s.options[index])
-                        .reduce(
-                          (x: number, y: number) => x + y,
-                          values[index] ? 1 : 0
-                        )}
+                    <TableCell
+                      align="center"
+                      key={'sums-' + index}
+                      className={
+                        sumsMax !== 0 && sums[index] === sumsMax
+                          ? classes.optimalChoice
+                          : ''
+                      }
+                    >
+                      {sums[index]}
                     </TableCell>
                   ))}
                   <TableCell align="right"></TableCell>
@@ -360,6 +450,20 @@ const FoodleDetailView: NextPage<Props> = ({
               </TableFooter>
             </Table>
           </TableContainer>
+          <Alert severity="info">
+            <AlertTitle>Privacy Notice:</AlertTitle>
+            If you send a submission, your choices and your Name will be
+            publicly visible on this page. You may use a pseudonym of course,
+            although this may make choosing a date more difficult for the
+            organizer. You can retract your submission at any point using the
+            deactivate button next to your submission. Note that this will
+            remove your Submission from public display, but not from the
+            Database itself. If you wish to have your submission removed
+            completely, you can contact{' '}
+            <Link href="mailto:dev@arbeitskreis.video">
+              dev-at-arbeitskreis-dot-video
+            </Link>
+          </Alert>
           {askForContactDetails && (
             <Alert severity="info">
               The Creator of this Poll has asked Submitters to provide a email
@@ -368,23 +472,48 @@ const FoodleDetailView: NextPage<Props> = ({
               address.
             </Alert>
           )}
-          {askForContactDetails &&
-            user &&
-            (user.role === roles.Admin || user.uid === creatorID) && (
-              <CopyToClipboard
-                text={submissions
-                  .filter((sub) => sub.active)
-                  .map((sub) => sub.email)
-                  .join('; ')}
-                onCopy={() =>
-                  enqueueSnackbar('Copied e-Mail addresses to clipboard', {
-                    variant: 'success',
-                  })
-                }
-              >
-                <Button>Copy all E-Mail addresses</Button>
-              </CopyToClipboard>
+          <Box display="flex" justifyContent="space-between">
+            {askForContactDetails &&
+              user &&
+              (user.role === roles.Admin || user.uid === creatorID) && (
+                <CopyToClipboard
+                  text={filteredSubmissions.map((sub) => sub.email).join('; ')}
+                  onCopy={() =>
+                    enqueueSnackbar('Copied e-Mail addresses to clipboard', {
+                      variant: 'success',
+                    })
+                  }
+                >
+                  <Button>Copy all E-Mail addresses</Button>
+                </CopyToClipboard>
+              )}
+            {user && (user.role === roles.Admin || user.uid === creatorID) && (
+              <Box>
+                {active ? (
+                  <Button size="small" onClick={confirmDeactivate}>
+                    Deactivate
+                  </Button>
+                ) : (
+                  <Button
+                    size="small"
+                    onClick={confirmReactivate}
+                    style={{ backgroundColor: 'forestgreen' }}
+                  >
+                    Reactivate
+                  </Button>
+                )}
+                <Button
+                  size="small"
+                  style={{
+                    color: 'indianred',
+                  }}
+                  onClick={confirmDelete}
+                >
+                  Delete
+                </Button>
+              </Box>
             )}
+          </Box>
         </Grid>
         <Grid item>
           <CalendarView

@@ -26,7 +26,6 @@ const FoodleDetailPage: NextPage = () => {
   }
 
   const { data, error } = useSWR(id ?? '-invalid-id-', fetcher)
-  console.log(data)
 
   return (
     <>
