@@ -32,6 +32,7 @@ const FoodleDetailView: NextPage<Props> = ({
     link,
     location,
     askForContactDetails,
+    thirdOption,
   },
 }: Props) => {
   const [activeDate, setActiveDate] = useState<Dayjs | undefined>(undefined)
@@ -129,6 +130,7 @@ const FoodleDetailView: NextPage<Props> = ({
             id,
             creatorID,
             active,
+            thirdOption,
           }}
           user={user}
         />

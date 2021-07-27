@@ -31,6 +31,7 @@ type FormValues = {
   location: string
   askForContactDetails: boolean
   link: string
+  thirdOption: boolean
 }
 
 const useStyles = makeStyles({
@@ -66,6 +67,7 @@ const FoodleAddPage: NextPage = () => {
       location: '',
       askForContactDetails: false,
       link: '',
+      thirdOption: false,
     },
   })
 
@@ -96,6 +98,7 @@ const FoodleAddPage: NextPage = () => {
     location,
     askForContactDetails,
     link,
+    thirdOption,
   }: FormValues) => {
     const newPoll: NewPoll = {
       title,
@@ -111,6 +114,7 @@ const FoodleAddPage: NextPage = () => {
       link,
       askForContactDetails,
       location,
+      thirdOption,
     }
     db.collection('polls')
       .add({ ...newPoll, creatorID: user?.uid })
@@ -205,6 +209,26 @@ const FoodleAddPage: NextPage = () => {
                   Can be used to provide external resources to users. For
                   example a link to a PDF version of an official invitation or
                   agenda. Should start with https://.
+                </Typography>
+              </Box>
+              <Box display="flex" flexWrap="wrap">
+                <Controller
+                  name={'thirdOption'}
+                  control={control}
+                  render={({ field }) => (
+                    <FormControlLabel
+                      control={<Checkbox id="input-thirdOption" />}
+                      label="Allow third option (attending if necessary)"
+                      {...field}
+                    />
+                  )}
+                />
+                <Typography variant="caption">
+                  Besides &quot;attending&quot; and &quot;not attending&quot;,
+                  allow users to select a third option: &quot;attending if
+                  necessary&quot;. This allows you more freedom while choosing a
+                  date, knowing that users indicate if an option is not ideal,
+                  but still doable for them.
                 </Typography>
               </Box>
               <Box display="flex" flexWrap="wrap">

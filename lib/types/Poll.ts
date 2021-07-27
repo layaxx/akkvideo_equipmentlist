@@ -11,6 +11,7 @@ export interface NewPoll {
   location?: string
   link?: string
   askForContactDetails?: boolean
+  thirdOption?: boolean
 }
 
 export default interface Poll extends NewPoll {

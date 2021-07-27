@@ -21,7 +21,7 @@ import { db } from 'lib/app'
 import roles from 'lib/auth/roles'
 import Poll, { Submission } from 'lib/types/Poll'
 import { useConfirm } from 'material-ui-confirm'
-import React, { FC } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 import { generateRange } from 'lib/helper'
 import ClearIcon from '@material-ui/icons/Clear'
 import CheckIcon from '@material-ui/icons/Check'
@@ -63,12 +63,21 @@ type Props = {
     | 'id'
     | 'creatorID'
     | 'active'
+    | 'thirdOption'
   >
   user: IFirebaseUser | null
 }
 const FoodleDetailTable: FC<Props> = ({
   activeDate,
-  poll: { options, submissions, askForContactDetails, id, creatorID, active },
+  poll: {
+    options,
+    submissions,
+    askForContactDetails,
+    id,
+    creatorID,
+    active,
+    thirdOption = false,
+  },
   user,
 }: Props) => {
   const theme = useTheme()
@@ -80,19 +89,57 @@ const FoodleDetailTable: FC<Props> = ({
   const defaultValues: FieldValues = { name: '', email: '' }
 
   const range = generateRange(options.length)
-  range.forEach((index: number) => (defaultValues[index] = false))
+  range.forEach((index: number) => (defaultValues[index] = 0))
 
   const { handleSubmit, control, reset } = useForm({ defaultValues })
   const values = useWatch({
     control,
   })
 
-  const sums = options.map((_, index) =>
-    filteredSubmissions
-      .map((s) => s.options[index])
-      .reduce((x: number, y: number) => x + y, values[index] ? 1 : 0)
+  const [votesPerOption, setVotesPerOption] = useState<
+    { yes: number; no: number; maybe: number }[]
+  >(
+    options.map(() => {
+      return { yes: 0, maybe: 0, no: 0 }
+    })
   )
-  const sumsMax = Math.max(...sums)
+
+  const [isBestChoice, setIsBestChoice] = useState(options.map(() => false))
+
+  useEffect(() => {
+    setIsBestChoice(options.map(() => false))
+    const votesPerOptionInternal = options.map(() => {
+      return { yes: 0, maybe: 0, no: 0 }
+    })
+
+    filteredSubmissions.forEach((submission) =>
+      submission.options.forEach((submissionStatus, index) =>
+        submissionStatus === 1
+          ? votesPerOptionInternal[index].yes++
+          : submissionStatus === 2
+          ? votesPerOptionInternal[index].maybe++
+          : submissionStatus === 0
+          ? votesPerOptionInternal[index].no++
+          : undefined
+      )
+    )
+
+    Object.values(values).forEach((value: number, index: number) =>
+      value === 1
+        ? votesPerOptionInternal[index].yes++
+        : value === 2
+        ? votesPerOptionInternal[index].maybe++
+        : value === 0
+        ? votesPerOptionInternal[index].no++
+        : undefined
+    )
+    const metric = votesPerOptionInternal.map(
+      (input) => input.yes + 0.99 * input.maybe
+    )
+    const metricMax = Math.max(...metric)
+    setIsBestChoice(metric.map((input) => input === metricMax))
+    setVotesPerOption(votesPerOptionInternal)
+  }, [values])
 
   const handleAdd = ({
     name,
@@ -101,10 +148,10 @@ const FoodleDetailTable: FC<Props> = ({
   }: {
     name: string
     email?: string
-    [key: number]: boolean
+    [key: number]: number
   }) => {
-    const newOptions: number[] = range.map((index: number) =>
-      checkboxValues[index] ? 1 : 0
+    const newOptions: number[] = range.map(
+      (index: number) => checkboxValues[index]
     )
 
     const newSubmission: Submission = {
@@ -171,16 +218,12 @@ const FoodleDetailTable: FC<Props> = ({
                   align="center"
                   key={'option-header-' + index}
                   style={{
-                    outline:
+                    boxShadow:
                       activeDate && date.isSame(activeDate, 'day')
-                        ? `5px solid ${theme.palette.primary.main}`
-                        : 'None',
+                        ? '10px 10px 34px -20px rgba(0,0,0,0.75)'
+                        : undefined,
                   }}
-                  className={
-                    sums[index] > 0 && sums[index] === sumsMax
-                      ? classes.optimalChoice
-                      : ''
-                  }
+                  className={isBestChoice[index] ? classes.optimalChoice : ''}
                 >
                   {date.format('DD.MM.YYYY')}
                   <br />
@@ -210,7 +253,7 @@ const FoodleDetailTable: FC<Props> = ({
                   align="center"
                   key={'submission-' + sIndex + '-' + index}
                   className={
-                    sums[index] > 0 && sums[index] === sumsMax
+                    isBestChoice[index]
                       ? sIndex === filteredSubmissions.length - 1
                         ? classes.optimalChoiceSubtleLast
                         : classes.optimalChoiceSubtle
@@ -221,6 +264,14 @@ const FoodleDetailTable: FC<Props> = ({
                     name={submission.name + index}
                     icon={<ClearIcon />}
                     checkedIcon={<CheckIcon />}
+                    title={
+                      option === 1
+                        ? 'attending'
+                        : option === 2
+                        ? 'attending if necessary'
+                        : 'not attending'
+                    }
+                    indeterminate={option === 2}
                     checked={option === 1}
                     disabled
                     aria-disabled
@@ -287,9 +338,7 @@ const FoodleDetailTable: FC<Props> = ({
                   align="center"
                   key={'check-' + index}
                   className={
-                    sumsMax !== 0 && sums[index] === sumsMax
-                      ? classes.optimalChoiceSubtle
-                      : ''
+                    isBestChoice[index] ? classes.optimalChoiceSubtle : ''
                   }
                 >
                   <Controller
@@ -303,10 +352,19 @@ const FoodleDetailTable: FC<Props> = ({
                             style={{ color: theme.palette.success.main }}
                           />
                         }
-                        title={value ? 'attending' : 'not attending'}
+                        title={
+                          value === 1
+                            ? 'attending'
+                            : value === 2
+                            ? 'attending if necessary'
+                            : 'not attending'
+                        }
+                        indeterminate={value === 2}
                         onBlur={onBlur}
-                        onChange={onChange}
-                        checked={!!value}
+                        onChange={() => {
+                          onChange((value + 1) % (thirdOption ? 3 : 2))
+                        }}
+                        checked={value === 1}
                         inputRef={ref}
                       />
                     )}
@@ -335,13 +393,11 @@ const FoodleDetailTable: FC<Props> = ({
               <TableCell
                 align="center"
                 key={'sums-' + index}
-                className={
-                  sumsMax !== 0 && sums[index] === sumsMax
-                    ? classes.optimalChoice
-                    : ''
-                }
+                className={isBestChoice[index] ? classes.optimalChoice : ''}
               >
-                {sums[index]}
+                {votesPerOption[index].yes}
+                {votesPerOption[index].maybe > 0 &&
+                  ` (+${votesPerOption[index].maybe})`}
               </TableCell>
             ))}
             <TableCell align="right"></TableCell>
