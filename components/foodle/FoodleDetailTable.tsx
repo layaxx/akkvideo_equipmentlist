@@ -139,7 +139,7 @@ const FoodleDetailTable: FC<Props> = ({
     const metricMax = Math.max(...metric)
     setIsBestChoice(metric.map((input) => input === metricMax))
     setVotesPerOption(votesPerOptionInternal)
-  }, [values])
+  }, [values, submissions])
 
   const handleAdd = ({
     name,
