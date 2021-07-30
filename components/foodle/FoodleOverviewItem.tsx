@@ -6,6 +6,7 @@ import {
   CardActions,
   CardContent,
   Grid,
+  useTheme,
 } from '@material-ui/core'
 import ShareIcon from '@material-ui/icons/Share'
 import React, { FC } from 'react'
@@ -25,6 +26,7 @@ const FoodleOverviewItem: FC<Poll> = ({
   submissions,
 }: Poll) => {
   const confirm = useConfirm()
+  const theme = useTheme()
 
   const { enqueueSnackbar } = useSnackbar()
 
@@ -111,7 +113,9 @@ const FoodleOverviewItem: FC<Poll> = ({
               <Button
                 size="small"
                 onClick={confirmReactivate}
-                style={{ backgroundColor: 'forestgreen' }}
+                style={{
+                  color: theme.palette.success.main,
+                }}
               >
                 Reactivate
               </Button>
@@ -120,7 +124,7 @@ const FoodleOverviewItem: FC<Poll> = ({
             <Button
               size="small"
               style={{
-                color: 'indianred',
+                color: theme.palette.warning.main,
               }}
               onClick={confirmDelete}
             >

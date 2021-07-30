@@ -15,6 +15,7 @@ type Props = {
   value: string | null | undefined
   onChange: (...event: any[]) => void
   options: IOptionsLookup
+  error?: boolean
   attr: keyof IOptionsLookup
 }
 
@@ -25,6 +26,7 @@ export default function CustomSelect({
   value,
   onChange,
   options,
+  error = false,
   attr,
 }: Props): ReactElement {
   const handleChangeSingle = (_: unknown, newValue: any) => {
@@ -101,7 +103,11 @@ export default function CustomSelect({
       renderOption={(option) => option.title}
       freeSolo
       renderInput={(params) => (
-        <TextField {...params} label={required ? attr + ' *' : attr} />
+        <TextField
+          error={error}
+          {...params}
+          label={required ? attr + ' *' : attr}
+        />
       )}
     />
   )

@@ -15,6 +15,7 @@ import {
   Typography,
   Paper,
   Container,
+  useTheme,
 } from '@material-ui/core'
 import InputAdornment from '@material-ui/core/InputAdornment/InputAdornment'
 import { useSnackbar } from 'notistack'
@@ -27,6 +28,7 @@ import { DialogMode } from 'pages/technik/index'
 import CustomSelect from './CustomSelect'
 import { db } from 'lib/app'
 import { mutate } from 'swr'
+import { useConfirm } from 'material-ui-confirm'
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -62,10 +64,15 @@ const DeviceDetailsDialog: FC<IDetailsDialogProps> = (
   const isCreateNew = mode === DialogMode.Create
   const displayAddButton = isCreateNew
 
+  const confirm = useConfirm()
+  const theme = useTheme()
+
   const { handleSubmit, control, reset, watch, formState } = useForm({
     defaultValues: activeDevice || undefined,
     mode: 'onChange',
   })
+
+  const { isDirty, isSubmitting } = formState
 
   const buttonAdd = (
     <Button
@@ -74,9 +81,7 @@ const DeviceDetailsDialog: FC<IDetailsDialogProps> = (
         console.error
       )}
       color="primary"
-      disabled={
-        !formState.isDirty || !formState.isValid || formState.isSubmitting
-      }
+      disabled={isSubmitting}
     >
       Add Device
     </Button>
@@ -89,9 +94,7 @@ const DeviceDetailsDialog: FC<IDetailsDialogProps> = (
         console.error
       )}
       color="primary"
-      disabled={
-        !formState.isDirty || !formState.isValid || formState.isSubmitting
-      }
+      disabled={!isDirty || isSubmitting}
     >
       Submit Change
     </Button>
@@ -230,12 +233,16 @@ const DeviceDetailsDialog: FC<IDetailsDialogProps> = (
                   rules={{ required: true }}
                   control={control}
                   name="description"
-                  render={({ field: { onChange, value } }) => (
+                  render={({
+                    field: { onChange, value },
+                    fieldState: { error },
+                  }) => (
                     <TextField
                       id="description"
                       label="Name"
                       required
                       value={value}
+                      error={!!error}
                       onChange={onChange}
                       InputProps={{
                         disabled: isReadOnly,
@@ -302,7 +309,10 @@ const DeviceDetailsDialog: FC<IDetailsDialogProps> = (
                   rules={{ required: true }}
                   control={control}
                   name="amount"
-                  render={({ field: { onChange, value } }) => (
+                  render={({
+                    field: { onChange, value },
+                    fieldState: { error },
+                  }) => (
                     <TextField
                       id="amount"
                       label="amount"
@@ -310,6 +320,7 @@ const DeviceDetailsDialog: FC<IDetailsDialogProps> = (
                       type="number"
                       value={value}
                       onChange={onChange}
+                      error={!!error}
                       InputProps={{
                         disabled: isReadOnly,
                         'aria-valuemin': 1,
@@ -397,12 +408,16 @@ const DeviceDetailsDialog: FC<IDetailsDialogProps> = (
                   rules={{ required: true }}
                   control={control}
                   name="status"
-                  render={({ field: { onChange, value } }) => (
+                  render={({
+                    field: { onChange, value },
+                    fieldState: { error },
+                  }) => (
                     <CustomSelect
                       required
                       readOnly={isReadOnly}
                       value={value}
                       onChange={onChange}
+                      error={!!error}
                       options={{ ...options, status: Object.values(Status) }}
                       attr="status"
                     />
@@ -417,12 +432,16 @@ const DeviceDetailsDialog: FC<IDetailsDialogProps> = (
                   rules={{ required: true }}
                   control={control}
                   name="location"
-                  render={({ field: { onChange, value } }) => (
+                  render={({
+                    field: { onChange, value },
+                    fieldState: { error },
+                  }) => (
                     <CustomSelect
                       required
                       readOnly={isReadOnly}
                       value={value}
                       onChange={onChange}
+                      error={!!error}
                       options={options}
                       attr="location"
                     />
@@ -517,8 +536,24 @@ const DeviceDetailsDialog: FC<IDetailsDialogProps> = (
 
         <Button
           onClick={() => {
-            reset(activeDevice || undefined)
-            handleClose()
+            if (isDirty) {
+              confirm({
+                title: 'You have unsaved changes.',
+                description:
+                  'Do you want to discard your changes and close this modal? (ENTER)',
+                confirmationText: 'Discard & Close',
+                confirmationButtonProps: {
+                  autoFocus: true,
+                  style: { color: theme.palette.warning.main },
+                },
+                cancellationText: 'Go back to editing',
+              })
+                .then(() => {
+                  reset(activeDevice || undefined)
+                  handleClose()
+                })
+                .catch()
+            }
           }}
           color="secondary"
         >

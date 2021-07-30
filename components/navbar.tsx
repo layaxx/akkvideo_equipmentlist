@@ -23,7 +23,7 @@ const styles = {
   wrapper: {
     backgroundColor: gray,
     margin: 'auto',
-    maxWidth: '50rem',
+    maxWidth: '60rem',
   },
   container: {
     display: 'flex',

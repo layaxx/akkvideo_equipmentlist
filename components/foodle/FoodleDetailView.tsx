@@ -14,6 +14,7 @@ import { useAuth } from 'components/auth'
 import roles from 'lib/auth/roles'
 import { Alert, AlertTitle } from '@material-ui/lab'
 import FoodleDetailTable from './FoodleDetailTable'
+import theme from 'lib/theme'
 
 type Props = {
   poll: Poll
@@ -180,7 +181,9 @@ const FoodleDetailView: NextPage<Props> = ({
                 <Button
                   size="small"
                   onClick={confirmReactivate}
-                  style={{ backgroundColor: 'forestgreen' }}
+                  style={{
+                    color: theme.palette.success.main,
+                  }}
                 >
                   Reactivate
                 </Button>
@@ -188,7 +191,7 @@ const FoodleDetailView: NextPage<Props> = ({
               <Button
                 size="small"
                 style={{
-                  color: 'indianred',
+                  color: theme.palette.warning.main,
                 }}
                 onClick={confirmDelete}
               >
