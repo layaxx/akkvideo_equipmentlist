@@ -1,12 +1,11 @@
 # Arbeitskreis Video internal webapp
 
-Based on github.com/vriad/next-firebase-ssr
+This is a online platform for members of [AK Video](https://arbeitskreis.video). It is currently under active development.
+
+# Already implemented functionality 
+1. Accounts (including roles and access management)
+2. Devices (add/track/lend devices; generate report)
+3. Foodle (scheduling tool)
 
 ## TODO:
-
-- add functionality for Lending devices
-- find a solution for logging
-- add TSLint checks
-- refactor inline CSS
-- add e-mail notifications for Admins
-- there seems to be an issue with the redirect after registering an account
+- add e-mail notifications for Foodle
