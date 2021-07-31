@@ -1,18 +1,13 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-# Check Prettier standards
-yarn check-format ||
-(
-    yarn format
-    true;
-)
+npx pretty-quick --staged
 
 # Check ESLint Standards
 yarn check-lint ||
 (
-        echo 'ESLint Check-Lint failed. Make the required changes listed above, add changes and try to commit again.'
-        false; 
+    echo 'ESLint Check-Lint failed. Make the required changes listed above, add changes and try to commit again.'
+    false; 
 )
 
 # Check tsconfig standards
