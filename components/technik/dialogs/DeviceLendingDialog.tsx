@@ -54,12 +54,17 @@ const DeviceLendingDialog: FC<Props> = ({
 
   return (
     <Dialog
-      disableBackdropClick={devices.length > 0}
       disableEscapeKeyDown={devices.length > 0}
       fullWidth={true}
       maxWidth={'md'}
       open={show}
-      onClose={handleClose}
+      onClose={(_, reason) => {
+        if (reason === 'backdropClick' && devices.length > 0) {
+          return
+        } else {
+          handleClose()
+        }
+      }}
       aria-labelledby="dialog-title"
     >
       <DialogTitle id="dialog-title">Request Lending Devices</DialogTitle>

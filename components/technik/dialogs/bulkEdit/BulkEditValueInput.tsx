@@ -56,6 +56,7 @@ export default function BulkEditValueInput(
         // Regular option
         return option.title
       }}
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       onChange={(_, newValue: any) => {
         if (typeof newValue === 'string') {
           field.onChange(newValue)

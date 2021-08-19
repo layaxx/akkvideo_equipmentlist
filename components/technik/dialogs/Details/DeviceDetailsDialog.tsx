@@ -161,12 +161,17 @@ const DeviceDetailsDialog: FC<IDetailsDialogProps> = (
 
   return (
     <Dialog
-      disableBackdropClick={isCreateNew}
       disableEscapeKeyDown={isCreateNew}
       fullWidth={true}
       maxWidth={'md'}
       open={show}
-      onClose={handleClose}
+      onClose={(_, reason) => {
+        if (reason === 'backdropClick' && (isCreateNew || isDirty)) {
+          return
+        } else {
+          handleClose()
+        }
+      }}
       aria-labelledby="details-dialog-title"
     >
       <DialogTitle id="details-dialog-title">

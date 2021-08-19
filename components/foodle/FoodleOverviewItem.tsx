@@ -78,7 +78,7 @@ const FoodleOverviewItem: FC<Poll> = ({
         </NextLink>
       </CardActionArea>
       <CardActions>
-        <Grid container justify="space-between" direction="row">
+        <Grid container justifyContent="space-between" direction="row">
           <Grid item>
             <NextLink href={'/foodle/' + id}>
               <Button

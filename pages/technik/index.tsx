@@ -139,9 +139,7 @@ const TechnikOverview: NextPage = () => {
                 <DataGrid
                   loading={!error && !devices}
                   checkboxSelection
-                  onSelectionModelChange={({ selectionModel }) => {
-                    setSelectionModel(selectionModel)
-                  }}
+                  onSelectionModelChange={setSelectionModel}
                   selectionModel={selectionModel}
                   components={{
                     Toolbar: showMenu ? CustomToolbar : undefined,
@@ -153,7 +151,7 @@ const TechnikOverview: NextPage = () => {
               </div>
               <Grid
                 container
-                justify="space-evenly"
+                justifyContent="space-evenly"
                 alignItems="center"
                 style={{ whiteSpace: 'break-spaces', marginTop: '1rem' }}
               >
@@ -179,7 +177,7 @@ const TechnikOverview: NextPage = () => {
               {isAdmin && (
                 <Grid
                   container
-                  justify="space-evenly"
+                  justifyContent="space-evenly"
                   alignItems="center"
                   style={{ whiteSpace: 'break-spaces' }}
                 >

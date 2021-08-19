@@ -70,12 +70,17 @@ const DeviceBulkEditDialog: FC<IBulkEditDialogProps> = (
 
   return (
     <Dialog
-      disableBackdropClick={devices.length > 0}
       disableEscapeKeyDown={devices.length > 0}
       fullWidth={true}
       maxWidth={'md'}
       open={show}
-      onClose={handleClose}
+      onClose={(_, reason) => {
+        if (reason === 'backdropClick' && devices.length > 0) {
+          return
+        } else {
+          handleClose()
+        }
+      }}
       aria-labelledby="bulk-edit-dialog-title"
     >
       <DialogTitle id="bulk-edit-dialog-title">Bulk Edit Devices</DialogTitle>
