@@ -29,11 +29,7 @@ const useStyles = makeStyles((theme) => {
 
 type Props = PageDescription
 
-const LandingPageOverviewItem: FC<Props> = ({
-  link,
-  title,
-  description,
-}: Props) => {
+const OverviewItem: FC<Props> = ({ link, title, description }: Props) => {
   const classes = useStyles()
 
   return (
@@ -70,4 +66,4 @@ const LandingPageOverviewItem: FC<Props> = ({
   )
 }
 
-export default LandingPageOverviewItem
+export default OverviewItem

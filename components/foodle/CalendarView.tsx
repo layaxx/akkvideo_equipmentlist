@@ -52,8 +52,7 @@ function generateMonth(start: Dayjs, dates: Dayjs[]) {
     weeks.push(week)
   }
 
-  const month: Month = { weeks, name }
-  return month
+  return { weeks, name }
 }
 
 const DEFAULT_THEME: CalendarTheme = {
@@ -84,29 +83,26 @@ const CalendarView: React.FC<CalendarProps> = ({
   }
 
   function getDimensions() {
-    const width = (blockSize + blockMargin) * 7
-    const height = (blockSize + blockMargin) * (5 + 1)
+    const newWidth = (blockSize + blockMargin) * 7
+    const newHeight = (blockSize + blockMargin) * (5 + 1)
 
-    return { width, height }
+    return { width: newWidth, height: newHeight }
   }
 
   function renderMonth({ weeks }: Month) {
-    const theme = getTheme()
+    const themeToBeUsed = getTheme()
 
     function colorLookup({ isActive, isInMonth }: CBlock) {
-      if (isActive) {
-        if (isInMonth) {
-          return theme.active.main
-        } else {
-          return theme.active.secondary
-        }
-      } else {
-        if (isInMonth) {
-          return theme.inactive.main
-        } else {
-          return theme.inactive.secondary
-        }
+      if (isActive && isInMonth) {
+        return themeToBeUsed.active.main
       }
+      if (isActive && !isInMonth) {
+        return themeToBeUsed.active.secondary
+      }
+      if (!isActive && isInMonth) {
+        return themeToBeUsed.inactive.main
+      }
+      return themeToBeUsed.inactive.secondary
     }
 
     return (
@@ -119,7 +115,7 @@ const CalendarView: React.FC<CalendarProps> = ({
               width={blockSize}
               height={blockSize}
               key={day.date.format(DATE_FORMAT)}
-              fill={theme.text}
+              fill={themeToBeUsed.text}
               dominantBaseline="middle"
               textAnchor="middle"
               style={{ font: `${blockSize * 0.75}px sans-serif` }}
@@ -131,37 +127,39 @@ const CalendarView: React.FC<CalendarProps> = ({
 
         {weeks
           .map((week) =>
-            week.map((day, index) =>
-              day.date.isSame(dayjs(), 'day') ? (
-                <circle
-                  key="today"
-                  cy="0"
-                  cx={(blockSize + blockMargin) * index}
-                  r={blockSize / 2}
-                  fill={colorLookup(day)}
-                  transform={`translate(${blockSize / 2} ${blockSize / 2})`}
-                />
-              ) : (
-                <rect
-                  y="0"
-                  x={(blockSize + blockMargin) * index}
-                  width={blockSize}
-                  height={blockSize}
-                  fill={colorLookup(day)}
-                  onMouseOver={
-                    day.isActive && setActiveDate
-                      ? () => setActiveDate(day.date)
-                      : undefined
+            week.map((day, index) => {
+              if (day.date.isSame(dayjs(), 'day')) {
+                return (
+                  <circle
+                    key="today"
+                    cy="0"
+                    cx={(blockSize + blockMargin) * index}
+                    r={blockSize / 2}
+                    fill={colorLookup(day)}
+                    transform={`translate(${blockSize / 2} ${blockSize / 2})`}
+                  />
+                )
+              } else {
+                let mouseHandlers = {}
+                if (day.isActive && setActiveDate) {
+                  mouseHandlers = {
+                    onMouseOver: () => setActiveDate(day.date),
+                    onMouseOut: () => setActiveDate(undefined),
                   }
-                  onMouseOut={
-                    day.isActive && setActiveDate
-                      ? () => setActiveDate(undefined)
-                      : undefined
-                  }
-                  key={day.date.format(DATE_FORMAT)}
-                />
-              )
-            )
+                }
+                return (
+                  <rect
+                    y="0"
+                    x={(blockSize + blockMargin) * index}
+                    width={blockSize}
+                    height={blockSize}
+                    fill={colorLookup(day)}
+                    key={day.date.format(DATE_FORMAT)}
+                    {...mouseHandlers}
+                  />
+                )
+              }
+            })
           )
           .map((week, x) => (
             <g

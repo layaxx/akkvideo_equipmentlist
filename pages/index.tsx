@@ -3,7 +3,7 @@ import { Grid, makeStyles, Typography } from '@material-ui/core'
 import { Alert } from '@material-ui/lab'
 import { useRouter } from 'next/dist/client/router'
 import { NextPage } from 'next'
-import LandingPageOverviewItem from 'components/landingpage/OverviewItem'
+import OverviewItem from 'components/landingpage/OverviewItem'
 import roles from 'lib/auth/roles'
 import { useAuth } from 'components/auth'
 import Link from 'next/link'
@@ -114,7 +114,7 @@ const MainPage: NextPage = () => {
           })
           .map((item, index) => (
             <Grid item xs={12} sm={6} key={'' + index}>
-              <LandingPageOverviewItem {...item} />
+              <OverviewItem {...item} />
             </Grid>
           ))}
       </Grid>

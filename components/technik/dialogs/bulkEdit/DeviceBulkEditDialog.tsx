@@ -133,7 +133,7 @@ const DeviceBulkEditDialog: FC<IBulkEditDialogProps> = (
           onClick={handleSubmit(handleSendRequest)}
           color="primary"
           disabled={
-            !(devices.length > 0) || !isValid || !isDirty || isSubmitting
+            devices.length === 0 || !isValid || !isDirty || isSubmitting
           }
         >
           Send Request

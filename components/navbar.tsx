@@ -80,18 +80,6 @@ const NavBar: FC = () => {
                 <Link href="/foodle/">Foodle</Link>
               </NavLink>
             </NavItem>
-            {/* 
-          // TODO: will be implemented later on
-          <UncontrolledDropdown nav inNavbar>
-            <DropdownToggle nav caret>
-              Assets
-            </DropdownToggle>
-            <DropdownMenu right>
-              <DropdownItem>Option 1</DropdownItem>
-              <DropdownItem divider />
-              <DropdownItem>Option 2</DropdownItem>
-            </DropdownMenu>
-          </UncontrolledDropdown> */}
             {user?.role === roles.Admin && (
               <NavItem>
                 <NavLink tag="div">
