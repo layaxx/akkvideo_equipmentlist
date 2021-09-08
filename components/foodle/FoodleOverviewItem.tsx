@@ -17,7 +17,7 @@ import { db } from 'lib/app'
 import { mutate } from 'swr'
 import { useSnackbar } from 'notistack'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
-import { domains } from 'lib/types/config'
+import { domains } from 'lib/config'
 
 const FoodleOverviewItem: FC<Poll> = ({
   active,

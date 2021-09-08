@@ -70,6 +70,13 @@ const MainPage: NextPage = () => {
         'Overview over your account details.<br />Delete your account, verify your e-Mail address.',
       requirements: [],
     },
+    {
+      link: '/shortlink',
+      title: 'Shortlink Service',
+      description:
+        'Add new Shortlinks.<br />Something like i.akvid.eu/s/uniqueid.',
+      requirements: [],
+    },
   ]
 
   return (
@@ -95,7 +102,7 @@ const MainPage: NextPage = () => {
       <Grid
         container
         spacing={3}
-        justify="space-evenly"
+        justifyContent="space-evenly"
         className={classes.root}
       >
         {items
