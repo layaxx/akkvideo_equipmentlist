@@ -142,20 +142,20 @@ const DeviceDetailsDialog: FC<IDetailsDialogProps> = (
         .add({
           ...data,
           amount: Math.max(data.amount, 1),
+          buyDate: data.buyDate || '',
           lastEdit: new Date().toISOString(),
         })
-        .then(successCallback)
-        .catch(failureCallback)
+        .then(successCallback, failureCallback)
     } else if (action === actionEnum.edit) {
       db.collection('devices')
         .doc(data.id)
         .update({
           ...data,
+          buyDate: data.buyDate || '',
           amount: Math.max(data.amount, 1),
           lastEdit: new Date().toISOString(),
         })
-        .then(successCallback)
-        .catch(failureCallback)
+        .then(successCallback, failureCallback)
     }
   }
 

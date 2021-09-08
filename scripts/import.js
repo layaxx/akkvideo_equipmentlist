@@ -2,6 +2,8 @@ const firebaseAdmin = require('firebase-admin')
 const fs = require('fs')
 const csv = require('fast-csv')
 
+const status = { NotOnLoan: 'nicht verliehen', OnLoan: 'verliehen' }
+
 const readline = require('readline').createInterface({
   input: process.stdin,
   output: process.stdout,
@@ -56,6 +58,10 @@ function import_devices(deleteEverything) {
       devices.push(row)
     })
     .on('end', () => {
+      const nonUniqIndices = devices
+        .map((obj) => obj.associated)
+        .filter((e, index, arr) => arr.indexOf(e) !== index)
+
       var devicesNew = devices.map((obj) => {
         const {
           associated,
@@ -72,17 +78,19 @@ function import_devices(deleteEverything) {
           comments,
         } = obj
         return {
-          associated,
-          amount,
-          description,
-          location,
-          location_prec,
-          container,
+          associated:
+            nonUniqIndices.indexOf(associated) === -1 ? '' : associated,
+          amount: amount || '',
+          description: description || '',
+          location: location || '',
+          location_prec: location_prec || '',
+          container: container || '',
           category: category + tags.split(',').join('+++'),
-          brand,
-          price,
-          store,
-          comments,
+          brand: brand || '',
+          price: price || '',
+          store: store || '',
+          comments: comments || '',
+          status: status.NotOnLoan,
           lastEdit: new Date().toISOString(),
         }
       })

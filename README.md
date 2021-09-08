@@ -11,3 +11,7 @@ This is a online platform for members of [AK Video](https://arbeitskreis.video).
 ## TODO:
 
 - add e-mail notifications for Foodle
+
+Import Script example usage:
+
+`node .\scripts\import.js serviceAccountKey.prod.json`
