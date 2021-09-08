@@ -75,9 +75,14 @@ export default function createPDF(
             tr.cell(device.price ? device.price + ' €' : '', {
               textAlign: 'right',
             })
-            tr.cell(device.buyDate.substring(device.buyDate.length - 4), {
-              textAlign: 'right',
-            })
+            tr.cell(
+              device.buyDate
+                ? device.buyDate.substring(device.buyDate.length - 4)
+                : 'n/A',
+              {
+                textAlign: 'right',
+              }
+            )
           }
 
           if (data.rows) {

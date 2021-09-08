@@ -1,22 +1,21 @@
 const firebaseAdmin = require('firebase-admin')
 const fs = require('fs')
 const csv = require('fast-csv')
-const serviceAccount = require('../serviceAccountKey.json')
-
-if (!firebaseAdmin.apps.length) {
-  firebaseAdmin.initializeApp({
-    credential: firebaseAdmin.credential.cert(serviceAccount),
-  })
-}
 
 const readline = require('readline').createInterface({
   input: process.stdin,
   output: process.stdout,
 })
 
-/* TODO: 
-    - after deleting all entries, you manually have to add the collection "devices" again, 
-        or no devices will be imported */
+if (process.argv.length < 3) {
+  console.error('Please specify a path to the serviceAccount.json file')
+}
+
+const serviceAccount = require('../' + process.argv[2])
+
+firebaseAdmin.initializeApp({
+  credential: firebaseAdmin.credential.cert(serviceAccount.admin),
+})
 
 readline.question(
   'Do you want to delete every device currently saved?',
@@ -46,10 +45,10 @@ function import_devices(deleteEverything) {
     deleteCollection(firebaseAdmin.firestore(), 'devices', 20)
   }
   const devices = []
-  const path = './scripts/Inventar_akvideo.csv'
+  const path = './inventar.csv'
 
-  fs.createReadStream(path)
-    .pipe(csv.parse({ headers: true, delimiter: ';' }))
+  fs.createReadStream(path, 'utf-8')
+    .pipe(csv.parse({ headers: true, delimiter: ',' }))
     .on('error', (error) => {
       throw error.message
     })
@@ -58,26 +57,42 @@ function import_devices(deleteEverything) {
     })
     .on('end', () => {
       var devicesNew = devices.map((obj) => {
+        const {
+          associated,
+          amount,
+          description,
+          location,
+          location_prec,
+          container,
+          category,
+          brand,
+          price,
+          store,
+          tags,
+          comments,
+        } = obj
         return {
-          ...obj,
-          category: obj.tags
-            ? `${obj.category.split(',').join('+++')}+++${obj.tags
-                .split(',')
-                .join('+++')}`
-            : obj.category.split(',').join('+++'),
-          buyDate: '',
+          associated,
+          amount,
+          description,
+          location,
+          location_prec,
+          container,
+          category: category + tags.split(',').join('+++'),
+          brand,
+          price,
+          store,
+          comments,
           lastEdit: new Date().toISOString(),
-          status: status.NotOnLoan,
         }
       })
 
-      devicesNew.forEach((obj) => {
-        delete obj.tags
-        delete obj.Index
-      })
-
       devicesNew.forEach((device) =>
-        firebaseAdmin.firestore().collection('devices').add(device)
+        firebaseAdmin
+          .firestore()
+          .collection('devices')
+          .add(device)
+          .catch(console.error)
       )
     })
 }
