@@ -36,11 +36,19 @@ const useStyles = makeStyles((theme: Theme) =>
       marginLeft: '2rem',
     },
     root: {
-      '& .MuiTextField-root': {
-        margin: theme.spacing(1),
-        width: '25ch',
+      '& .MuiGrid-item': {
+        flexGrow: 1,
       },
 
+      '& .MuiTextField-root': {
+        margin: theme.spacing(2),
+        minWidth: '25ch',
+        width: '80%',
+        flexGrow: 1,
+      },
+      '& .MuiFormControl-fullWidth': {
+        width: '100% ',
+      },
       '& .Mui-disabled': {
         color: 'black',
       },
@@ -272,43 +280,28 @@ const DeviceDetailsDialog: FC<IDetailsDialogProps> = (
                   )}
                 />
               </Grid>
+            </Grid>
 
-              <Grid item>
-                <Controller
-                  rules={{ required: false }}
-                  control={control}
-                  name="category"
-                  render={({ field: { onChange, value } }) => (
-                    <CustomSelect
-                      multiSelect
-                      readOnly={isReadOnly}
-                      value={value}
-                      onChange={onChange}
-                      options={options}
-                      attr="category"
-                    />
-                  )}
+            <Controller
+              rules={{ required: false }}
+              control={control}
+              name="comments"
+              render={({ field: { onChange, value } }) => (
+                <TextField
+                  multiline
+                  fullWidth
+                  id="comments"
+                  label="comments"
+                  value={value}
+                  onChange={onChange}
+                  InputProps={{
+                    disabled: isReadOnly,
+                  }}
                 />
-              </Grid>
-              <Grid item>
-                <Controller
-                  rules={{ required: false }}
-                  control={control}
-                  name="comments"
-                  render={({ field: { onChange, value } }) => (
-                    <TextField
-                      multiline
-                      id="comments"
-                      label="comments"
-                      value={value}
-                      onChange={onChange}
-                      InputProps={{
-                        disabled: isReadOnly,
-                      }}
-                    />
-                  )}
-                />
-              </Grid>
+              )}
+            />
+
+            <Grid container spacing={1}>
               <Grid item>
                 <Controller
                   rules={{ required: true }}
@@ -331,6 +324,23 @@ const DeviceDetailsDialog: FC<IDetailsDialogProps> = (
                         'aria-valuemin': 1,
                         'aria-valuemax': 9999,
                       }}
+                    />
+                  )}
+                />
+              </Grid>
+              <Grid item>
+                <Controller
+                  rules={{ required: false }}
+                  control={control}
+                  name="category"
+                  render={({ field: { onChange, value } }) => (
+                    <CustomSelect
+                      multiSelect
+                      readOnly={isReadOnly}
+                      value={value}
+                      onChange={onChange}
+                      options={options}
+                      attr="category"
                     />
                   )}
                 />
@@ -558,6 +568,8 @@ const DeviceDetailsDialog: FC<IDetailsDialogProps> = (
                   handleClose()
                 })
                 .catch()
+            } else {
+              handleClose()
             }
           }}
           color="secondary"

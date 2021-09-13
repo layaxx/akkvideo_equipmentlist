@@ -1,6 +1,9 @@
 const firebaseAdmin = require('firebase-admin')
 const fs = require('fs')
 const csv = require('fast-csv')
+const dayjs = require('dayjs')
+var customParseFormat = require('dayjs/plugin/customParseFormat')
+dayjs.extend(customParseFormat)
 
 const status = { NotOnLoan: 'nicht verliehen', OnLoan: 'verliehen' }
 
@@ -70,38 +73,54 @@ function import_devices(deleteEverything) {
           location,
           location_prec,
           container,
-          category,
           brand,
           price,
           store,
           tags,
           comments,
+          ID,
+          buyDate,
         } = obj
         return {
-          associated:
-            nonUniqIndices.indexOf(associated) === -1 ? '' : associated,
-          amount: amount || '',
-          description: description || '',
-          location: location || '',
-          location_prec: location_prec || '',
-          container: container || '',
-          category: category + tags.split(',').join('+++'),
-          brand: brand || '',
-          price: price || '',
-          store: store || '',
-          comments: comments || '',
-          status: status.NotOnLoan,
-          lastEdit: new Date().toISOString(),
+          ID,
+          device: {
+            associated:
+              nonUniqIndices.indexOf(associated) === -1 ? '' : associated,
+            amount: amount || '',
+            description: description || '',
+            location: location || '',
+            location_prec: location_prec || '',
+            container: container || '',
+            category: tags.split(',').join('+++'),
+            brand: brand || '',
+            price: price || '',
+            store: store || '',
+            comments: comments || '',
+            status: status.NotOnLoan,
+            buyDate: buyDate
+              ? dayjs(buyDate, 'DD.MM.YYYY').format('YYYY-MM-DD')
+              : '',
+            lastEdit: new Date().toISOString(),
+          },
         }
       })
 
-      devicesNew.forEach((device) =>
-        firebaseAdmin
-          .firestore()
-          .collection('devices')
-          .add(device)
-          .catch(console.error)
-      )
+      devicesNew.forEach((obj) => {
+        if (!obj.ID) {
+          firebaseAdmin
+            .firestore()
+            .collection('devices')
+            .add(obj.device)
+            .catch(console.error)
+        } else {
+          firebaseAdmin
+            .firestore()
+            .collection('devices')
+            .doc(obj.ID)
+            .set(obj.device)
+            .catch(console.error)
+        }
+      })
     })
 }
 
