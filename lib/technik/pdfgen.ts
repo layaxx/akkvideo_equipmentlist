@@ -1,5 +1,5 @@
 import Device from '../types/Device'
-
+import dayjs from 'dayjs'
 import * as pdf from 'pdfjs'
 import * as helvetica from 'pdfjs/font/Helvetica'
 import * as helveticaBold from 'pdfjs/font/Helvetica-Bold'
@@ -72,13 +72,16 @@ export default function createPDF(
                 textAlign: 'justify',
               })
             tr.cell(device.location, { textAlign: 'right' })
-            tr.cell(device.price ? device.price + ' €' : '', {
-              textAlign: 'right',
-            })
             tr.cell(
-              device.buyDate
-                ? device.buyDate.substring(device.buyDate.length - 4)
-                : 'n/A',
+              device.price
+                ? (Math.round(device.price * 100) / 100).toFixed(2) + ' €'
+                : '',
+              {
+                textAlign: 'right',
+              }
+            )
+            tr.cell(
+              device.buyDate ? dayjs(device.buyDate).format('MM-YYYY') : 'n/A',
               {
                 textAlign: 'right',
               }
